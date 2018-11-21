@@ -1,0 +1,7 @@
+.DS_Store
+*.mp4
+*.exe
+bin/
+media/
+progress-log.txt
+vendor/
