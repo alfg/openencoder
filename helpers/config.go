@@ -4,6 +4,7 @@ import (
 	"errors"
 	"io/ioutil"
 	"log"
+	"os"
 
 	yaml "gopkg.in/yaml.v2"
 )
@@ -89,4 +90,11 @@ func GetS3Profile(profile string) (t *s3Profile, err error) {
 		}
 	}
 	return nil, errors.New("No task")
+}
+
+func GetPort() string {
+	if port, ok := os.LookupEnv("PORT"); ok {
+		return port
+	}
+	return "8080"
 }

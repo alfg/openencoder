@@ -23,13 +23,37 @@ type response struct {
 	Status  int    `json:"status"`
 }
 
+type index struct {
+	Name    string `json:"name"`
+	Version string `json:"version"`
+	Docs    string `json:"docs"`
+	Github  string `json:"github"`
+}
+
 // NewServer creates a new server
 func NewServer(port string) {
+	http.HandleFunc("/", indexHandler)
+	http.HandleFunc("/api", indexHandler)
 	http.HandleFunc("/api/workflow", workflowHandler)
 	http.HandleFunc("/api/encode", encodeHandler)
 
 	log.Info("started server on port: ", port)
 	log.Fatal(http.ListenAndServe(":"+port, nil))
+}
+
+func indexHandler(w http.ResponseWriter, r *http.Request) {
+	resp := index{
+		Name:    "enc",
+		Version: "0.0.1",
+		Docs:    "http://localhost/",
+		Github:  "https://github.com/alfg/enc",
+	}
+
+	// JSON Response.
+	j, _ := json.Marshal(resp)
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusCreated)
+	w.Write(j)
 }
 
 func workflowHandler(w http.ResponseWriter, r *http.Request) {
