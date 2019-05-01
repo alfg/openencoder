@@ -1,12 +1,14 @@
 package server
 
 import (
+	"bytes"
+	"encoding/gob"
 	"encoding/json"
 	"net/http"
 	"time"
 
 	"github.com/alfg/enc/types"
-	"github.com/alfg/enc/worker"
+	nsq "github.com/nsqio/go-nsq"
 	"github.com/rs/xid"
 	log "github.com/sirupsen/logrus"
 )
@@ -104,7 +106,22 @@ func workflowHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	go func() {
 		log.Info("added: %s %s\n", job.Task, job.Delay)
-		worker.Jobs <- job
+
+		// Encode message to bytes.
+		buf := new(bytes.Buffer)
+		enc := gob.NewEncoder(buf)
+		enc.Encode(job)
+
+		// Send to nsq.
+		config := nsq.NewConfig()
+		p, err := nsq.NewProducer("127.0.0.1:4150", config)
+		if err != nil {
+			log.Panic(err)
+		}
+		err = p.Publish("encode", buf.Bytes())
+		if err != nil {
+			log.Panic(err)
+		}
 	}()
 
 	// Create response.
@@ -166,7 +183,7 @@ func encodeHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	go func() {
 		log.Infof("added: %s %s\n", job.Task, job.Delay)
-		worker.Jobs <- job
+		// worker.Jobs <- job
 	}()
 
 	// Create response.
