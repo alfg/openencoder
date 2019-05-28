@@ -24,7 +24,7 @@ func download(job types.Job) error {
 func encode(job types.Job) error {
 	log.Info("running encode task")
 
-	p, err := helpers.GetFFmpegProfile(job.Task)
+	p, err := helpers.GetFFmpegProfile(job.Profile)
 	if err != nil {
 		return err
 	}

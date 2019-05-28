@@ -11,7 +11,7 @@ import (
 )
 
 // NewWorker creates a new worker instance to listen and process jobs in the queue.
-func NewWorker(maxWorkers int, maxQueueSize int) {
+func NewWorker() {
 
 	// Listen to encode queue.
 	decodeConfig := nsq.NewConfig()
@@ -50,10 +50,10 @@ func NewWorker(maxWorkers int, maxQueueSize int) {
 }
 
 func startJob(j types.Job) {
-	log.Infof("worker: started %s, delay at %f seconds\n", j.Task, j.Delay.Seconds())
+	log.Infof("worker: started %s, delay at %f seconds\n", j.Profile, j.Delay.Seconds())
 	time.Sleep(j.Delay)
 
 	// runWorkflow(j)
 	runEncodeJob(j)
-	log.Infof("worker%d: completed %s!\n", j.Task)
+	log.Infof("worker%d: completed %s!\n", j.Profile)
 }

@@ -4,7 +4,7 @@ import "time"
 
 type Job struct {
 	ID               string
-	Task             string
+	Profile          string
 	Source           string
 	Destination      string
 	LocalSource      string

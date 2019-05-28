@@ -28,16 +28,14 @@ func startServer() {
 	server.NewServer(port)
 }
 
-func startWorkers(maxWorkers *int, maxQueueSize *int) {
+func startWorkers() {
 	// Create Workers.
-	worker.NewWorker(*maxWorkers, *maxQueueSize)
+	worker.NewWorker()
 }
 
 func main() {
 	var (
-		maxQueueSize = flag.Int("max_queue_size", 100, "The size of job queue")
-		maxWorkers   = flag.Int("max_workers", 5, "The number of workers to start")
-		config       = flag.String("config", "./default.yml", "Config YAML")
+		config = flag.String("config", "./default.yml", "Config YAML")
 	)
 	flag.Parse()
 
@@ -54,6 +52,6 @@ func main() {
 	helpers.LoadConfig(*config)
 	configRuntime()
 
-	startWorkers(maxWorkers, maxQueueSize)
+	startWorkers()
 	startServer()
 }

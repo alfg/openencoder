@@ -1,9 +1,7 @@
 package worker
 
 import (
-	"fmt"
 	"path"
-	"strings"
 
 	"github.com/alfg/enc/encoder"
 	"github.com/alfg/enc/helpers"
@@ -12,29 +10,29 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-func runWorkflow(job types.Job) {
-	wf, err := helpers.GetWorkflow(job.Task)
-	if err != nil {
-		fmt.Println(err)
-	}
+// func runWorkflow(job types.Job) {
+// 	wf, err := helpers.GetWorkflow(job.Profile)
+// 	if err != nil {
+// 		fmt.Println(err)
+// 	}
 
-	job.LocalSource = helpers.GetLocalSourcePath(job.Source, job.ID)
+// 	job.LocalSource = helpers.GetLocalSourcePath(job.Source, job.ID)
 
-	// Run through tasks.
-	for _, v := range wf.Tasks {
-		tasks := strings.Split(v, ".")
-		name := tasks[0]
-		task := tasks[1]
+// 	// Run through tasks.
+// 	for _, v := range wf.Tasks {
+// 		tasks := strings.Split(v, ".")
+// 		name := tasks[0]
+// 		task := tasks[1]
 
-		switch name {
-		case "ffmpeg":
-			runFfmpegTask(task, job)
+// 		switch name {
+// 		case "ffmpeg":
+// 			runFfmpegTask(task, job)
 
-		case "s3":
-			runS3Task(task, job)
-		}
-	}
-}
+// 		case "s3":
+// 			runS3Task(task, job)
+// 		}
+// 	}
+// }
 
 func runFfmpegTask(task string, job types.Job) {
 	log.Info("running ffmpeg task")
