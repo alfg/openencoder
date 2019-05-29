@@ -5,6 +5,7 @@ import (
 
 	"github.com/alfg/enc/encoder"
 	"github.com/alfg/enc/helpers"
+	"github.com/alfg/enc/config"
 	"github.com/alfg/enc/net"
 	"github.com/alfg/enc/types"
 	log "github.com/sirupsen/logrus"
@@ -24,7 +25,7 @@ func download(job types.Job) error {
 func encode(job types.Job) error {
 	log.Info("running encode task")
 
-	p, err := helpers.GetFFmpegProfile(job.Profile)
+	p, err := config.GetFFmpegProfile(job.Profile)
 	if err != nil {
 		return err
 	}

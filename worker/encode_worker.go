@@ -3,6 +3,7 @@ package worker
 import (
 	"bytes"
 	"encoding/gob"
+	"sync"
 	"time"
 
 	"github.com/alfg/enc/types"
@@ -12,6 +13,8 @@ import (
 
 // NewWorker creates a new worker instance to listen and process jobs in the queue.
 func NewWorker() {
+	wg := &sync.WaitGroup{}
+	wg.Add(1)
 
 	// Listen to encode queue.
 	decodeConfig := nsq.NewConfig()
@@ -47,6 +50,7 @@ func NewWorker() {
 		log.Panic("Could not connect")
 	}
 	log.Println("Awaiting messages from NSQ topic: encode")
+	wg.Wait()
 }
 
 func startJob(j types.Job) {

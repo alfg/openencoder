@@ -3,8 +3,8 @@ package worker
 import (
 	"path"
 
+	"github.com/alfg/enc/config"
 	"github.com/alfg/enc/encoder"
-	"github.com/alfg/enc/helpers"
 	"github.com/alfg/enc/net"
 	"github.com/alfg/enc/types"
 	log "github.com/sirupsen/logrus"
@@ -36,7 +36,7 @@ import (
 
 func runFfmpegTask(task string, job types.Job) {
 	log.Info("running ffmpeg task")
-	p, err := helpers.GetFFmpegProfile(task)
+	p, err := config.GetFFmpegProfile(task)
 	if err != nil {
 		return
 	}
@@ -57,7 +57,7 @@ func runFfmpegTask(task string, job types.Job) {
 func runS3Task(task string, job types.Job) {
 	log.Info("running s3 task")
 
-	p, err := helpers.GetS3Profile(task)
+	p, err := config.GetS3Profile(task)
 	if err != nil {
 		return
 	}

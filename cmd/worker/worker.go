@@ -7,7 +7,7 @@ import (
 	_ "net/http/pprof"
 	"runtime"
 
-	"github.com/alfg/enc/helpers"
+	"github.com/alfg/enc/config"
 	"github.com/alfg/enc/server"
 	"github.com/alfg/enc/worker"
 )
@@ -24,7 +24,7 @@ func startServer() {
 	// fmt.Println(helpers.C)
 
 	// Create HTTP Server.
-	port := helpers.GetPort()
+	port := config.GetPort()
 	server.NewServer(port)
 }
 
@@ -35,23 +35,12 @@ func startWorkers() {
 
 func main() {
 	var (
-		config = flag.String("config", "./default.yml", "Config YAML")
+		configFile = flag.String("configFile", "./config/default.yml", "Config YAML")
 	)
 	flag.Parse()
 
-	// Load config.
-	// viper.SetConfigName("default")
-	// viper.AddConfigPath(".")
-	// err := viper.ReadInConfig()
-	// if err != nil {
-	// 	panic(fmt.Errorf("fatal error config file: %s", err))
-	// }
+	config.LoadConfig(*configFile)
 
-	// fmt.Println(viper.Get("settings.s3_bucket"))
-
-	helpers.LoadConfig(*config)
 	configRuntime()
-
 	startWorkers()
-	startServer()
 }
