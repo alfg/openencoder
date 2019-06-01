@@ -6,7 +6,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/alfg/enc/types"
+	"github.com/alfg/enc/api/types"
 	nsq "github.com/nsqio/go-nsq"
 	log "github.com/sirupsen/logrus"
 )

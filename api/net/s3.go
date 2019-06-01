@@ -6,9 +6,9 @@ import (
 	"path"
 	"path/filepath"
 
-	"github.com/alfg/enc/config"
+	"github.com/alfg/enc/api/config"
 
-	"github.com/alfg/enc/types"
+	"github.com/alfg/enc/api/types"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"

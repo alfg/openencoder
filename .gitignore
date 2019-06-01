@@ -6,3 +6,4 @@ media/
 progress-log.txt
 vendor/
 .vscode/
+examples/

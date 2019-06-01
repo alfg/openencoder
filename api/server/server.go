@@ -5,7 +5,7 @@ import (
 	"encoding/gob"
 	"net/http"
 
-	"github.com/alfg/enc/types"
+	"github.com/alfg/enc/api/types"
 	"github.com/gin-gonic/gin"
 	nsq "github.com/nsqio/go-nsq"
 	"github.com/rs/xid"
@@ -35,9 +35,19 @@ type index struct {
 func NewServer(port string) {
 	r := gin.Default()
 
+	// Default.
 	r.GET("/", indexHandler)
-	r.GET("/api", indexHandler)
-	r.POST("api/encode", encodeHandler)
+
+	// Web dashboard.
+	r.Static("/dashboard", "./static")
+	// r.StaticFile("/", "./static/index.html")
+
+	// API.
+	api := r.Group("/api")
+	{
+		api.GET("/", indexHandler)
+		api.POST("/encode", encodeHandler)
+	}
 
 	log.Info("started server on port: ", port)
 	r.Run()

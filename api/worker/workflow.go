@@ -3,10 +3,10 @@ package worker
 import (
 	"path"
 
-	"github.com/alfg/enc/config"
-	"github.com/alfg/enc/encoder"
-	"github.com/alfg/enc/net"
-	"github.com/alfg/enc/types"
+	"github.com/alfg/enc/api/config"
+	"github.com/alfg/enc/api/encoder"
+	"github.com/alfg/enc/api/net"
+	"github.com/alfg/enc/api/types"
 	log "github.com/sirupsen/logrus"
 )
 
