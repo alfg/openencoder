@@ -3,10 +3,11 @@ package worker
 import (
 	"path"
 
-	"github.com/alfg/enc/encoder"
-	"github.com/alfg/enc/helpers"
-	"github.com/alfg/enc/net"
-	"github.com/alfg/enc/types"
+	"github.com/alfg/enc/api/encoder"
+	"github.com/alfg/enc/api/helpers"
+	"github.com/alfg/enc/api/config"
+	"github.com/alfg/enc/api/net"
+	"github.com/alfg/enc/api/types"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -24,7 +25,7 @@ func download(job types.Job) error {
 func encode(job types.Job) error {
 	log.Info("running encode task")
 
-	p, err := helpers.GetFFmpegProfile(job.Task)
+	p, err := config.GetFFmpegProfile(job.Profile)
 	if err != nil {
 		return err
 	}

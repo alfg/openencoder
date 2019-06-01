@@ -1,44 +1,42 @@
 package worker
 
 import (
-	"fmt"
 	"path"
-	"strings"
 
-	"github.com/alfg/enc/encoder"
-	"github.com/alfg/enc/helpers"
-	"github.com/alfg/enc/net"
-	"github.com/alfg/enc/types"
+	"github.com/alfg/enc/api/config"
+	"github.com/alfg/enc/api/encoder"
+	"github.com/alfg/enc/api/net"
+	"github.com/alfg/enc/api/types"
 	log "github.com/sirupsen/logrus"
 )
 
-func runWorkflow(job types.Job) {
-	wf, err := helpers.GetWorkflow(job.Task)
-	if err != nil {
-		fmt.Println(err)
-	}
+// func runWorkflow(job types.Job) {
+// 	wf, err := helpers.GetWorkflow(job.Profile)
+// 	if err != nil {
+// 		fmt.Println(err)
+// 	}
 
-	job.LocalSource = helpers.GetLocalSourcePath(job.Source, job.ID)
+// 	job.LocalSource = helpers.GetLocalSourcePath(job.Source, job.ID)
 
-	// Run through tasks.
-	for _, v := range wf.Tasks {
-		tasks := strings.Split(v, ".")
-		name := tasks[0]
-		task := tasks[1]
+// 	// Run through tasks.
+// 	for _, v := range wf.Tasks {
+// 		tasks := strings.Split(v, ".")
+// 		name := tasks[0]
+// 		task := tasks[1]
 
-		switch name {
-		case "ffmpeg":
-			runFfmpegTask(task, job)
+// 		switch name {
+// 		case "ffmpeg":
+// 			runFfmpegTask(task, job)
 
-		case "s3":
-			runS3Task(task, job)
-		}
-	}
-}
+// 		case "s3":
+// 			runS3Task(task, job)
+// 		}
+// 	}
+// }
 
 func runFfmpegTask(task string, job types.Job) {
 	log.Info("running ffmpeg task")
-	p, err := helpers.GetFFmpegProfile(task)
+	p, err := config.GetFFmpegProfile(task)
 	if err != nil {
 		return
 	}
@@ -59,7 +57,7 @@ func runFfmpegTask(task string, job types.Job) {
 func runS3Task(task string, job types.Job) {
 	log.Info("running s3 task")
 
-	p, err := helpers.GetS3Profile(task)
+	p, err := config.GetS3Profile(task)
 	if err != nil {
 		return
 	}

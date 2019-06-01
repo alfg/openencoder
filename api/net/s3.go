@@ -6,9 +6,9 @@ import (
 	"path"
 	"path/filepath"
 
-	"github.com/alfg/enc/helpers"
+	"github.com/alfg/enc/api/config"
 
-	"github.com/alfg/enc/types"
+	"github.com/alfg/enc/api/types"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
@@ -34,7 +34,7 @@ func S3Download(job types.Job) error {
 	// Create session.
 	downloader := s3manager.NewDownloader(session.New(
 		&aws.Config{
-			Region: aws.String(helpers.C.Settings.S3Region),
+			Region: aws.String(config.C.Settings.S3Region),
 		},
 	))
 
@@ -43,7 +43,7 @@ func S3Download(job types.Job) error {
 
 	// Get object input details.
 	objInput := s3.GetObjectInput{
-		Bucket: aws.String(helpers.C.Settings.S3Bucket),
+		Bucket: aws.String(config.C.Settings.S3Bucket),
 		Key:    aws.String(key),
 	}
 
@@ -96,11 +96,11 @@ func uploadFile(path string, job types.Job) error {
 	key := parsedURL.Path + filepath.Base(path)
 
 	uploader := s3manager.NewUploader(session.New(&aws.Config{
-		Region: aws.String(helpers.C.Settings.S3Region),
+		Region: aws.String(config.C.Settings.S3Region),
 	}))
 	_, err = uploader.Upload(&s3manager.UploadInput{
 		Body:   file,
-		Bucket: aws.String(helpers.C.Settings.S3Bucket),
+		Bucket: aws.String(config.C.Settings.S3Bucket),
 		Key:    aws.String(key),
 	})
 	if err != nil {
