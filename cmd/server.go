@@ -3,9 +3,10 @@ package cmd
 import (
 	"fmt"
 	"runtime"
-	"github.com/spf13/cobra"
+
 	"github.com/alfg/enc/api/config"
 	"github.com/alfg/enc/api/server"
+	"github.com/spf13/cobra"
 )
 
 func init() {
@@ -13,7 +14,7 @@ func init() {
 }
 
 var serverCmd = &cobra.Command{
-	Use: "server",
+	Use:   "server",
 	Short: "Start the server.",
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("Starting server...")

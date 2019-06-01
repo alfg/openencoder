@@ -1,9 +1,10 @@
 package cmd
 
 import (
-	"github.com/spf13/cobra"
 	"fmt"
+
 	"github.com/alfg/enc/api/worker"
+	"github.com/spf13/cobra"
 )
 
 func init() {
@@ -11,7 +12,7 @@ func init() {
 }
 
 var workerCmd = &cobra.Command{
-	Use: "worker",
+	Use:   "worker",
 	Short: "Start the worker.",
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("Starting worker...")
