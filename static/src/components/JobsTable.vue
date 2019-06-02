@@ -8,12 +8,27 @@
 export default {
   data() {
     return {
-      items: [
-        { id: 1, profile: 'test', created_date: 'now' },
-        { id: 2, profile: 'test', created_date: 'now' },
-        { id: 3, profile: 'test', created_date: 'now' },
-      ],
+      items: [],
     };
+  },
+
+  mounted() {
+    this.getJobs();
+  },
+
+  methods: {
+    getJobs() {
+      const url = '/api/jobs';
+
+      fetch(url)
+        .then(response => (
+          response.json()
+        ))
+        .then((json) => {
+          console.log(json);
+          this.items = json;
+        });
+    },
   },
 };
 </script>

@@ -51,7 +51,7 @@ func upload(job types.Job) error {
 
 func runEncodeJob(job types.Job) {
 	// Set local src path.
-	job.LocalSource = helpers.GetLocalSourcePath(job.Source, job.ID)
+	job.LocalSource = helpers.GetLocalSourcePath(job.Source, job.GUID)
 
 	// 1. Download.
 	download(job)

@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/gob"
 	"sync"
-	"time"
 
 	"github.com/alfg/enc/api/types"
 	nsq "github.com/nsqio/go-nsq"
@@ -54,8 +53,7 @@ func NewWorker() {
 }
 
 func startJob(j types.Job) {
-	log.Infof("worker: started %s, delay at %f seconds\n", j.Profile, j.Delay.Seconds())
-	time.Sleep(j.Delay)
+	log.Infof("worker: started %s\n", j.Profile)
 
 	// runWorkflow(j)
 	runEncodeJob(j)
