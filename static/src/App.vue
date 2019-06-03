@@ -11,7 +11,7 @@
           <b-nav-item to="/jobs">Jobs</b-nav-item>
           <b-nav-item to="/workers">Workers</b-nav-item>
           <b-nav-item to="/machines">Machines</b-nav-item>
-          <b-nav-item to="/about">About</b-nav-item>
+          <b-nav-item to="/status">Status</b-nav-item>
         </b-navbar-nav>
       </b-collapse>
     </b-navbar>

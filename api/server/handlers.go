@@ -1,15 +1,13 @@
 package server
 
 import (
-	"bytes"
-	"encoding/gob"
 	"fmt"
 	"net/http"
 
 	"github.com/alfg/enc/api/data"
 	"github.com/alfg/enc/api/types"
+	"github.com/alfg/enc/api/worker"
 	"github.com/gin-gonic/gin"
-	"github.com/nsqio/go-nsq"
 	"github.com/rs/xid"
 	log "github.com/sirupsen/logrus"
 )
@@ -71,21 +69,23 @@ func encodeHandler(c *gin.Context) {
 	go func() {
 		log.Info("added: ", job.Profile)
 
-		// Encode message to bytes.
-		buf := new(bytes.Buffer)
-		enc := gob.NewEncoder(buf)
-		enc.Encode(job)
+		worker.Jobs <- job
 
-		// Send to nsq.
-		config := nsq.NewConfig()
-		p, err := nsq.NewProducer("127.0.0.1:4150", config)
-		if err != nil {
-			log.Panic(err)
-		}
-		err = p.Publish("encode", buf.Bytes())
-		if err != nil {
-			log.Panic(err)
-		}
+		// // Encode message to bytes.
+		// buf := new(bytes.Buffer)
+		// enc := gob.NewEncoder(buf)
+		// enc.Encode(job)
+
+		// // Send to nsq.
+		// config := nsq.NewConfig()
+		// p, err := nsq.NewProducer("127.0.0.1:4150", config)
+		// if err != nil {
+		// 	log.Panic(err)
+		// }
+		// err = p.Publish("encode", buf.Bytes())
+		// if err != nil {
+		// 	log.Panic(err)
+		// }
 	}()
 
 	// Create response.
@@ -99,4 +99,31 @@ func encodeHandler(c *gin.Context) {
 func jobsHandler(c *gin.Context) {
 	jobs := data.GetJobs()
 	c.JSON(http.StatusOK, jobs)
+}
+
+type workerResponse struct {
+	ID int
+}
+
+func workersHandler(c *gin.Context) {
+	// config := nsq.NewConfig()
+	// p, err := nsq.NewProducer("127.0.0.1:4150", config)
+
+	// q, _ := nsq.NewConsumer("encode", "encode", config)
+	// q.ConnectToNSQLookupd("127.0.0.1:4150")
+	// q.ConnectToNSQD("127.0.0.1:4150")
+	// stats := q.Stats()
+	// fmt.Println(stats)
+	// if err != nil {
+	// 	log.Panic(err)
+	// }
+
+	// opts := nsqlookupd.NewOptions()
+
+	// Make my own queue manager?
+
+	resp := workerResponse{
+		ID: 1,
+	}
+	c.JSON(200, resp)
 }

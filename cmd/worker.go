@@ -22,5 +22,5 @@ var workerCmd = &cobra.Command{
 
 func startWorkers() {
 	// Create Workers.
-	worker.NewWorker()
+	worker.NewWorker(1, 100) // TODO: Use flags.
 }
