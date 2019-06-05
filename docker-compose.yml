@@ -1,34 +1,27 @@
 version: '3'
 services:
-  enc:
-    build: .
-    # volumes:
-    #     - C:\tmp:/opt/tmp
-    working_dir: /opt
-    environment:
-        - AWS_S3_BUCKET=
-        - AWS_S3_REGION=us-west-1
-        - AWS_ACCESS_KEY=
-        - AWS_SECRET_KEY=
+  # enc:
+  #   build: .
+  #   # volumes:
+  #   #     - C:\tmp:/opt/tmp
+  #   working_dir: /opt
+  #   environment:
+  #       - AWS_S3_BUCKET=
+  #       - AWS_S3_REGION=us-west-1
+  #       - AWS_ACCESS_KEY=
+  #       - AWS_SECRET_KEY=
 
-  nsqlookupd:
-    image: nsqio/nsq
-    command: /nsqlookupd
+  redis:
+    image: "redis:alpine"
     ports:
-      - "4160"
-      - "4161"
-  nsqd:
-    image: nsqio/nsq
-    command: /nsqd --lookupd-tcp-address=nsqlookupd:4160
-    depends_on:
-      - nsqlookupd
+      - "6379:6379"
+
+  db:
+    image: postgres
+    restart: always
     ports:
-      - "4150:4150"
-      - "4151"
-  nsqadmin:
-    image: nsqio/nsq
-    command: /nsqadmin --lookupd-http-address=nsqlookupd:4161
-    depends_on:
-      - nsqlookupd  
-    ports:
-      - "4171:4171"
+      - 5432:5432
+    environment:
+      POSTGRES_PASSWORD: 'postgres'
+    volumes:
+      - /var/lib/postgresql/data

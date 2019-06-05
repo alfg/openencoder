@@ -2,9 +2,6 @@ settings:
   master: false
   worker: true
   port: 8080
-  nsq_host: 127.0.0.1:4150
-  nsq_topic: encode
-  nsq_channel: encode_channel
   s3_bucket: mediapkg
   s3_region: us-west-1
 

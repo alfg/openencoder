@@ -16,6 +16,10 @@ var rootCmd = &cobra.Command{
 	},
 }
 
+func init() {
+	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "./config/default.yml", "Config YAML")
+}
+
 // Execute starts cmd.
 func Execute() {
 	if err := rootCmd.Execute(); err != nil {

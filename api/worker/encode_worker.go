@@ -1,63 +1,113 @@
 package worker
 
 import (
+	"fmt"
+	"os"
+	"os/signal"
+
 	"github.com/alfg/enc/api/types"
+	"github.com/gocraft/work"
+	"github.com/gomodule/redigo/redis"
 	log "github.com/sirupsen/logrus"
 )
 
-var Jobs chan types.Job
+// Make a redis pool
+var redisPool = &redis.Pool{
+	MaxActive: 5,
+	MaxIdle:   5,
+	Wait:      true,
+	Dial: func() (redis.Conn, error) {
+		return redis.Dial("tcp", ":6379")
+	},
+}
+
+// Make an enqueuer with a particular namespace
+var enqueuer = work.NewEnqueuer("enc", redisPool)
+
+type Context struct {
+	GUID        string
+	Profile     string
+	Source      string
+	Destination string
+}
+
+func (c *Context) Log(job *work.Job, next work.NextMiddlewareFunc) error {
+	fmt.Println("Starting job: ", job.Name)
+	return next()
+}
+
+func (c *Context) FindJob(job *work.Job, next work.NextMiddlewareFunc) error {
+	if _, ok := job.Args["guid"]; ok {
+		c.GUID = job.ArgString("guid")
+		if err := job.ArgError(); err != nil {
+			return err
+		}
+	}
+	if _, ok := job.Args["profile"]; ok {
+		c.Profile = job.ArgString("profile")
+		if err := job.ArgError(); err != nil {
+			return err
+		}
+	}
+	if _, ok := job.Args["source"]; ok {
+		c.Source = job.ArgString("source")
+		if err := job.ArgError(); err != nil {
+			return err
+		}
+	}
+	if _, ok := job.Args["destination"]; ok {
+		c.Destination = job.ArgString("destination")
+		if err := job.ArgError(); err != nil {
+			return err
+		}
+	}
+	return next()
+}
+
+func (c *Context) SendJob(job *work.Job) error {
+	guid := job.ArgString("guid")
+	profile := job.ArgString("profile")
+	source := job.ArgString("source")
+	destination := job.ArgString("destination")
+	startJob(0, types.Job{
+		GUID:        guid,
+		Profile:     profile,
+		Source:      source,
+		Destination: destination,
+	})
+	return nil
+}
+
+func (c *Context) Export(job *work.Job) error {
+	return nil
+}
 
 // NewWorker creates a new worker instance to listen and process jobs in the queue.
 func NewWorker(maxWorkers int, maxQueueSize int) {
-	Jobs = make(chan types.Job, maxQueueSize)
 
-	// create workers.
-	for i := 1; i <= maxWorkers; i++ {
-		go func(i int) {
-			for j := range Jobs {
-				startJob(i, j)
-			}
-		}(i)
+	// Make a new pool.
+	pool := work.NewWorkerPool(Context{}, 10, "enc", redisPool)
 
-		// wg := &sync.WaitGroup{}
-		// wg.Add(1)
+	// Add middleware that will be executed for each job
+	pool.Middleware((*Context).Log)
+	pool.Middleware((*Context).FindJob)
 
-		// // Listen to encode queue.
-		// decodeConfig := nsq.NewConfig()
-		// c, err := nsq.NewConsumer("encode", "encode_channel", decodeConfig)
-		// if err != nil {
-		// 	log.Panic("Could not create consumer")
-		// }
-		// //c.MaxInFlight defaults to 1
+	// Map the name of jobs to handler functions
+	pool.Job("encode", (*Context).SendJob)
 
-		// job := &types.Job{}
+	// Customize options:
+	pool.JobWithOptions("export", work.JobOptions{Priority: 10, MaxFails: 1}, (*Context).Export)
 
-		// // NSQ handler for incling messages.
-		// c.AddHandler(nsq.HandlerFunc(func(message *nsq.Message) error {
-		// 	log.Println("NSQ message received:")
-		// 	log.Println(string(message.Body))
+	// Start processing jobs
+	pool.Start()
 
-		// 	// Decode message body.
-		// 	buf := bytes.NewBuffer(message.Body)
-		// 	dec := gob.NewDecoder(buf)
-		// 	err = dec.Decode(job)
-		// 	if err != nil {
-		// 		log.Println("Error decoding job")
-		// 	}
+	// Wait for a signal to quit:
+	signalChan := make(chan os.Signal, 1)
+	signal.Notify(signalChan, os.Interrupt, os.Kill)
+	<-signalChan
 
-		// 	// Start the encode job.
-		// 	startJob(*job)
-		// 	return nil
-		// }))
-
-		// // Connect to queue.
-		// err = c.ConnectToNSQD("127.0.0.1:4150")
-		// if err != nil {
-		// 	log.Panic("Could not connect")
-		// }
-		// log.Println("Awaiting messages from NSQ topic: encode")
-		// wg.Wait()
-	}
+	// Stop the pool
+	pool.Stop()
 }
 
 func startJob(id int, j types.Job) {

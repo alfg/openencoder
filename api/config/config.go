@@ -1,4 +1,4 @@
-package config 
+package config
 
 import (
 	"errors"
@@ -20,14 +20,11 @@ type config struct {
 }
 
 type settings struct {
-	Master     bool   `yaml:"master"`
-	Worker     bool   `yaml:"worker"`
-	Port       string `yaml:"port"`
-	NSQHost    string `yaml:"nsq_host"`
-	NSQTopic   string `yaml:"nsq_topic"`
-	NSQChannel string `yaml:"nsq_channel"`
-	S3Bucket   string `yaml:"s3_bucket"`
-	S3Region   string `yaml:"s3_region"`
+	Master   bool   `yaml:"master"`
+	Worker   bool   `yaml:"worker"`
+	Port     string `yaml:"port"`
+	S3Bucket string `yaml:"s3_bucket"`
+	S3Region string `yaml:"s3_region"`
 }
 
 type workflow struct {

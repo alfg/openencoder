@@ -2,15 +2,27 @@ package server
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/alfg/enc/api/data"
 	"github.com/alfg/enc/api/types"
-	"github.com/alfg/enc/api/worker"
 	"github.com/gin-gonic/gin"
+	"github.com/gocraft/work"
+	"github.com/gomodule/redigo/redis"
 	"github.com/rs/xid"
-	log "github.com/sirupsen/logrus"
 )
+
+var redisPool = &redis.Pool{
+	MaxActive: 5,
+	MaxIdle:   5,
+	Wait:      true,
+	Dial: func() (redis.Conn, error) {
+		return redis.Dial("tcp", ":6379")
+	},
+}
+
+var enqueuer = work.NewEnqueuer("enc", redisPool)
 
 type request struct {
 	Profile     string `json:"profile" binding:"required"`
@@ -31,11 +43,6 @@ type index struct {
 	Github  string `json:"github"`
 }
 
-// type job struct {
-// 	ID int `json:"id"`
-// 	Profile string `json:"profile"`
-// }
-
 func indexHandler(c *gin.Context) {
 	resp := index{
 		Name:    "enc",
@@ -55,7 +62,7 @@ func encodeHandler(c *gin.Context) {
 		return
 	}
 
-	// Create Job and push the work to nsq.
+	// Create Job and push the work to work queue.
 	job := types.Job{
 		GUID:        xid.New().String(),
 		Profile:     json.Profile,
@@ -63,30 +70,19 @@ func encodeHandler(c *gin.Context) {
 		Destination: json.Destination,
 	}
 
+	// Send to work queue.
+	_, err := enqueuer.Enqueue("encode", work.Q{
+		"guid":        job.GUID,
+		"profile":     job.Profile,
+		"source":      job.Source,
+		"destination": job.Destination,
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	created := data.CreateJob(job)
 	fmt.Println(created)
-
-	go func() {
-		log.Info("added: ", job.Profile)
-
-		worker.Jobs <- job
-
-		// // Encode message to bytes.
-		// buf := new(bytes.Buffer)
-		// enc := gob.NewEncoder(buf)
-		// enc.Encode(job)
-
-		// // Send to nsq.
-		// config := nsq.NewConfig()
-		// p, err := nsq.NewProducer("127.0.0.1:4150", config)
-		// if err != nil {
-		// 	log.Panic(err)
-		// }
-		// err = p.Publish("encode", buf.Bytes())
-		// if err != nil {
-		// 	log.Panic(err)
-		// }
-	}()
 
 	// Create response.
 	resp := response{
@@ -106,22 +102,6 @@ type workerResponse struct {
 }
 
 func workersHandler(c *gin.Context) {
-	// config := nsq.NewConfig()
-	// p, err := nsq.NewProducer("127.0.0.1:4150", config)
-
-	// q, _ := nsq.NewConsumer("encode", "encode", config)
-	// q.ConnectToNSQLookupd("127.0.0.1:4150")
-	// q.ConnectToNSQD("127.0.0.1:4150")
-	// stats := q.Stats()
-	// fmt.Println(stats)
-	// if err != nil {
-	// 	log.Panic(err)
-	// }
-
-	// opts := nsqlookupd.NewOptions()
-
-	// Make my own queue manager?
-
 	resp := workerResponse{
 		ID: 1,
 	}

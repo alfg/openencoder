@@ -2,7 +2,7 @@
 > FFmpeg Encoding HTTP API.
 
 * Encoding API for submitting jobs to FFmpeg
-* NSQ-based worker
+* Redis-backed worker
 * AWS S3-based storage
 * Web Dashboard UI for submitting and viewing encode jobs
 
@@ -18,11 +18,10 @@ https://godoc.org/github.com/alfg/enc
 * Go 1.11+
 * FFmpeg
 * Postgres
-* NSQ
 * AWS S3 Credentials & Bucket
 
 #### Setup
-* Start NSQ and Postgres in Docker:
+* Start Redis and Postgres in Docker:
 ```
 docker-compose up -d
 ```
