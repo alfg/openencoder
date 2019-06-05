@@ -1,6 +1,7 @@
 .DS_Store
 *.mp4
 *.exe
+*.db
 bin/
 media/
 progress-log.txt

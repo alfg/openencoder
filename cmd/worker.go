@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 
+	"github.com/alfg/enc/api/config"
 	"github.com/alfg/enc/api/worker"
 	"github.com/spf13/cobra"
 )
@@ -21,6 +22,9 @@ var workerCmd = &cobra.Command{
 }
 
 func startWorkers() {
+	config.LoadConfig(cfgFile)
+	fmt.Println(cfgFile)
+
 	// Create Workers.
-	worker.NewWorker()
+	worker.NewWorker(1, 100) // TODO: Use flags.
 }
