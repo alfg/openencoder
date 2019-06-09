@@ -9,6 +9,7 @@
         <b-navbar-nav>
           <b-nav-item to="/">Home</b-nav-item>
           <b-nav-item to="/jobs">Jobs</b-nav-item>
+          <b-nav-item to="/queues">Queues</b-nav-item>
           <b-nav-item to="/workers">Workers</b-nav-item>
           <b-nav-item to="/machines">Machines</b-nav-item>
           <b-nav-item to="/status">Status</b-nav-item>

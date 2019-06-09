@@ -97,13 +97,39 @@ func jobsHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, jobs)
 }
 
-type workerResponse struct {
-	ID int
+func workerQueuesHandler(c *gin.Context) {
+	client := work.NewClient("enc", redisPool)
+
+	queues, err := client.Queues()
+	if err != nil {
+		fmt.Println(err)
+	}
+	c.JSON(200, queues)
 }
 
-func workersHandler(c *gin.Context) {
-	resp := workerResponse{
-		ID: 1,
+func workerPoolsHandler(c *gin.Context) {
+	client := work.NewClient("enc", redisPool)
+
+	resp, err := client.WorkerPoolHeartbeats()
+	if err != nil {
+		fmt.Println(err)
 	}
 	c.JSON(200, resp)
+}
+
+func workerBusyHandler(c *gin.Context) {
+	client := work.NewClient("enc", redisPool)
+
+	observations, err := client.WorkerObservations()
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	var busyObservations []*work.WorkerObservation
+	for _, ob := range observations {
+		if ob.IsBusy {
+			busyObservations = append(busyObservations, ob)
+		}
+	}
+	c.JSON(200, busyObservations)
 }

@@ -17,7 +17,7 @@ require (
 	github.com/rs/xid v1.2.1
 	github.com/sirupsen/logrus v1.4.2
 	github.com/spf13/cobra v0.0.4
-	github.com/ugorji/go/codec v1.1.5-pre // indirect
+	github.com/ugorji/go v1.1.5-pre // indirect
 	golang.org/x/net v0.0.0-20190522155817-f3200d17e092 // indirect
 	golang.org/x/sys v0.0.0-20190531175056-4c3a928424d2 // indirect
 	golang.org/x/text v0.3.2 // indirect

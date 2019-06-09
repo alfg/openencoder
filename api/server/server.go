@@ -22,7 +22,9 @@ func NewServer(port string) {
 		api.GET("/", indexHandler)
 		api.POST("/encode", encodeHandler)
 		api.GET("/jobs", jobsHandler)
-		api.GET("/workers", workersHandler)
+		api.GET("/worker/queues", workerQueuesHandler)
+		api.GET("/worker/pools", workerPoolsHandler)
+		api.GET("/worker/busy", workerBusyHandler)
 	}
 
 	log.Info("started server on port: ", port)
