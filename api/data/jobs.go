@@ -16,8 +16,6 @@ func GetJobs() *[]types.Job {
 	if err != nil {
 		fmt.Println(err)
 	}
-	fmt.Println(&jobs)
-
 	return &jobs
 }
 

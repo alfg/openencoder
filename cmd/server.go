@@ -9,8 +9,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var cfgFile string
-
 func init() {
 	rootCmd.AddCommand(serverCmd)
 }
@@ -32,11 +30,11 @@ func configRuntime() {
 func startServer() {
 	// Get workflow configs.
 	config.LoadConfig(cfgFile)
-	fmt.Println(cfgFile)
 
 	// Create HTTP Server.
 	configRuntime()
-	port := config.GetPort()
+	port := config.C.Port
 
+	fmt.Println("port: ", config.C.Port)
 	server.NewServer(port)
 }

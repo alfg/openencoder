@@ -24,6 +24,7 @@ var workerCmd = &cobra.Command{
 func startWorkers() {
 	config.LoadConfig(cfgFile)
 	fmt.Println(cfgFile)
+	fmt.Println("s3 region: ", config.Get().S3Region)
 
 	// Create Workers.
 	worker.NewWorker(1, 100) // TODO: Use flags.

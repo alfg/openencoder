@@ -2,83 +2,51 @@ package config
 
 import (
 	"errors"
-	"io/ioutil"
-	"log"
-	"os"
+	"fmt"
 
-	yaml "gopkg.in/yaml.v2"
+	"github.com/spf13/viper"
 )
 
 // C is a config instance available as a public config object.
-var C config
+var C Config
 
-type config struct {
-	Settings  settings
-	WorkFlows []workflow
-	Ffmpeg    []ffmpegProfile
-	S3        []s3Profile
+// Config defines the main configuration object.
+type Config struct {
+	Port      string
+	RedisHost string `mapstructure:"redis_host"`
+	RedisPort int    `mapstructure:"redis_port"`
+	S3Bucket  string `mapstructure:"s3_bucket"`
+	S3Region  string `mapstructure:"s3_region"`
+
+	Profiles []profile
 }
 
-type settings struct {
-	Master   bool   `yaml:"master"`
-	Worker   bool   `yaml:"worker"`
-	Port     string `yaml:"port"`
-	S3Bucket string `yaml:"s3_bucket"`
-	S3Region string `yaml:"s3_region"`
-}
-
-type workflow struct {
-	Name  string
-	Tasks []string
-}
-
-type ffmpegProfile struct {
+type profile struct {
 	Profile string
 	Output  string
 	Publish bool
 	Options []string
 }
 
-type s3Profile struct {
-	Profile string
-	Output  string
-	Options []string
-}
-
+// LoadConfig loads up the configuration struct.
 func LoadConfig(file string) {
-	yamlFile, err := ioutil.ReadFile(file)
-	if err != nil {
-		log.Println("yamlfile err: ", err)
-	}
+	viper.SetConfigType("yaml")
+	viper.SetConfigName(file)
+	viper.AddConfigPath(".")
+	viper.AddConfigPath("config")
+	err := viper.ReadInConfig()
 
-	err = yaml.Unmarshal(yamlFile, &C)
+	viper.AutomaticEnv()
+	// config = C{}
+	err = viper.Unmarshal(&C)
 	if err != nil {
-		log.Fatalf("Unmarshal: %v", err)
+		panic(fmt.Errorf("fatal error config file: %s", err))
 	}
 }
 
-// func LoadConfig() {
-// 	err := viper.Unmarshal(&C)
-// 	if err != nil {
-// 		panic(fmt.Errorf("unable to decode config into struct, %v", err))
-// 	}
-// }
-
-// func GetSettings() (t *settings, err error) {
-
-// }
-
-func GetWorkflow(name string) (t *workflow, err error) {
-	for _, v := range C.WorkFlows {
-		if v.Name == name {
-			return &v, nil
-		}
-	}
-	return nil, errors.New("No task")
-}
-
-func GetFFmpegProfile(profile string) (t *ffmpegProfile, err error) {
-	for _, v := range C.Ffmpeg {
+// GetFFmpegProfile finds an encoding profile by profile name.
+func GetFFmpegProfile(profile string) (t *profile, err error) {
+	for _, v := range C.Profiles {
 		if v.Profile == profile {
 			return &v, nil
 		}
@@ -86,18 +54,7 @@ func GetFFmpegProfile(profile string) (t *ffmpegProfile, err error) {
 	return nil, errors.New("No task")
 }
 
-func GetS3Profile(profile string) (t *s3Profile, err error) {
-	for _, v := range C.S3 {
-		if v.Profile == profile {
-			return &v, nil
-		}
-	}
-	return nil, errors.New("No task")
-}
-
-func GetPort() string {
-	if port, ok := os.LookupEnv("PORT"); ok {
-		return port
-	}
-	return "8080"
+// Get gets the current config.
+func Get() Config {
+	return C
 }
