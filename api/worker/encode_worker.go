@@ -5,24 +5,12 @@ import (
 	"os"
 	"os/signal"
 
+	"github.com/alfg/enc/api/config"
 	"github.com/alfg/enc/api/types"
 	"github.com/gocraft/work"
 	"github.com/gomodule/redigo/redis"
 	log "github.com/sirupsen/logrus"
 )
-
-// Make a redis pool
-var redisPool = &redis.Pool{
-	MaxActive: 5,
-	MaxIdle:   5,
-	Wait:      true,
-	Dial: func() (redis.Conn, error) {
-		return redis.Dial("tcp", ":6379")
-	},
-}
-
-// Make an enqueuer with a particular namespace
-var enqueuer = work.NewEnqueuer("enc", redisPool)
 
 type Context struct {
 	GUID        string
@@ -82,11 +70,31 @@ func (c *Context) Export(job *work.Job) error {
 	return nil
 }
 
+type WorkerConfig struct {
+	Host        string
+	Port        int
+	Namespace   string
+	JobName     string
+	Concurrency int
+}
+
 // NewWorker creates a new worker instance to listen and process jobs in the queue.
-func NewWorker(maxWorkers int, maxQueueSize int) {
+func NewWorker() {
+
+	// Make a redis pool
+	var redisPool = &redis.Pool{
+		MaxActive: 5,
+		MaxIdle:   5,
+		Wait:      true,
+		Dial: func() (redis.Conn, error) {
+			fmt.Println(config.C)
+			return redis.Dial("tcp",
+				fmt.Sprintf("%s:%d", config.Get().RedisHost, config.Get().RedisPort))
+		},
+	}
 
 	// Make a new pool.
-	pool := work.NewWorkerPool(Context{}, 10, "enc", redisPool)
+	pool := work.NewWorkerPool(Context{}, 10, config.Get().WorkerNamespace, redisPool)
 
 	// Add middleware that will be executed for each job
 	pool.Middleware((*Context).Log)

@@ -27,5 +27,5 @@ func startWorkers() {
 	fmt.Println("s3 region: ", config.Get().S3Region)
 
 	// Create Workers.
-	worker.NewWorker(1, 100) // TODO: Use flags.
+	worker.NewWorker()
 }

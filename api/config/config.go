@@ -12,11 +12,12 @@ var C Config
 
 // Config defines the main configuration object.
 type Config struct {
-	Port      string
-	RedisHost string `mapstructure:"redis_host"`
-	RedisPort int    `mapstructure:"redis_port"`
-	S3Bucket  string `mapstructure:"s3_bucket"`
-	S3Region  string `mapstructure:"s3_region"`
+	Port            string
+	RedisHost       string `mapstructure:"redis_host"`
+	RedisPort       int    `mapstructure:"redis_port"`
+	WorkerNamespace string `mapstructure:"worker_namespace"`
+	S3Bucket        string `mapstructure:"s3_bucket"`
+	S3Region        string `mapstructure:"s3_region"`
 
 	Profiles []profile
 }
@@ -55,6 +56,6 @@ func GetFFmpegProfile(profile string) (t *profile, err error) {
 }
 
 // Get gets the current config.
-func Get() Config {
-	return C
+func Get() *Config {
+	return &C
 }

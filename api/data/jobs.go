@@ -8,7 +8,7 @@ import (
 
 // GetJobs Gets all jobs.
 func GetJobs(offset, count int) *[]types.Job {
-	const query = `SELECT * FROM jobs ORDER BY id ASC
+	const query = `SELECT * FROM jobs ORDER BY id DESC
     LIMIT $1 OFFSET $2`
 
 	db, _ := ConnectDB()
@@ -20,6 +20,7 @@ func GetJobs(offset, count int) *[]types.Job {
 	return &jobs
 }
 
+// GetJobsCount Gets a count of all jobs.
 func GetJobsCount() int {
 	var count int
 	const query = `SELECT COUNT(*) FROM jobs`

@@ -1,6 +1,7 @@
 port: 8080
 redis_host: localhost
 redis_port: 6379
+worker_namespace: enc
 s3_bucket: mediapkg
 s3_region: us-west-1
 

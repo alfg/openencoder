@@ -26,7 +26,6 @@ export default {
 
   mounted() {
     const page = this.$route.query.page || 0;
-    console.log(page);
     this.getJobs(page);
   },
 
