@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/alfg/enc/api/data"
 	"github.com/alfg/enc/api/types"
@@ -93,8 +94,16 @@ func encodeHandler(c *gin.Context) {
 }
 
 func jobsHandler(c *gin.Context) {
-	jobs := data.GetJobs()
-	c.JSON(http.StatusOK, jobs)
+	page := c.DefaultQuery("page", "0")
+	count := c.DefaultQuery("count", "10")
+	pageInt, _ := strconv.Atoi(page)
+	countInt, _ := strconv.Atoi(count)
+	jobs := data.GetJobs(pageInt*countInt, countInt)
+	jobsCount := data.GetJobsCount()
+	c.JSON(http.StatusOK, gin.H{
+		"count": jobsCount,
+		"items": jobs,
+	})
 }
 
 func workerQueuesHandler(c *gin.Context) {

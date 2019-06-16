@@ -7,21 +7,34 @@ import (
 )
 
 // GetJobs Gets all jobs.
-func GetJobs() *[]types.Job {
-	const query = `SELECT * FROM jobs ORDER BY id ASC`
+func GetJobs(offset, count int) *[]types.Job {
+	const query = `SELECT * FROM jobs ORDER BY id ASC
+    LIMIT $1 OFFSET $2`
 
 	db, _ := ConnectDB()
 	jobs := []types.Job{}
-	err := db.Select(&jobs, query)
+	err := db.Select(&jobs, query, count, offset)
 	if err != nil {
 		fmt.Println(err)
 	}
 	return &jobs
 }
 
+func GetJobsCount() int {
+	var count int
+	const query = `SELECT COUNT(*) FROM jobs`
+
+	db, _ := ConnectDB()
+	err := db.QueryRow(query).Scan(&count)
+	if err != nil {
+		fmt.Println(err)
+	}
+	return count
+}
+
 // CreateJob creates a job in database.
 func CreateJob(job types.Job) *types.Job {
-	const query = "INSERT INTO jobs (guid,profile) VALUES (:guid,:profile)"
+	const query = `INSERT INTO jobs (guid,profile) VALUES (:guid,:profile)`
 
 	db, _ := ConnectDB()
 	tx := db.MustBegin()
