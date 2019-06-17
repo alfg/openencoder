@@ -15,6 +15,11 @@ type Config struct {
 	Port              string `mapstructure:"server_port"`
 	RedisHost         string `mapstructure:"redis_host"`
 	RedisPort         int    `mapstructure:"redis_port"`
+	DatabaseHost      string `mapstructure:"database_host"`
+	DatabasePort      int    `mapstructure:"database_port"`
+	DatabaseUser      string `mapstructure:"database_user"`
+	DatabasePassword  string `mapstructure:"database_password"`
+	DatabaseName      string `mapstructure:"database_name"`
 	WorkerNamespace   string `mapstructure:"worker_namespace"`
 	WorkerJobName     string `mapstructure:"worker_job_name"`
 	WorkerConcurrency uint   `mapstructure:"worker_concurrency"`

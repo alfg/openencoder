@@ -29,12 +29,12 @@ func configRuntime() {
 }
 func startServer() {
 	// Get workflow configs.
-	config.LoadConfig(cfgFile)
+	// config.LoadConfig(cfgFile)
 
 	// Create HTTP Server.
 	configRuntime()
-	port := config.C.Port
+	port := config.Get().Port
 
-	fmt.Println("port: ", config.C.Port)
+	fmt.Println("port: ", port)
 	server.NewServer(port)
 }

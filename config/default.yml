@@ -1,6 +1,11 @@
 server_port: 8080
 redis_host: localhost
 redis_port: 6379
+database_host: localhost
+database_port: 5432
+database_user: postgres
+database_password: postgres
+database_name: enc
 worker_namespace: enc
 worker_job_name: encode
 worker_concurrency: 1

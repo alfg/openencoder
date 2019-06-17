@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"sync"
 
 	"github.com/alfg/enc/api/data"
 	"github.com/alfg/enc/api/types"
@@ -98,8 +99,24 @@ func jobsHandler(c *gin.Context) {
 	count := c.DefaultQuery("count", "10")
 	pageInt, _ := strconv.Atoi(page)
 	countInt, _ := strconv.Atoi(count)
-	jobs := data.GetJobs(pageInt*countInt, countInt)
-	jobsCount := data.GetJobsCount()
+
+	var wg sync.WaitGroup
+	var jobs *[]types.Job
+	var jobsCount int
+
+	wg.Add(1)
+	go func() {
+		jobs = data.GetJobs(pageInt*countInt, countInt)
+		wg.Done()
+	}()
+
+	wg.Add(1)
+	go func() {
+		jobsCount = data.GetJobsCount()
+		wg.Done()
+	}()
+	wg.Wait()
+
 	c.JSON(http.StatusOK, gin.H{
 		"count": jobsCount,
 		"items": jobs,

@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/alfg/enc/api/config"
 	"github.com/spf13/cobra"
 )
 
 var cfgFile string
-var profilesFile string
 
 var rootCmd = &cobra.Command{
 	Use:   "enc",
@@ -20,7 +20,9 @@ var rootCmd = &cobra.Command{
 
 func init() {
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "default", "Config YAML")
-	rootCmd.PersistentFlags().StringVar(&profilesFile, "profiles", "profiles", "Profiles YAML")
+
+	config.LoadConfig(cfgFile)
+	fmt.Println(config.Get())
 }
 
 // Execute starts cmd.
