@@ -12,12 +12,14 @@ var C Config
 
 // Config defines the main configuration object.
 type Config struct {
-	Port            string
-	RedisHost       string `mapstructure:"redis_host"`
-	RedisPort       int    `mapstructure:"redis_port"`
-	WorkerNamespace string `mapstructure:"worker_namespace"`
-	S3Bucket        string `mapstructure:"s3_bucket"`
-	S3Region        string `mapstructure:"s3_region"`
+	Port              string `mapstructure:"server_port"`
+	RedisHost         string `mapstructure:"redis_host"`
+	RedisPort         int    `mapstructure:"redis_port"`
+	WorkerNamespace   string `mapstructure:"worker_namespace"`
+	WorkerJobName     string `mapstructure:"worker_job_name"`
+	WorkerConcurrency uint   `mapstructure:"worker_concurrency"`
+	S3Bucket          string `mapstructure:"s3_bucket"`
+	S3Region          string `mapstructure:"s3_region"`
 
 	Profiles []profile
 }
@@ -38,7 +40,6 @@ func LoadConfig(file string) {
 	err := viper.ReadInConfig()
 
 	viper.AutomaticEnv()
-	// config = C{}
 	err = viper.Unmarshal(&C)
 	if err != nil {
 		panic(fmt.Errorf("fatal error config file: %s", err))

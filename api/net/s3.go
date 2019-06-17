@@ -43,7 +43,7 @@ func S3Download(job types.Job) error {
 
 	// Get object input details.
 	objInput := s3.GetObjectInput{
-		Bucket: aws.String(config.C.S3Bucket),
+		Bucket: aws.String(config.Get().S3Bucket),
 		Key:    aws.String(key),
 	}
 
@@ -96,11 +96,11 @@ func uploadFile(path string, job types.Job) error {
 	key := parsedURL.Path + filepath.Base(path)
 
 	uploader := s3manager.NewUploader(session.New(&aws.Config{
-		Region: aws.String(config.C.S3Region),
+		Region: aws.String(config.Get().S3Region),
 	}))
 	_, err = uploader.Upload(&s3manager.UploadInput{
 		Body:   file,
-		Bucket: aws.String(config.C.S3Bucket),
+		Bucket: aws.String(config.Get().S3Bucket),
 		Key:    aws.String(key),
 	})
 	if err != nil {

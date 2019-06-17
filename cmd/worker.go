@@ -26,6 +26,17 @@ func startWorkers() {
 	fmt.Println(cfgFile)
 	fmt.Println("s3 region: ", config.Get().S3Region)
 
+	// Worker config.
+	workerCfg := &worker.Config{
+		Host:        config.Get().RedisHost,
+		Port:        config.Get().RedisPort,
+		Namespace:   config.Get().WorkerNamespace,
+		JobName:     config.Get().WorkerJobName,
+		Concurrency: config.Get().WorkerConcurrency,
+	}
+
+	fmt.Println(workerCfg)
+
 	// Create Workers.
-	worker.NewWorker()
+	worker.NewWorker(*workerCfg)
 }
