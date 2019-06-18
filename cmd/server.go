@@ -28,13 +28,18 @@ func configRuntime() {
 	fmt.Printf("Running with %d CPUs\n", numCPU)
 }
 func startServer() {
-	// Get workflow configs.
-	// config.LoadConfig(cfgFile)
+
+	// Server config.
+	serverCfg := &server.Config{
+		ServerPort:  config.Get().Port,
+		RedisHost:   config.Get().RedisHost,
+		RedisPort:   config.Get().RedisPort,
+		Namespace:   config.Get().WorkerNamespace,
+		JobName:     config.Get().WorkerJobName,
+		Concurrency: config.Get().WorkerConcurrency,
+	}
 
 	// Create HTTP Server.
 	configRuntime()
-	port := config.Get().Port
-
-	fmt.Println("port: ", port)
-	server.NewServer(port)
+	server.NewServer(*serverCfg)
 }

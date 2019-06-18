@@ -22,9 +22,6 @@ var workerCmd = &cobra.Command{
 }
 
 func startWorkers() {
-	// config.LoadConfig(cfgFile)
-	// fmt.Println(cfgFile)
-	// fmt.Println("s3 region: ", config.Get().S3Region)
 
 	// Worker config.
 	workerCfg := &worker.Config{
@@ -34,8 +31,6 @@ func startWorkers() {
 		JobName:     config.Get().WorkerJobName,
 		Concurrency: config.Get().WorkerConcurrency,
 	}
-
-	fmt.Println(workerCfg)
 
 	// Create Workers.
 	worker.NewWorker(*workerCfg)

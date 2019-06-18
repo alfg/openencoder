@@ -11,20 +11,8 @@ import (
 	"github.com/alfg/enc/api/types"
 	"github.com/gin-gonic/gin"
 	"github.com/gocraft/work"
-	"github.com/gomodule/redigo/redis"
 	"github.com/rs/xid"
 )
-
-var redisPool = &redis.Pool{
-	MaxActive: 5,
-	MaxIdle:   5,
-	Wait:      true,
-	Dial: func() (redis.Conn, error) {
-		return redis.Dial("tcp", ":6379")
-	},
-}
-
-var enqueuer = work.NewEnqueuer("enc", redisPool)
 
 type request struct {
 	Profile     string `json:"profile" binding:"required"`
@@ -95,10 +83,14 @@ func encodeHandler(c *gin.Context) {
 }
 
 func jobsHandler(c *gin.Context) {
-	page := c.DefaultQuery("page", "0")
+	page := c.DefaultQuery("page", "1")
 	count := c.DefaultQuery("count", "10")
 	pageInt, _ := strconv.Atoi(page)
 	countInt, _ := strconv.Atoi(count)
+
+	if page == "0" {
+		pageInt = 1
+	}
 
 	var wg sync.WaitGroup
 	var jobs *[]types.Job
@@ -106,7 +98,7 @@ func jobsHandler(c *gin.Context) {
 
 	wg.Add(1)
 	go func() {
-		jobs = data.GetJobs(pageInt*countInt, countInt)
+		jobs = data.GetJobs((pageInt-1)*countInt, countInt)
 		wg.Done()
 	}()
 

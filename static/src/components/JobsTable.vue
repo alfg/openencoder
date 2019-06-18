@@ -39,7 +39,7 @@ export default {
     },
 
     getJobs(page) {
-      const url = `/api/jobs?page=${page - 1}`;
+      const url = `/api/jobs?page=${page}`;
 
       fetch(url)
         .then(response => (
