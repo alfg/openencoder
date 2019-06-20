@@ -1,5 +1,5 @@
 <template>
-  <div class="workers">
+  <div id="queues" class="container">
     <h1>Queues</h1>
     <QueuesTable />
   </div>

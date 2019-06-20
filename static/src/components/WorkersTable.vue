@@ -32,10 +32,3 @@ export default {
   },
 };
 </script>
-
-<style scoped>
-#workers-table {
-  width: 90%;
-  margin: 0 auto;
-}
-</style>

@@ -2,6 +2,7 @@ import Vue from 'vue';
 import Router from 'vue-router';
 import BootstrapVue from 'bootstrap-vue';
 import Home from './views/Home.vue';
+import Create from './views/Create.vue';
 import Jobs from './views/Jobs.vue';
 import Queues from './views/Queues.vue';
 import Workers from './views/Workers.vue';
@@ -20,6 +21,11 @@ export default new Router({
       path: '/',
       name: 'home',
       component: Home,
+    },
+    {
+      path: '/create',
+      name: 'create',
+      component: Create,
     },
     {
       path: '/jobs',

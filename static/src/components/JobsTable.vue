@@ -53,10 +53,3 @@ export default {
   },
 };
 </script>
-
-<style scoped>
-#jobs-table {
-  width: 90%;
-  margin: 0 auto;
-}
-</style>

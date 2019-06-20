@@ -32,10 +32,3 @@ export default {
   },
 };
 </script>
-
-<style scoped>
-#queues-table {
-  width: 90%;
-  margin: 0 auto;
-}
-</style>
