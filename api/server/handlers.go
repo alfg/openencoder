@@ -8,6 +8,7 @@ import (
 	"sync"
 
 	"github.com/alfg/enc/api/data"
+	"github.com/alfg/enc/api/net"
 	"github.com/alfg/enc/api/types"
 	"github.com/gin-gonic/gin"
 	"github.com/gocraft/work"
@@ -150,4 +151,16 @@ func workerBusyHandler(c *gin.Context) {
 		}
 	}
 	c.JSON(200, busyObservations)
+}
+
+func s3ListHandler(c *gin.Context) {
+	prefix := c.DefaultQuery("prefix", "")
+	files, err := net.S3ListFiles(prefix)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	c.JSON(200, gin.H{
+		"files": files,
+	})
 }

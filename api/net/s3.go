@@ -74,6 +74,28 @@ func S3Upload(job types.Job) error {
 	return nil
 }
 
+// S3ListFiles lists s3 objects for a given prefix.
+func S3ListFiles(prefix string) (*s3.ListObjectsV2Output, error) {
+	sess := session.New(
+		&aws.Config{
+			Region: aws.String(config.Get().S3Region),
+		},
+	)
+
+	svc := s3.New(sess)
+	resp, err := svc.ListObjectsV2(
+		&s3.ListObjectsV2Input{
+			Bucket:    aws.String(config.Get().S3Bucket),
+			Delimiter: aws.String("/"),
+			Prefix:    aws.String(prefix),
+		},
+	)
+	if err != nil {
+		return nil, err
+	}
+	return resp, nil
+}
+
 func uploadDir(filelist []string, job types.Job) {
 	for _, file := range filelist {
 		uploadFile(file, job)
