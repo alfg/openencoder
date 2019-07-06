@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"sync"
 
+	"github.com/alfg/enc/api/config"
 	"github.com/alfg/enc/api/data"
 	"github.com/alfg/enc/api/net"
 	"github.com/alfg/enc/api/types"
@@ -186,5 +187,13 @@ func s3ListHandler(c *gin.Context) {
 
 	c.JSON(200, gin.H{
 		"data": resp,
+	})
+}
+
+func profilesHandler(c *gin.Context) {
+	profiles := config.Get().Profiles
+
+	c.JSON(200, gin.H{
+		"profiles": profiles,
 	})
 }

@@ -30,10 +30,10 @@ type Config struct {
 }
 
 type profile struct {
-	Profile string
-	Output  string
-	Publish bool
-	Options []string
+	Profile string   `json:"profile"`
+	Output  string   `json:"output"`
+	Publish bool     `json:"publish"`
+	Options []string `json:"options"`
 }
 
 // LoadConfig loads up the configuration struct.

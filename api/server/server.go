@@ -54,6 +54,7 @@ func NewServer(serverCfg Config) {
 		api.GET("/", indexHandler)
 		// api.GET("/profiles", profilesHandler)
 		api.GET("/s3/list", s3ListHandler)
+		api.GET("/profiles", profilesHandler)
 		api.POST("/encode", encodeHandler)
 		api.GET("/jobs", jobsHandler)
 		api.GET("/worker/queues", workerQueuesHandler)

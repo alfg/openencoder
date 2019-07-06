@@ -18,13 +18,34 @@ export default {
   data() {
     return {
       prefix: '',
-      files: [],
+      data: [],
     };
   },
 
   computed: {
     filteredFiles() {
-      return this.files && this.files.filter(o => o.label !== this.prefix);
+      const items = [];
+
+      if (this.data.folders) {
+        this.data.folders.forEach((item) => {
+          const o = {
+            label: item,
+            children: [],
+          };
+          items.push(o);
+        });
+      }
+
+      if (this.data.files) {
+        this.data.files.forEach((item) => {
+          const o = {
+            label: item.name,
+            children: [],
+          };
+          items.push(o);
+        });
+      }
+      return items.filter(o => o.label !== this.prefix);
     },
   },
 
@@ -58,34 +79,9 @@ export default {
           response.json()
         ))
         .then((json) => {
-          this.updateFiles(json.data);
+          this.data = json.data;
           this.prefix = prefix;
         });
-    },
-
-    updateFiles(data) {
-      const items = [];
-
-      if (data && data.folders) {
-        data.folders.forEach((item) => {
-          const o = {
-            label: item,
-            children: [],
-          };
-          items.push(o);
-        });
-      }
-
-      if (data && data.files) {
-        data.files.forEach((item) => {
-          const o = {
-            label: item.name,
-            children: [],
-          };
-          items.push(o);
-        });
-      }
-      this.files = items;
     },
   },
 };

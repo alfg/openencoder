@@ -1,7 +1,7 @@
 <template>
   <div id="job-form">
     <b-form @submit="onSubmit" @reset="onReset" v-if="show">
-      <b-form-group id="input-group-1" label="Profile:" label-for="input-1">
+      <b-form-group id="input-group-1" label="Select Encoding Profile:" label-for="input-1">
         <b-form-select
           id="input-1"
           v-model="form.profile"
@@ -45,12 +45,34 @@ export default {
         profile: null,
         file: null,
       },
-      profiles: [{ text: 'Select One', value: null }, 'Test 1', 'Test 2', 'Test 3'],
+      profileData: [],
       show: true,
       showFileBrowser: false,
     };
   },
+
+  computed: {
+    profiles() {
+      return this.profileData.map(x => x.profile);
+    },
+  },
+
+  mounted() {
+    this.getProfiles();
+  },
+
   methods: {
+    getProfiles() {
+      const url = '/api/profiles';
+
+      fetch(url)
+        .then(response => (
+          response.json()
+        ))
+        .then((json) => {
+          this.profileData = json.profiles;
+        });
+    },
     onFileSelect(file) {
       this.form.file = file;
       this.showFileBrowser = false;
