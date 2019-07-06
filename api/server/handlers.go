@@ -153,7 +153,7 @@ func workerBusyHandler(c *gin.Context) {
 	c.JSON(200, busyObservations)
 }
 
-type S3ListResponse struct {
+type s3ListResponse struct {
 	Folders []string `json:"folders"`
 	Files   []file   `json:"files"`
 }
@@ -170,7 +170,7 @@ func s3ListHandler(c *gin.Context) {
 		log.Fatal(err)
 	}
 
-	resp := S3ListResponse{}
+	resp := s3ListResponse{}
 
 	// var prefixes &[]S3ListResponse.Folders
 	for _, item := range files.CommonPrefixes {

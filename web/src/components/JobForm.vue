@@ -33,7 +33,7 @@
 </template>
 
 <script>
-import S3Browser from '@/components/S3Browser/index.vue';
+import S3Browser from '@/components/S3Browser.vue';
 
 export default {
   components: {
@@ -55,10 +55,10 @@ export default {
       this.form.file = file;
       this.showFileBrowser = false;
     },
-    onFileFocus(event) {
+    onFileFocus() {
       this.showFileBrowser = true;
     },
-    onFileBlur(event) {
+    onFileBlur() {
       // this.showFileBrowser = false;
     },
     onSubmit(evt) {
@@ -80,8 +80,3 @@ export default {
   },
 };
 </script>
-
-<style scoped>
-#jobs-form {
-}
-</style>

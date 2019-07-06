@@ -2,19 +2,12 @@
   <div id="s3-browser">
     <div>
       <ul>
-      <!-- Folders -->
-      <!-- <li v-for="(o, i) in tree.folders" v-bind:key="i">
-        <a href="#" @click.prevent="onFolderSelect">{{ o }}</a>
-      </li> -->
-
-      <!-- Files -->
-      <!-- <li v-for="o in tree.files" v-bind:key="o.name">
-        <a href="#" @click.prevent="onFileSelect">{{ o.name }}</a>
-      </li> -->
-
-      <li v-for="o in tree" v-bind:key="o.label">
-        <a href="#" @click.prevent="onFileSelect">{{ o.label }}</a>
-      </li>
+        <li v-if="prefix !== ''">
+          <a href="#" @click.prevent="goBack">...</a>
+        </li>
+        <li v-for="o in filteredFiles" v-bind:key="o.label">
+          <a href="#" @click.prevent="onFileSelect">{{ o.label }}</a>
+        </li>
       </ul>
     </div>
   </div>
@@ -24,8 +17,15 @@
 export default {
   data() {
     return {
-      tree: {},
+      prefix: '',
+      files: [],
     };
+  },
+
+  computed: {
+    filteredFiles() {
+      return this.files && this.files.filter(o => o.label !== this.prefix);
+    },
   },
 
   mounted() {
@@ -43,9 +43,11 @@ export default {
       }
     },
 
-    onFolderSelect(event) {
-      console.log(event.target.text);
-      console.log(this.data);
+    goBack() {
+      const arr = this.prefix.split('/');
+      arr.splice(-2, 1); // Remove last path, but keep leading slash.
+      const newPrefix = arr.join('/');
+      this.getData(newPrefix);
     },
 
     getData(prefix = '') {
@@ -56,13 +58,12 @@ export default {
           response.json()
         ))
         .then((json) => {
-          console.log(json);
-          // this.tree = json.data;
-          this.updateTree(json.data);
+          this.updateFiles(json.data);
+          this.prefix = prefix;
         });
     },
 
-    updateTree(data) {
+    updateFiles(data) {
       const items = [];
 
       if (data && data.folders) {
@@ -84,10 +85,7 @@ export default {
           items.push(o);
         });
       }
-
-      console.log(items);
-
-      this.tree = items;
+      this.files = items;
     },
   },
 };
