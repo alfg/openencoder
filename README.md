@@ -1,10 +1,12 @@
-# ENC
-> FFmpeg Encoding HTTP API.
+# OpenENC
+> Open Source Cloud Encoder
 
-* Encoding API for submitting jobs to FFmpeg
+*Currently a work-in-progress!*
+
+* Encoding HTTP API for submitting jobs to FFmpeg
 * Redis-backed worker
-* AWS S3-based storage
-* Web Dashboard UI for submitting and viewing encode jobs
+* S3-based storage
+* Web Dashboard UI for managing encode jobs
 
 https://godoc.org/github.com/alfg/enc
 
@@ -23,15 +25,28 @@ https://godoc.org/github.com/alfg/enc
 #### Setup
 * Start Redis and Postgres in Docker:
 ```
-docker-compose up -d
+docker-compose up -d redis
+docker-compose up -d db
 ```
 
-* Start API server.
+* Create DB:
+```
+```
+
+* Set environment variables in `docker-compose.yml`:
+```
+AWS_S3_BUCKET=
+AWS_S3_REGION=
+AWS_ACCESS_KEY=
+AWS_SECRET_KEY
+```
+
+* Build & start API server:
 ```
 go build -v && enc.exe server
 ```
 
-* Start worker.
+* Build & start worker:
 ```
 go build -v && enc.exe worker
 ```
@@ -55,6 +70,16 @@ curl -X POST \
 
 ## API
 TODO
+
+## Scaling
+TODO
+
+## TODO
+* Distributed chunked encoding
+* Encoding profiles API/DB
+* Encoding status and health-checks
+* Machine scaling
+* Digital Ocean S3-Compatibility
 
 ## License
 MIT

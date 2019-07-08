@@ -73,6 +73,21 @@ export default {
           this.profileData = json.profiles;
         });
     },
+    submitJob(data) {
+      const url = '/api/encode';
+
+      fetch(url, {
+        method: 'POST',
+        body: JSON.stringify(data),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }).then(response => (
+        response.json()
+      )).then((json) => {
+        this.profileData = json.profiles;
+      });
+    },
     onFileSelect(file) {
       this.form.file = file;
       this.showFileBrowser = false;
@@ -86,6 +101,7 @@ export default {
     onSubmit(evt) {
       evt.preventDefault();
       console.log(JSON.stringify(this.form));
+      this.submitJob(this.form);
     },
     onReset(evt) {
       evt.preventDefault();
