@@ -1,16 +1,43 @@
-FROM golang:1.8-alpine AS builder
+FROM golang:1.12-alpine AS builder
 
-WORKDIR /usr/src/app
+# Create the user and group files that will be used in the running container to
+# run the process as an unprivileged user.
+RUN mkdir /user && \
+    echo 'nobody:x:65534:65534:nobody:/:' > /user/passwd && \
+    echo 'nobody:x:65534:' > /user/group
 
+# Outside GOPATH since we're using modules.
+WORKDIR /src
+
+# Required for fetching dependencies.
+RUN apk add --no-cache ca-certificates git
+
+# Fetch dependencies to cache.
+COPY go.mod go.sum ./
+RUN go mod download
+
+# Copy project source files.
 COPY . .
-RUN go-wrapper download
-RUN go build -v
 
+# Build.
+RUN CGO_ENABLED=0 GOOS=linux go build -installsuffix 'static' -v -o /app .
+
+# Final release image.
 FROM alpine:3.5
 
-RUN apk --no-cache add ca-certificates
+# Import the user and group files from the first stage.
+COPY --from=builder /user/group /user/passwd /etc/
 
-WORKDIR /usr/local/bin
+# Import the Certificate-Authority certificates for enabling HTTPS.
+COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 
-COPY --from=builder /usr/src/app/app .
-CMD ["./app"]
+# Import the project executable.
+COPY --from=builder /app /app
+
+EXPOSE 8080
+
+# Perform any further action as an unpriviledged user.
+USER nobody:nobody
+
+# Run binary.
+ENTRYPOINT ["/app"]
