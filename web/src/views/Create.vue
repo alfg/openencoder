@@ -1,6 +1,5 @@
 <template>
   <div id="create" class="container">
-    <h1>Create Job</h1>
     <JobForm />
   </div>
 </template>

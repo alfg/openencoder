@@ -2,6 +2,7 @@ package server
 
 import (
 	"fmt"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gocraft/work"
@@ -41,11 +42,13 @@ func NewServer(serverCfg Config) {
 	// Setup server.
 	r := gin.Default()
 
-	// Default.
-	r.GET("/", indexHandler)
+	// Default redirect to dashboard.
+	r.GET("/", func(c *gin.Context) {
+		c.Redirect(http.StatusMovedPermanently, "/dashboard")
+	})
 
 	// Web dashboard.
-	r.Static("/dashboard", "./web")
+	r.Static("/dashboard", "./web/dist")
 	// r.StaticFile("/", "./static/index.html")
 
 	// API.

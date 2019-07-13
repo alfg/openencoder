@@ -1,6 +1,5 @@
 <template>
   <div id="workers" class="container">
-    <h1>Workers</h1>
     <WorkersTable />
   </div>
 </template>

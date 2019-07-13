@@ -29,9 +29,7 @@ docker-compose up -d redis
 docker-compose up -d db
 ```
 
-* Create DB:
-```
-```
+* Create DB and run `scripts/schema.sql` to set up schema.
 
 * Set environment variables in `docker-compose.yml`:
 ```
@@ -39,7 +37,10 @@ AWS_S3_BUCKET=
 AWS_S3_REGION=
 AWS_ACCESS_KEY=
 AWS_SECRET_KEY
+...
 ```
+
+*Environment variables will override defaults set in `config/default.yml`.*
 
 * Build & start API server:
 ```

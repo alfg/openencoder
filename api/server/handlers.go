@@ -20,7 +20,6 @@ type request struct {
 	Profile     string `json:"profile" binding:"required"`
 	Source      string `json:"source" binding:"required"`
 	Destination string `json:"dest" binding:"required"`
-	Delay       string `json:"delay" binding:"required"`
 }
 
 type response struct {
