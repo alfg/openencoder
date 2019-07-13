@@ -1,4 +1,4 @@
-# OpenENC
+# open encoder
 > Open Source Cloud Encoder
 
 *Currently a work-in-progress!*

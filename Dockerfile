@@ -10,7 +10,7 @@ RUN mkdir /user && \
 WORKDIR /src
 
 # Required for fetching dependencies.
-RUN apk add --no-cache ca-certificates git
+RUN apk add --update --no-cache ca-certificates git nodejs nodejs-npm
 
 # Fetch dependencies to cache.
 COPY go.mod go.sum ./
@@ -19,11 +19,14 @@ RUN go mod download
 # Copy project source files.
 COPY . .
 
+# Build static web project.
+RUN cd web && npm install && npm run build
+
 # Build.
 RUN CGO_ENABLED=0 GOOS=linux go build -installsuffix 'static' -v -o /app .
 
 # Final release image.
-FROM alpine:3.5
+FROM alfg/ffmpeg:latest
 
 # Import the user and group files from the first stage.
 COPY --from=builder /user/group /user/passwd /etc/
