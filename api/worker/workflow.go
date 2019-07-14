@@ -3,9 +3,9 @@ package worker
 import (
 	"path"
 
-	"github.com/alfg/enc/api/config"
-	"github.com/alfg/enc/api/encoder"
-	"github.com/alfg/enc/api/types"
+	"github.com/alfg/openencoder/api/config"
+	"github.com/alfg/openencoder/api/encoder"
+	"github.com/alfg/openencoder/api/types"
 	log "github.com/sirupsen/logrus"
 )
 

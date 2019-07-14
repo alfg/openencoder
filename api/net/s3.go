@@ -6,9 +6,9 @@ import (
 	"path"
 	"path/filepath"
 
-	"github.com/alfg/enc/api/config"
+	"github.com/alfg/openencoder/api/config"
 
-	"github.com/alfg/enc/api/types"
+	"github.com/alfg/openencoder/api/types"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"

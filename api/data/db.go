@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/alfg/enc/api/config"
+	"github.com/alfg/openencoder/api/config"
 	"github.com/jmoiron/sqlx"
 
 	_ "github.com/lib/pq" // Postgres driver.

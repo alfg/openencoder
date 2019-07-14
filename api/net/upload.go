@@ -1,6 +1,6 @@
 package net
 
-import "github.com/alfg/enc/api/types"
+import "github.com/alfg/openencoder/api/types"
 
 // UploadFunc creates a upload.
 type UploadFunc func(job types.Job) error

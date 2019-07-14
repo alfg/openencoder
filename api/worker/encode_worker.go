@@ -5,7 +5,7 @@ import (
 	"os"
 	"os/signal"
 
-	"github.com/alfg/enc/api/types"
+	"github.com/alfg/openencoder/api/types"
 	"github.com/gocraft/work"
 	"github.com/gomodule/redigo/redis"
 	log "github.com/sirupsen/logrus"

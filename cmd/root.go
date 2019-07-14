@@ -4,15 +4,15 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/alfg/enc/api/config"
+	"github.com/alfg/openencoder/api/config"
 	"github.com/spf13/cobra"
 )
 
 var cfgFile string
 
 var rootCmd = &cobra.Command{
-	Use:   "enc",
-	Short: "Encoding API and worker.",
+	Use:   "openenc",
+	Short: "Open Source Cloud Encoder.",
 	Run: func(cmd *cobra.Command, args []string) {
 		// Do Stuff Here
 	},

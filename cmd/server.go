@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"runtime"
 
-	"github.com/alfg/enc/api/config"
-	"github.com/alfg/enc/api/server"
+	"github.com/alfg/openencoder/api/config"
+	"github.com/alfg/openencoder/api/server"
 	"github.com/spf13/cobra"
 )
 

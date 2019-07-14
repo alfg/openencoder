@@ -3,7 +3,7 @@ package data
 import (
 	"fmt"
 
-	"github.com/alfg/enc/api/types"
+	"github.com/alfg/openencoder/api/types"
 )
 
 // GetJobs Gets all jobs.

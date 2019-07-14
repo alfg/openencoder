@@ -1,4 +1,4 @@
-module github.com/alfg/enc
+module github.com/alfg/openencoder
 
 go 1.12
 

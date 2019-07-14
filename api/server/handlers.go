@@ -7,10 +7,10 @@ import (
 	"strconv"
 	"sync"
 
-	"github.com/alfg/enc/api/config"
-	"github.com/alfg/enc/api/data"
-	"github.com/alfg/enc/api/net"
-	"github.com/alfg/enc/api/types"
+	"github.com/alfg/openencoder/api/config"
+	"github.com/alfg/openencoder/api/data"
+	"github.com/alfg/openencoder/api/net"
+	"github.com/alfg/openencoder/api/types"
 	"github.com/gin-gonic/gin"
 	"github.com/gocraft/work"
 	"github.com/rs/xid"
@@ -23,8 +23,9 @@ type request struct {
 }
 
 type response struct {
-	Message string `json:"message"`
-	Status  int    `json:"status"`
+	Message string     `json:"message"`
+	Status  int        `json:"status"`
+	Job     *types.Job `json:"job"`
 }
 
 type index struct {
@@ -36,9 +37,8 @@ type index struct {
 
 func indexHandler(c *gin.Context) {
 	resp := index{
-		Name:    "enc",
+		Name:    "openenc",
 		Version: "0.0.1",
-		Docs:    "http://localhost/",
 		Github:  "https://github.com/alfg/enc",
 	}
 	c.JSON(200, resp)
@@ -62,7 +62,7 @@ func encodeHandler(c *gin.Context) {
 	}
 
 	// Send to work queue.
-	_, err := enqueuer.Enqueue("encode", work.Q{
+	_, err := enqueuer.Enqueue(config.Get().WorkerJobName, work.Q{
 		"guid":        job.GUID,
 		"profile":     job.Profile,
 		"source":      job.Source,
@@ -79,6 +79,7 @@ func encodeHandler(c *gin.Context) {
 	resp := response{
 		Message: "Job created",
 		Status:  200,
+		Job:     created,
 	}
 	c.JSON(http.StatusCreated, resp)
 }
@@ -117,7 +118,7 @@ func jobsHandler(c *gin.Context) {
 }
 
 func workerQueuesHandler(c *gin.Context) {
-	client := work.NewClient("enc", redisPool)
+	client := work.NewClient(config.Get().WorkerNamespace, redisPool)
 
 	queues, err := client.Queues()
 	if err != nil {
@@ -127,7 +128,7 @@ func workerQueuesHandler(c *gin.Context) {
 }
 
 func workerPoolsHandler(c *gin.Context) {
-	client := work.NewClient("enc", redisPool)
+	client := work.NewClient(config.Get().WorkerNamespace, redisPool)
 
 	resp, err := client.WorkerPoolHeartbeats()
 	if err != nil {
@@ -137,7 +138,7 @@ func workerPoolsHandler(c *gin.Context) {
 }
 
 func workerBusyHandler(c *gin.Context) {
-	client := work.NewClient("enc", redisPool)
+	client := work.NewClient(config.Get().WorkerNamespace, redisPool)
 
 	observations, err := client.WorkerObservations()
 	if err != nil {

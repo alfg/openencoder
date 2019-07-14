@@ -1,7 +1,7 @@
-# open encoder
+# open**encoder**
 > Open Source Cloud Encoder
 
-*Currently a work-in-progress!*
+⚠️*Currently a work-in-progress!*
 
 * Encoding HTTP API for submitting jobs to FFmpeg
 * Redis-backed worker
@@ -10,9 +10,9 @@
 
 https://godoc.org/github.com/alfg/enc
 
-[![Build Status](https://travis-ci.org/alfg/enc.svg?branch=master)](https://travis-ci.org/alfg/enc) 
-[![GoDoc](https://godoc.org/github.com/alfg/enc?status.svg)](https://godoc.org/github.com/alfg/enc)
-[![Go Report Card](https://goreportcard.com/badge/github.com/alfg/enc)](https://goreportcard.com/report/github.com/alfg/enc)
+[![Build Status](https://travis-ci.org/alfg/openencoder.svg?branch=master)](https://travis-ci.org/alfg/enc) 
+[![GoDoc](https://godoc.org/github.com/alfg/openencoder?status.svg)](https://godoc.org/github.com/alfg/openencoder)
+[![Go Report Card](https://goreportcard.com/badge/github.com/alfg/openencoder)](https://goreportcard.com/report/github.com/alfg/openencoder)
 
 ## Develop
 #### Requirements
@@ -44,12 +44,12 @@ AWS_SECRET_KEY
 
 * Build & start API server:
 ```
-go build -v && enc.exe server
+go build -v && openencoder.exe server
 ```
 
 * Build & start worker:
 ```
-go build -v && enc.exe worker
+go build -v && openencoder.exe worker
 ```
 
 * Start Web Dashboard for development:
@@ -70,10 +70,10 @@ curl -X POST \
 ```
 
 ## API
-TODO
+See: [API.md](/API.md)
 
 ## Scaling
-TODO
+TBD
 
 ## TODO
 * Distributed chunked encoding

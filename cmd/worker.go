@@ -3,8 +3,8 @@ package cmd
 import (
 	"fmt"
 
-	"github.com/alfg/enc/api/config"
-	"github.com/alfg/enc/api/worker"
+	"github.com/alfg/openencoder/api/config"
+	"github.com/alfg/openencoder/api/worker"
 	"github.com/spf13/cobra"
 )
 
