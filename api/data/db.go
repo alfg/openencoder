@@ -30,13 +30,8 @@ func ConnectDB() (*sqlx.DB, error) {
 			host, port, user, password, dbname)
 	}
 	db, err := sqlx.Connect("postgres", connectionString)
-	// db, err := sqlx.Connect("sqlite3", "enc.db")
-
-	// db.MustExec(schema)
-
 	if err != nil {
 		log.Fatalln(err)
 	}
-	fmt.Println("Connected to DB.")
 	return db, err
 }

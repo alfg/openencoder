@@ -22,6 +22,10 @@ type request struct {
 	Destination string `json:"dest" binding:"required"`
 }
 
+type updateRequest struct {
+	Status string `json:"status"`
+}
+
 type response struct {
 	Message string     `json:"message"`
 	Status  int        `json:"status"`
@@ -44,7 +48,7 @@ func indexHandler(c *gin.Context) {
 	c.JSON(200, resp)
 }
 
-func encodeHandler(c *gin.Context) {
+func createJobHandler(c *gin.Context) {
 
 	// Decode json.
 	var json request
@@ -59,6 +63,7 @@ func encodeHandler(c *gin.Context) {
 		Profile:     json.Profile,
 		Source:      json.Source,
 		Destination: json.Destination,
+		Status:      types.JobCreated,
 	}
 
 	// Send to work queue.
@@ -84,7 +89,7 @@ func encodeHandler(c *gin.Context) {
 	c.JSON(http.StatusCreated, resp)
 }
 
-func jobsHandler(c *gin.Context) {
+func getJobsHandler(c *gin.Context) {
 	page := c.DefaultQuery("page", "1")
 	count := c.DefaultQuery("count", "10")
 	pageInt, _ := strconv.Atoi(page)
@@ -115,6 +120,52 @@ func jobsHandler(c *gin.Context) {
 		"count": jobsCount,
 		"items": jobs,
 	})
+}
+
+func getJobsByIDHandler(c *gin.Context) {
+	id := c.Param("id")
+	jobInt, _ := strconv.Atoi(id)
+
+	job, err := data.GetJobByID(jobInt)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"status":  http.StatusNotFound,
+			"message": "Job does not exist",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"status": http.StatusOK,
+		"job":    job,
+	})
+}
+
+func updateJobByIDHandler(c *gin.Context) {
+	id, _ := strconv.Atoi(c.Param("id"))
+
+	// Decode json.
+	var json updateRequest
+	if err := c.ShouldBindJSON(&json); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	job, err := data.GetJobByID(id)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"status":  http.StatusNotFound,
+			"message": "Job does not exist",
+		})
+		return
+	}
+
+	if json.Status != "" {
+		job.Status = json.Status
+	}
+
+	updatedJob := data.UpdateJobByID(id, *job)
+	c.JSON(http.StatusOK, updatedJob)
 }
 
 func workerQueuesHandler(c *gin.Context) {

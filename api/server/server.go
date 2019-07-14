@@ -49,7 +49,6 @@ func NewServer(serverCfg Config) {
 
 	// Web dashboard.
 	r.Static("/dashboard", "./web/dist")
-	// r.StaticFile("/", "./static/index.html")
 
 	// API.
 	api := r.Group("/api")
@@ -58,8 +57,10 @@ func NewServer(serverCfg Config) {
 		// api.GET("/profiles", profilesHandler)
 		api.GET("/s3/list", s3ListHandler)
 		api.GET("/profiles", profilesHandler)
-		api.POST("/encode", encodeHandler)
-		api.GET("/jobs", jobsHandler)
+		api.POST("/jobs", createJobHandler)
+		api.GET("/jobs", getJobsHandler)
+		api.GET("/jobs/:id", getJobsByIDHandler)
+		api.PUT("/jobs/:id", updateJobByIDHandler)
 		api.GET("/worker/queues", workerQueuesHandler)
 		api.GET("/worker/pools", workerPoolsHandler)
 		api.GET("/worker/busy", workerBusyHandler)
