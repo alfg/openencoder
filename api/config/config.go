@@ -23,8 +23,10 @@ type Config struct {
 	WorkerNamespace   string `mapstructure:"worker_namespace"`
 	WorkerJobName     string `mapstructure:"worker_job_name"`
 	WorkerConcurrency uint   `mapstructure:"worker_concurrency"`
-	S3Bucket          string `mapstructure:"s3_bucket"`
-	S3Region          string `mapstructure:"s3_region"`
+	S3InboundBucket   string `mapstructure:"s3_inbound_bucket"`
+	S3InboundRegion   string `mapstructure:"s3_inbound_region"`
+	S3OutboundBucket  string `mapstructure:"s3_outbound_bucket"`
+	S3OutboundRegion  string `mapstructure:"s3_outbound_region"`
 
 	Profiles []profile
 }

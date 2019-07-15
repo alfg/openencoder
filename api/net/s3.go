@@ -34,7 +34,7 @@ func S3Download(job types.Job) error {
 	// Create session.
 	downloader := s3manager.NewDownloader(session.New(
 		&aws.Config{
-			Region: aws.String(config.C.S3Region),
+			Region: aws.String(config.C.S3InboundRegion),
 		},
 	))
 
@@ -43,7 +43,7 @@ func S3Download(job types.Job) error {
 
 	// Get object input details.
 	objInput := s3.GetObjectInput{
-		Bucket: aws.String(config.Get().S3Bucket),
+		Bucket: aws.String(config.Get().S3InboundBucket),
 		Key:    aws.String(key),
 	}
 
@@ -78,14 +78,14 @@ func S3Upload(job types.Job) error {
 func S3ListFiles(prefix string) (*s3.ListObjectsV2Output, error) {
 	sess := session.New(
 		&aws.Config{
-			Region: aws.String(config.Get().S3Region),
+			Region: aws.String(config.Get().S3InboundRegion),
 		},
 	)
 
 	svc := s3.New(sess)
 	resp, err := svc.ListObjectsV2(
 		&s3.ListObjectsV2Input{
-			Bucket:    aws.String(config.Get().S3Bucket),
+			Bucket:    aws.String(config.Get().S3InboundBucket),
 			Delimiter: aws.String("/"),
 			Prefix:    aws.String(prefix),
 		},
@@ -118,11 +118,11 @@ func uploadFile(path string, job types.Job) error {
 	key := parsedURL.Path + filepath.Base(path)
 
 	uploader := s3manager.NewUploader(session.New(&aws.Config{
-		Region: aws.String(config.Get().S3Region),
+		Region: aws.String(config.Get().S3OutboundRegion),
 	}))
 	_, err = uploader.Upload(&s3manager.UploadInput{
 		Body:   file,
-		Bucket: aws.String(config.Get().S3Bucket),
+		Bucket: aws.String(config.Get().S3OutboundBucket),
 		Key:    aws.String(key),
 	})
 	if err != nil {

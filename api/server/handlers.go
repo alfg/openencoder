@@ -78,7 +78,6 @@ func createJobHandler(c *gin.Context) {
 	}
 
 	created := data.CreateJob(job)
-	fmt.Println(created)
 
 	// Create response.
 	resp := response{

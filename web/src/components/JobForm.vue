@@ -99,7 +99,7 @@ export default {
     },
 
     submitJob(data) {
-      const url = '/api/encode';
+      const url = '/api/jobs';
 
       fetch(url, {
         method: 'POST',

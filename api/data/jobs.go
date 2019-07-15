@@ -70,9 +70,7 @@ func CreateJob(job types.Job) *types.Job {
 
 // UpdateJobByID Update job by ID.
 func UpdateJobByID(id int, job types.Job) *types.Job {
-	const query = `UPDATE jobs
-		SET status = :status
-		WHERE id = :id`
+	const query = `UPDATE jobs SET status = :status WHERE id = :id`
 
 	db, _ := ConnectDB()
 	tx := db.MustBegin()
@@ -83,4 +81,19 @@ func UpdateJobByID(id int, job types.Job) *types.Job {
 	tx.Commit()
 
 	return &job
+}
+
+// UpdateJobStatus Update job status by ID.
+func UpdateJobStatus(guid string, status string) error {
+	const query = `UPDATE jobs SET status = $1 WHERE guid = $2`
+
+	db, _ := ConnectDB()
+	tx := db.MustBegin()
+	_, err := tx.Exec(query, status, guid)
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+	tx.Commit()
+	return nil
 }

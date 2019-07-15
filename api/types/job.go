@@ -10,6 +10,7 @@ const (
 	JobCreated     = "created"
 	JobPending     = "pending"
 	JobDownloading = "downloading"
+	JobEncoding    = "encoding"
 	JobUploading   = "uploading"
 	JobCompleted   = "completed"
 	JobError       = "error"

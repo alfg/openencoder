@@ -4,6 +4,7 @@ import (
 	"path"
 
 	"github.com/alfg/openencoder/api/config"
+	"github.com/alfg/openencoder/api/data"
 	"github.com/alfg/openencoder/api/encoder"
 	"github.com/alfg/openencoder/api/helpers"
 	"github.com/alfg/openencoder/api/net"
@@ -13,6 +14,9 @@ import (
 
 func download(job types.Job) error {
 	log.Info("running download task")
+
+	// Update status.
+	data.UpdateJobStatus(job.GUID, types.JobDownloading)
 
 	d := net.GetDownloadFunc()
 	err := d(job)
@@ -24,6 +28,9 @@ func download(job types.Job) error {
 
 func encode(job types.Job) error {
 	log.Info("running encode task")
+
+	// Update status.
+	data.UpdateJobStatus(job.GUID, types.JobEncoding)
 
 	p, err := config.GetFFmpegProfile(job.Profile)
 	if err != nil {
@@ -41,6 +48,9 @@ func encode(job types.Job) error {
 func upload(job types.Job) error {
 	log.Info("running upload task")
 
+	// Update status.
+	data.UpdateJobStatus(job.GUID, types.JobUploading)
+
 	d := net.GetUploadFunc()
 	err := d(job)
 	if err != nil {
@@ -49,16 +59,40 @@ func upload(job types.Job) error {
 	return err
 }
 
+func completed(job types.Job) error {
+	log.Info("job completed")
+
+	// Update status.
+	data.UpdateJobStatus(job.GUID, types.JobCompleted)
+
+	return nil
+}
+
 func runEncodeJob(job types.Job) {
 	// Set local src path.
 	job.LocalSource = helpers.GetLocalSourcePath(job.Source, job.GUID)
 
 	// 1. Download.
-	download(job)
+	err := download(job)
+	if err != nil {
+		log.Error(err)
+		data.UpdateJobStatus(job.GUID, types.JobError)
+	}
 
 	// 2. Encode.
-	encode(job)
+	err = encode(job)
+	if err != nil {
+		log.Error(err)
+		data.UpdateJobStatus(job.GUID, types.JobError)
+	}
 
 	// 3. Upload.
-	upload(job)
+	err = upload(job)
+	if err != nil {
+		log.Error(err)
+		data.UpdateJobStatus(job.GUID, types.JobError)
+	}
+
+	// 4. Done
+	completed(job)
 }
