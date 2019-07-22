@@ -12,10 +12,14 @@ import (
 	// _ "github.com/mattn/go-sqlite3"
 )
 
-var connectionString = ""
+var (
+	connectionString = ""
+	conn             *sqlx.DB
+)
 
 // ConnectDB Connects to postgres database
 func ConnectDB() (*sqlx.DB, error) {
+	var err error
 	if connectionString == "" {
 		fmt.Println("connection not set. setting now.")
 		var (
@@ -29,9 +33,9 @@ func ConnectDB() (*sqlx.DB, error) {
 			"password=%s dbname=%s sslmode=disable",
 			host, port, user, password, dbname)
 	}
-	db, err := sqlx.Connect("postgres", connectionString)
-	if err != nil {
-		log.Fatalln(err)
+
+	if conn, err = sqlx.Connect("postgres", connectionString); err != nil {
+		log.Panic(err)
 	}
-	return db, err
+	return conn, err
 }

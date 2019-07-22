@@ -5,6 +5,7 @@ import (
 	"os"
 	"os/signal"
 
+	"github.com/alfg/openencoder/api/config"
 	"github.com/alfg/openencoder/api/types"
 	"github.com/gocraft/work"
 	"github.com/gomodule/redigo/redis"
@@ -117,7 +118,7 @@ func NewWorker(workerCfg Config) {
 	pool.Middleware((*Context).FindJob)
 
 	// Map the name of jobs to handler functions
-	pool.Job("encode", (*Context).SendJob)
+	pool.Job(config.Get().WorkerJobName, (*Context).SendJob)
 
 	// Customize options:
 	// pool.JobWithOptions("export", work.JobOptions{Priority: 10, MaxFails: 1}, (*Context).Export)

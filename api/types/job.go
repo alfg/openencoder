@@ -7,8 +7,7 @@ import (
 
 // Job status types.
 const (
-	JobCreated     = "created"
-	JobPending     = "pending"
+	JobQueued      = "queued"
 	JobDownloading = "downloading"
 	JobEncoding    = "encoding"
 	JobUploading   = "uploading"
@@ -18,8 +17,7 @@ const (
 
 // JobStatuses All job status types.
 var JobStatuses = []string{
-	JobCreated,
-	JobPending,
+	JobQueued,
 	JobDownloading,
 	JobEncoding,
 	JobUploading,

@@ -17,6 +17,7 @@ func GetJobs(offset, count int) *[]types.Job {
 	if err != nil {
 		fmt.Println(err)
 	}
+	db.Close()
 	return &jobs
 }
 
@@ -31,6 +32,7 @@ func GetJobByID(id int) (*types.Job, error) {
 		fmt.Println(err)
 		return &job, err
 	}
+	db.Close()
 	return &job, nil
 }
 
@@ -40,10 +42,11 @@ func GetJobsCount() int {
 	const query = `SELECT COUNT(*) FROM jobs`
 
 	db, _ := ConnectDB()
-	err := db.QueryRow(query).Scan(&count)
+	err := db.Get(&count, query)
 	if err != nil {
 		fmt.Println(err)
 	}
+	db.Close()
 	return count
 }
 
@@ -63,6 +66,7 @@ func GetJobsStats() (*[]Stats, error) {
 		fmt.Println(err)
 		return &s, err
 	}
+	db.Close()
 
 	// Set all statuses.
 	var resp []Stats
@@ -99,6 +103,7 @@ func CreateJob(job types.Job) *types.Job {
 	lastID, _ := result.LastInsertId()
 	job.ID = lastID
 
+	db.Close()
 	return &job
 }
 
@@ -114,6 +119,7 @@ func UpdateJobByID(id int, job types.Job) *types.Job {
 	}
 	tx.Commit()
 
+	db.Close()
 	return &job
 }
 
@@ -129,5 +135,7 @@ func UpdateJobStatus(guid string, status string) error {
 		return err
 	}
 	tx.Commit()
+
+	db.Close()
 	return nil
 }

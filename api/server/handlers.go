@@ -63,7 +63,7 @@ func createJobHandler(c *gin.Context) {
 		Profile:     json.Profile,
 		Source:      json.Source,
 		Destination: json.Destination,
-		Status:      types.JobCreated,
+		Status:      types.JobQueued, // Status queued.
 	}
 
 	// Send to work queue.

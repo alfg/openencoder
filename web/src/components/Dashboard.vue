@@ -20,6 +20,8 @@
 </template>
 
 <script>
+const STATS_INTERVAL = 5000;
+
 export default {
   name: 'dashboard',
 
@@ -31,14 +33,16 @@ export default {
 
   mounted() {
     this.getStats();
+    setInterval(() => {
+      this.getStats();
+    }, STATS_INTERVAL);
   },
 
   methods: {
     getStatusColor(o) {
       const statusMap = {
-        created: 'primary',
+        queued: 'primary',
         completed: 'success',
-        pending: 'warning',
         downloading: 'warning',
         encoding: 'info',
         uploading: 'warning',
