@@ -16,6 +16,18 @@ const (
 	JobError       = "error"
 )
 
+// JobStatuses All job status types.
+var JobStatuses = []string{
+	JobCreated,
+	JobPending,
+	JobDownloading,
+	JobEncoding,
+	JobUploading,
+	JobCompleted,
+	JobError,
+}
+
+// Job describes the job info.
 type Job struct {
 	ID               int64  `db:"id" json:"id,omitempty"`
 	GUID             string `db:"guid" json:"guid,omitempty"`

@@ -47,6 +47,40 @@ func GetJobsCount() int {
 	return count
 }
 
+type Stats struct {
+	Status string `db:"status" json:"status"`
+	Count  int    `db:"count" json:"count"`
+}
+
+// GetJobsStats Gets a count of each status.
+func GetJobsStats() (*[]Stats, error) {
+	const query = `SELECT status, count(status) FROM jobs GROUP BY status, status;`
+
+	s := []Stats{}
+	db, _ := ConnectDB()
+	err := db.Select(&s, query)
+	if err != nil {
+		fmt.Println(err)
+		return &s, err
+	}
+
+	// Set all statuses.
+	var resp []Stats
+	for _, v := range types.JobStatuses {
+		r := Stats{}
+		for _, j := range s {
+			if j.Status == v {
+				r.Status = j.Status
+				r.Count = j.Count
+			} else {
+				r.Status = v
+			}
+		}
+		resp = append(resp, r)
+	}
+	return &resp, nil
+}
+
 // CreateJob creates a job in database.
 func CreateJob(job types.Job) *types.Job {
 	const query = `INSERT INTO jobs (guid,profile,status) VALUES (:guid,:profile,:status)`

@@ -167,6 +167,24 @@ func updateJobByIDHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, updatedJob)
 }
 
+func getStatsHandler(c *gin.Context) {
+	stats, err := data.GetJobsStats()
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"status":  http.StatusNotFound,
+			"message": "Job does not exist",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"status": http.StatusOK,
+		"stats": gin.H{
+			"jobs": stats,
+		},
+	})
+}
+
 func workerQueuesHandler(c *gin.Context) {
 	client := work.NewClient(config.Get().WorkerNamespace, redisPool)
 
