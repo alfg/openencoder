@@ -1,22 +1,32 @@
 <template>
   <div id="app">
     <b-navbar class="mb-4" toggleable="lg" type="dark" variant="dark">
-      <b-navbar-brand href="#">Dashboard</b-navbar-brand>
+      <b-navbar-brand href="#">Cloud Encoder</b-navbar-brand>
 
       <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
 
-      <b-collapse id="nav-collapse" is-nav>
+      <!-- <b-collapse id="nav-collapse" is-nav>
         <b-navbar-nav>
           <b-nav-item to="/">Home</b-nav-item>
           <b-nav-item to="/create">Create</b-nav-item>
           <b-nav-item to="/jobs">Jobs</b-nav-item>
           <b-nav-item to="/queues">Queues</b-nav-item>
           <b-nav-item to="/workers">Workers</b-nav-item>
-          <!-- <b-nav-item to="/machines">Machines</b-nav-item>
-          <b-nav-item to="/status">Status</b-nav-item> -->
+          <b-nav-item to="/machines">Machines</b-nav-item>
+          <b-nav-item to="/status">Status</b-nav-item>
         </b-navbar-nav>
-      </b-collapse>
+      </b-collapse> -->
     </b-navbar>
+
+    <div class="container mb-4">
+      <b-nav tabs>
+        <b-nav-item to="/">Dashboard</b-nav-item>
+        <b-nav-item to="/create">Create</b-nav-item>
+        <b-nav-item to="/jobs">Jobs</b-nav-item>
+        <b-nav-item to="/queue">Queue</b-nav-item>
+        <b-nav-item to="/workers">Workers</b-nav-item>
+      </b-nav>
+    </div>
 
     <router-view/>
   </div>
@@ -32,6 +42,9 @@
 }
 
 #app a.router-link-exact-active {
-  color: #ffffff;
+  /* color: #ffffff; */
+  color: #495057;
+  background-color: #fff;
+  border-color: #dee2e6 #dee2e6 #fff;
 }
 </style>

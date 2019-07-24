@@ -1,5 +1,5 @@
 <template>
-  <div id="queues-table">
+  <div id="queue-table">
     <b-table striped hover dark :items="items"></b-table>
   </div>
 </template>
@@ -13,12 +13,12 @@ export default {
   },
 
   mounted() {
-    this.getQueues();
+    this.getQueue();
   },
 
   methods: {
-    getQueues() {
-      const url = '/api/worker/queues';
+    getQueue() {
+      const url = '/api/worker/queue';
 
       fetch(url)
         .then(response => (

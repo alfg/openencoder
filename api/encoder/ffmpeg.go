@@ -5,6 +5,7 @@ import (
 	"os"
 	"os/exec"
 	"strings"
+	"time"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -33,6 +34,9 @@ func (f FFmpeg) Run(input string, output string, options []string) {
 	// Execute command.
 	cmd := exec.Command(FFMPEG, args...)
 
+	// Start reading logs.
+	go readLog()
+
 	log.Info("running FFmpeg with options: ", args)
 	stdout, err := cmd.CombinedOutput()
 	if err != nil {
@@ -41,68 +45,21 @@ func (f FFmpeg) Run(input string, output string, options []string) {
 	fmt.Println(string(stdout))
 }
 
-// Remux content.
-func (f FFmpeg) Remux(video string, audio string, output string) {
-	cmd := exec.Command(FFMPEG, "-i", video, "-i", audio, "-c", "copy", "-map", "0:0", "-map", "1:0", output)
-	stdout, err := cmd.CombinedOutput()
-	if err != nil {
-		fmt.Println(err.Error())
+func readLog() {
+	c := time.Tick(10 * time.Second)
+	for _ = range c {
+		file, err := os.Open("progress-log.txt")
+		if err != nil {
+			panic(err)
+		}
+		defer file.Close()
+
+		buf := make([]byte, 62)
+		stat, err := os.Stat("progress-log.txt")
+		start := stat.Size() - 62
+		_, err = file.ReadAt(buf, start)
+		if err == nil {
+			fmt.Printf("%s\n", buf)
+		}
 	}
-	fmt.Println(string(stdout))
-}
-
-// Demux demuxes a single MP4 into a video and audio MP4.
-func (f FFmpeg) Demux(source string, dest string) {
-
-	createDir(dest)
-
-	// Split video.
-	videoOutput := dest + "/video.mp4"
-	cmd := exec.Command(FFMPEG, "-i", source, "-an", "-c", "copy", videoOutput)
-	stdout, err := cmd.CombinedOutput()
-	if err != nil {
-		fmt.Println(err.Error())
-	}
-	fmt.Println(string(stdout))
-
-	audioOutput := dest + "/audio.mp4"
-	// Split audio.
-	cmd = exec.Command(FFMPEG, "-i", source, "-map", "0:1", "-c", "copy", audioOutput)
-	stdout, err = cmd.CombinedOutput()
-	if err != nil {
-		fmt.Println(err.Error())
-	}
-	fmt.Println(string(stdout))
-}
-
-// Encode runs an encoder process with progress log.
-func (f FFmpeg) Encode(input string, output string) {
-	cmd := exec.Command(FFMPEG, "-progress", "progress-log.txt", "-i", input, "-b", "1000000", output)
-
-	fmt.Println("Encoding...")
-	stdout, err := cmd.CombinedOutput()
-	if err != nil {
-		fmt.Println(err.Error())
-	}
-	fmt.Println(string(stdout))
-}
-
-// FFmpegBuildConf outputs the FFmpeg build configuration.
-func (f FFmpeg) FFmpegBuildConf() {
-	cmd := exec.Command(FFMPEG, "-buildconf")
-	stdout, err := cmd.CombinedOutput()
-	if err != nil {
-		fmt.Println(err.Error())
-	}
-	fmt.Println(string(stdout))
-}
-
-func createDir(path string) {
-	if _, err := os.Stat(path); os.IsNotExist(err) {
-		os.Mkdir(path, os.ModePerm)
-	}
-}
-
-func buildOptions() {
-
 }

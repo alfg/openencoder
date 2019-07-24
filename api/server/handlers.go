@@ -185,7 +185,7 @@ func getStatsHandler(c *gin.Context) {
 	})
 }
 
-func workerQueuesHandler(c *gin.Context) {
+func workerQueueHandler(c *gin.Context) {
 	client := work.NewClient(config.Get().WorkerNamespace, redisPool)
 
 	queues, err := client.Queues()

@@ -72,7 +72,7 @@ func NewServer(serverCfg Config) {
 		api.GET("/stats", getStatsHandler)
 
 		// Worker info.
-		api.GET("/worker/queues", workerQueuesHandler)
+		api.GET("/worker/queue", workerQueueHandler)
 		api.GET("/worker/pools", workerPoolsHandler)
 		api.GET("/worker/busy", workerBusyHandler)
 	}
