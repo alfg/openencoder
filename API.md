@@ -1,9 +1,11 @@
-#### Encode API
-Encode API resource.
+#### Jobs API
+Jobs API resource.
 
 | Method | Endpoint | Description |
 | :----: | ---- | --------------- |
-| **POST** | [/api/encode](#create-encode) | Create encode job. |
+| **POST** | [/api/jobs](#create-job) | Create encode job. |
+| **GET** | [/api/jobs](#list-jobs) | Get jobs list. |
+| **GET** | [/api/jobs/:job_id](#get-job) | Get job details. |
 
 ---
 
@@ -39,16 +41,6 @@ Content-Type: application/json
 
 ---
 
-#### Jobs API
-Jobs API resource.
-
-| Method | Endpoint | Description |
-| :----: | ---- | --------------- |
-| **GET** | [/api/jobs](#list-jobs) | Get jobs list. |
-| **GET** | [/api/jobs/:job_id](#get-job) | Get job details. |
-
----
-
 #### List jobs
 ```
 GET /api/jobs
@@ -78,7 +70,7 @@ Content-Type: application/json
 }
 ```
 
-====
+---
 
 #### Get Job
 ```
