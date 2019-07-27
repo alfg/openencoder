@@ -10,7 +10,7 @@
 
 https://godoc.org/github.com/alfg/enc
 
-[![Build Status](https://travis-ci.org/alfg/openencoder.svg?branch=master)](https://travis-ci.org/alfg/enc) 
+[![Build Status](https://travis-ci.org/alfg/openencoder.svg?branch=master)](https://travis-ci.org/alfg/openencoder) 
 [![GoDoc](https://godoc.org/github.com/alfg/openencoder?status.svg)](https://godoc.org/github.com/alfg/openencoder)
 [![Go Report Card](https://goreportcard.com/badge/github.com/alfg/openencoder)](https://goreportcard.com/report/github.com/alfg/openencoder)
 
