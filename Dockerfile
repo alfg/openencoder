@@ -34,8 +34,10 @@ COPY --from=builder /user/group /user/passwd /etc/
 # Import the Certificate-Authority certificates for enabling HTTPS.
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 
-# Import the project executable.
+# Import the project web & executable.
+COPY --from=builder /src/web/dist /web/dist
 COPY --from=builder /app /app
+COPY --from=builder /src/config/default.yml /config/default.yml
 
 EXPOSE 8080
 

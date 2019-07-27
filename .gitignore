@@ -1,4 +1,5 @@
 .DS_Store
+.env
 *.mp4
 *.exe
 *.exe~
