@@ -8,7 +8,7 @@
 * S3-based storage
 * Web Dashboard UI for managing encode jobs
 
-https://godoc.org/github.com/alfg/enc
+https://godoc.org/github.com/alfg/openencoder
 
 [![Build Status](https://travis-ci.org/alfg/openencoder.svg?branch=master)](https://travis-ci.org/alfg/openencoder) 
 [![GoDoc](https://godoc.org/github.com/alfg/openencoder?status.svg)](https://godoc.org/github.com/alfg/openencoder)
