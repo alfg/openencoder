@@ -1,16 +1,8 @@
-BINARY=enc
-BINARY_SERVER=server
-BINARY_WORKER=worker
+BINARY=openencoder
 
 .PHONY: all
 
 all: build
 
 build:
-	go build -o ${BINARY} cmd/main.go
-
-server:
-	go build -o ${BINARY_SERVER} cmd/server/server.go
-
-worker:
-	go build -o ${BINARY_WORKER} cmd/worker/worker.go
+    CGO_ENABLED=0 GOOS=linux go build -installsuffix 'static' -v -o ${BINARY} .
