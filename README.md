@@ -3,7 +3,7 @@
 
 ⚠️*Currently a work-in-progress!*
 
-* Encoding HTTP API for submitting jobs to FFmpeg
+* HTTP API for submitting jobs to an FFmpeg worker
 * Redis-backed worker
 * S3-based storage
 * Web Dashboard UI for managing encode jobs
