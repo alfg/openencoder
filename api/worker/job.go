@@ -1,7 +1,10 @@
 package worker
 
 import (
+	"fmt"
 	"path"
+	"strconv"
+	"time"
 
 	"github.com/alfg/openencoder/api/config"
 	"github.com/alfg/openencoder/api/data"
@@ -11,6 +14,8 @@ import (
 	"github.com/alfg/openencoder/api/types"
 	log "github.com/sirupsen/logrus"
 )
+
+var quit chan struct{}
 
 func download(job types.Job) error {
 	log.Info("running download task")
@@ -26,7 +31,19 @@ func download(job types.Job) error {
 	return err
 }
 
-func encode(job types.Job) error {
+func probe(job types.Job) (*encoder.FFProbeResponse, error) {
+	log.Info("running probe task")
+
+	// Update status.
+	data.UpdateJobStatus(job.GUID, types.JobProbing)
+
+	// Run FFProbe.
+	f := encoder.FFProbe{}
+	probeData := f.Run(job.LocalSource)
+	return probeData, nil
+}
+
+func encode(job types.Job, probeData *encoder.FFProbeResponse) error {
 	log.Info("running encode task")
 
 	// Update status.
@@ -39,8 +56,12 @@ func encode(job types.Job) error {
 	dest := path.Dir(job.LocalSource) + "/dst/" + p.Output
 
 	// Run FFmpeg.
-	f := encoder.FFmpeg{}
+	f := &encoder.FFmpeg{}
+	go trackProgress(probeData, f)
 	f.Run(job.LocalSource, dest, p.Options)
+	close(quit)
+
+	// Set encode progress to 100.
 
 	return err
 }
@@ -79,20 +100,50 @@ func runEncodeJob(job types.Job) {
 		data.UpdateJobStatus(job.GUID, types.JobError)
 	}
 
-	// 2. Encode.
-	err = encode(job)
+	// 2. Probe data.
+	probeData, err := probe(job)
 	if err != nil {
 		log.Error(err)
 		data.UpdateJobStatus(job.GUID, types.JobError)
 	}
 
-	// 3. Upload.
+	// 3. Encode.
+	err = encode(job, probeData)
+	if err != nil {
+		log.Error(err)
+		data.UpdateJobStatus(job.GUID, types.JobError)
+	}
+
+	// 4. Upload.
 	err = upload(job)
 	if err != nil {
 		log.Error(err)
 		data.UpdateJobStatus(job.GUID, types.JobError)
 	}
 
-	// 4. Done
+	// 5. Done
 	completed(job)
+}
+
+func trackProgress(p *encoder.FFProbeResponse, f *encoder.FFmpeg) {
+	quit = make(chan struct{})
+	ticker := time.NewTicker(time.Second * 2)
+
+	for {
+		select {
+		case <-quit:
+			ticker.Stop()
+			return
+		case <-ticker.C:
+			currentFrame := f.Progress.Frame
+			totalFrames, _ := strconv.Atoi(p.Streams[0].NbFrames)
+
+			pct := (float64(currentFrame) / float64(totalFrames)) * 100
+
+			fmt.Println("progress", currentFrame, totalFrames)
+			fmt.Printf("%0.2f\n", pct)
+
+			// TODO: Update DB with progress.
+		}
+	}
 }

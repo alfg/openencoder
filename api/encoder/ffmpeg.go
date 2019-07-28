@@ -2,7 +2,6 @@ package encoder
 
 import (
 	"bufio"
-	"fmt"
 	"io"
 	"os/exec"
 	"strconv"
@@ -12,8 +11,10 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-// FFMPEG bin
-const FFMPEG = "ffmpeg"
+const (
+	ffmpegCmd      = "ffmpeg"
+	updateInterval = time.Second * 5
+)
 
 // FFmpeg struct.
 type FFmpeg struct {
@@ -34,7 +35,7 @@ type progress struct {
 	Progress   string
 }
 
-// Run runs an encoder process with options.
+// Run runs the ffmpeg encoder with options.
 func (f *FFmpeg) Run(input string, output string, options []string) {
 	args := []string{
 		"-hide_banner",
@@ -51,7 +52,7 @@ func (f *FFmpeg) Run(input string, output string, options []string) {
 
 	// Execute command.
 	log.Info("running FFmpeg with options: ", args)
-	cmd := exec.Command(FFMPEG, args...)
+	cmd := exec.Command(ffmpegCmd, args...)
 	stdout, _ := cmd.StdoutPipe()
 	cmd.Start()
 
@@ -91,6 +92,7 @@ func (f *FFmpeg) setProgressParts(parts []string) {
 			fps, _ := strconv.ParseFloat(v, 64)
 			f.Progress.FPS = fps
 		case "bitrate":
+			v = strings.Replace(v, "kbits/s", "", -1)
 			bitrate, _ := strconv.ParseFloat(v, 64)
 			f.Progress.Bitrate = bitrate
 		case "total_size":
@@ -117,7 +119,7 @@ func (f *FFmpeg) setProgressParts(parts []string) {
 
 func (f *FFmpeg) trackProgress() {
 	f.Progress.quit = make(chan struct{})
-	ticker := time.NewTicker(time.Second * 1)
+	ticker := time.NewTicker(updateInterval)
 
 	for {
 		select {
@@ -125,9 +127,7 @@ func (f *FFmpeg) trackProgress() {
 			ticker.Stop()
 			return
 		case <-ticker.C:
-			// do stuff
-			fmt.Println("tick")
-			fmt.Println(f.Progress)
+			// fmt.Println(f.Progress)
 		}
 	}
 }

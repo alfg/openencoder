@@ -9,6 +9,7 @@ import (
 const (
 	JobQueued      = "queued"
 	JobDownloading = "downloading"
+	JobProbing     = "probing"
 	JobEncoding    = "encoding"
 	JobUploading   = "uploading"
 	JobCompleted   = "completed"
@@ -19,6 +20,7 @@ const (
 var JobStatuses = []string{
 	JobQueued,
 	JobDownloading,
+	JobProbing,
 	JobEncoding,
 	JobUploading,
 	JobCompleted,
