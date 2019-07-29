@@ -1,7 +1,8 @@
 package worker
 
 import (
-	"fmt"
+	"encoding/json"
+	"math"
 	"path"
 	"strconv"
 	"time"
@@ -40,6 +41,15 @@ func probe(job types.Job) (*encoder.FFProbeResponse, error) {
 	// Run FFProbe.
 	f := encoder.FFProbe{}
 	probeData := f.Run(job.LocalSource)
+
+	// Add probe data to DB.
+	b, err := json.Marshal(probeData)
+	if err != nil {
+		log.Error(err)
+	}
+	j, _ := data.GetJobByGUID(job.GUID)
+	data.UpdateEncodeDataByID(j.EncodeDataID, string(b))
+
 	return probeData, nil
 }
 
@@ -55,13 +65,18 @@ func encode(job types.Job, probeData *encoder.FFProbeResponse) error {
 	}
 	dest := path.Dir(job.LocalSource) + "/dst/" + p.Output
 
+	// Get job data.
+	j, _ := data.GetJobByGUID(job.GUID)
+	encodeID := j.EncodeDataID
+
 	// Run FFmpeg.
 	f := &encoder.FFmpeg{}
-	go trackProgress(probeData, f)
+	go trackProgress(encodeID, probeData, f)
 	f.Run(job.LocalSource, dest, p.Options)
 	close(quit)
 
 	// Set encode progress to 100.
+	data.UpdateEncodeProgressByID(encodeID, 100)
 
 	return err
 }
@@ -125,7 +140,7 @@ func runEncodeJob(job types.Job) {
 	completed(job)
 }
 
-func trackProgress(p *encoder.FFProbeResponse, f *encoder.FFmpeg) {
+func trackProgress(encodeID int64, p *encoder.FFProbeResponse, f *encoder.FFmpeg) {
 	quit = make(chan struct{})
 	ticker := time.NewTicker(time.Second * 2)
 
@@ -140,10 +155,10 @@ func trackProgress(p *encoder.FFProbeResponse, f *encoder.FFmpeg) {
 
 			pct := (float64(currentFrame) / float64(totalFrames)) * 100
 
-			fmt.Println("progress", currentFrame, totalFrames)
-			fmt.Printf("%0.2f\n", pct)
-
-			// TODO: Update DB with progress.
+			// Update DB with progress.
+			pct = math.Round(pct*100) / 100
+			log.Infof("progress: %d / %d - %0.2f%%\n", currentFrame, totalFrames, pct)
+			data.UpdateEncodeProgressByID(encodeID, pct)
 		}
 	}
 }

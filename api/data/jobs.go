@@ -26,11 +26,35 @@ func GetJobByID(id int) (*types.Job, error) {
 	const query = `
       SELECT
         jobs.*,
+        encode_data.id "encode_data.id",
         encode_data.data "encode_data.data",
         encode_data.progress "encode_data.progress"
       FROM jobs
       LEFT JOIN encode_data ON jobs.id = encode_data.job_id
       WHERE jobs.id = $1`
+
+	db, _ := ConnectDB()
+	job := types.Job{}
+	err := db.Get(&job, query, id)
+	if err != nil {
+		fmt.Println(err)
+		return &job, err
+	}
+	db.Close()
+	return &job, nil
+}
+
+// GetJobByGUID Gets a job by GUID.
+func GetJobByGUID(id string) (*types.Job, error) {
+	const query = `
+      SELECT
+        jobs.*,
+        encode_data.id "encode_data.id",
+        encode_data.data "encode_data.data",
+        encode_data.progress "encode_data.progress"
+      FROM jobs
+      LEFT JOIN encode_data ON jobs.id = encode_data.job_id
+      WHERE jobs.guid = $1`
 
 	db, _ := ConnectDB()
 	job := types.Job{}
@@ -57,6 +81,7 @@ func GetJobsCount() int {
 	return count
 }
 
+// Stats struct for displaying status and count of a job.
 type Stats struct {
 	Status string `db:"status" json:"status"`
 	Count  int    `db:"count" json:"count"`
@@ -126,19 +151,62 @@ func CreateEncodeData(ed types.EncodeData) *types.EncodeData {
 	const query = `
       INSERT INTO
         encode_data (data,progress,job_id)
-      VALUES (:data,:progress,:job_id)`
+      VALUES (:data,:progress,:job_id)
+      RETURNING id`
 
 	db, _ := ConnectDB()
 	tx := db.MustBegin()
-	_, err := tx.NamedExec(query, &ed)
-
+	stmt, err := tx.PrepareNamed(query)
 	if err != nil {
-		fmt.Println("Error", err)
+		fmt.Println("Error", err.Error())
+	}
+
+	var id int64 // Returned ID.
+	err = stmt.QueryRowx(&ed).Scan(&id)
+	if err != nil {
+		fmt.Println("Error", err.Error())
+	}
+	tx.Commit()
+
+	// Set to Job type response.
+	ed.EncodeDataID = id
+
+	db.Close()
+	return &ed
+}
+
+// UpdateEncodeDataByID Update encode_data by ID.
+func UpdateEncodeDataByID(id int64, jsonString string) error {
+	const query = `UPDATE encode_data SET data = $1 WHERE id = $2`
+
+	db, _ := ConnectDB()
+	tx := db.MustBegin()
+	_, err := tx.Exec(query, jsonString, id)
+	if err != nil {
+		fmt.Println(err)
+		return err
 	}
 	tx.Commit()
 
 	db.Close()
-	return &ed
+	return nil
+}
+
+// UpdateEncodeProgressByID Update progress by ID.
+func UpdateEncodeProgressByID(id int64, progress float64) error {
+	const query = `UPDATE encode_data SET progress = $1 WHERE id = $2`
+
+	db, _ := ConnectDB()
+	tx := db.MustBegin()
+	_, err := tx.Exec(query, progress, id)
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+	tx.Commit()
+
+	db.Close()
+	return nil
 }
 
 // UpdateJobByID Update job by ID.

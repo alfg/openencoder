@@ -42,9 +42,9 @@ type index struct {
 
 func indexHandler(c *gin.Context) {
 	resp := index{
-		Name:    "openenc",
+		Name:    "openencoder",
 		Version: "0.0.1",
-		Github:  "https://github.com/alfg/enc",
+		Github:  "https://github.com/alfg/openencoder",
 	}
 	c.JSON(200, resp)
 }
@@ -84,7 +84,7 @@ func createJobHandler(c *gin.Context) {
 		JobID: created.ID,
 		Progress: types.NullFloat64{
 			NullFloat64: sql.NullFloat64{
-				Float64: 0.01,
+				Float64: 0,
 				Valid:   true,
 			},
 		},
@@ -95,7 +95,8 @@ func createJobHandler(c *gin.Context) {
 			},
 		},
 	}
-	data.CreateEncodeData(ed)
+	edCreated := data.CreateEncodeData(ed)
+	created.EncodeDataID = edCreated.EncodeDataID
 
 	// Create response.
 	resp := response{
