@@ -23,7 +23,14 @@ func GetJobs(offset, count int) *[]types.Job {
 
 // GetJobByID Gets a job by ID.
 func GetJobByID(id int) (*types.Job, error) {
-	const query = `SELECT * FROM jobs WHERE id = $1`
+	const query = `
+      SELECT
+        jobs.*,
+        encode_data.data "encode_data.data",
+        encode_data.progress "encode_data.progress"
+      FROM jobs
+      LEFT JOIN encode_data ON jobs.id = encode_data.job_id
+      WHERE jobs.id = $1`
 
 	db, _ := ConnectDB()
 	job := types.Job{}
@@ -87,24 +94,51 @@ func GetJobsStats() (*[]Stats, error) {
 
 // CreateJob creates a job in database.
 func CreateJob(job types.Job) *types.Job {
-	const query = `INSERT INTO jobs (guid,profile,status) VALUES (:guid,:profile,:status)`
+	const query = `
+      INSERT INTO
+        jobs (guid,profile,status)
+      VALUES (:guid,:profile,:status)
+      RETURNING id`
 
 	db, _ := ConnectDB()
 	tx := db.MustBegin()
-	result, err := tx.NamedExec(query, &job)
+	stmt, err := tx.PrepareNamed(query)
+	if err != nil {
+		fmt.Println("Error", err.Error())
+	}
+
+	var id int64 // Returned ID.
+	err = stmt.QueryRowx(&job).Scan(&id)
+	if err != nil {
+		fmt.Println("Error", err.Error())
+	}
+	tx.Commit()
+
+	// Set to Job type response.
+	job.ID = id
+
+	db.Close()
+	return &job
+}
+
+// CreateEncodeData creates encode_data in database.
+func CreateEncodeData(ed types.EncodeData) *types.EncodeData {
+	const query = `
+      INSERT INTO
+        encode_data (data,progress,job_id)
+      VALUES (:data,:progress,:job_id)`
+
+	db, _ := ConnectDB()
+	tx := db.MustBegin()
+	_, err := tx.NamedExec(query, &ed)
 
 	if err != nil {
 		fmt.Println("Error", err)
 	}
 	tx.Commit()
 
-	fmt.Println("transaction done")
-
-	lastID, _ := result.LastInsertId()
-	job.ID = lastID
-
 	db.Close()
-	return &job
+	return &ed
 }
 
 // UpdateJobByID Update job by ID.

@@ -1,6 +1,7 @@
 package server
 
 import (
+	"database/sql"
 	"fmt"
 	"log"
 	"net/http"
@@ -76,8 +77,25 @@ func createJobHandler(c *gin.Context) {
 	if err != nil {
 		log.Fatal(err)
 	}
-
 	created := data.CreateJob(job)
+
+	// Create the encode_data relationship.
+	ed := types.EncodeData{
+		JobID: created.ID,
+		Progress: types.NullFloat64{
+			NullFloat64: sql.NullFloat64{
+				Float64: 0.01,
+				Valid:   true,
+			},
+		},
+		Data: types.NullString{
+			NullString: sql.NullString{
+				String: "{}",
+				Valid:  true,
+			},
+		},
+	}
+	data.CreateEncodeData(ed)
 
 	// Create response.
 	resp := response{
