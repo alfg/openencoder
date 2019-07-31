@@ -23,22 +23,22 @@ create index jobs_status_index
   on jobs (status);
 
 -- auto-generated definition
-create table encode_data
+create table encode
 (
   id       serial not null
-    constraint encode_data_pkey
+    constraint encode_pkey
     primary key,
   data     json,
   progress double precision default 0,
   job_id   integer
-    constraint encode_data_jobs_id_fk
+    constraint encode_jobs_id_fk
     references jobs (id)
 );
 
-alter table encode_data
+alter table encode
   owner to postgres;
 
-create unique index encode_data_id_uindex
-  on encode_data (id);
+create unique index encode_id_uindex
+  on encode (id);
 
 

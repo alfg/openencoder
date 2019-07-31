@@ -79,7 +79,7 @@ func createJobHandler(c *gin.Context) {
 	}
 	created := data.CreateJob(job)
 
-	// Create the encode_data relationship.
+	// Create the encode relationship.
 	ed := types.EncodeData{
 		JobID: created.ID,
 		Progress: types.NullFloat64{

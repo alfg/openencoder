@@ -36,7 +36,7 @@ type Job struct {
 	Status      string `db:"status" json:"status"`
 
 	// EncodeData.
-	EncodeData `db:"encode_data"`
+	EncodeData `db:"encode"`
 
 	Source           string `json:"source,omitempty"`
 	Destination      string `json:"destination,omitempty"`
@@ -48,7 +48,7 @@ type Job struct {
 type EncodeData struct {
 	EncodeDataID int64       `db:"id" json:"-"`
 	JobID        int64       `db:"job_id" json:"-"`
-	Data         NullString  `db:"data" json:"encode_data,omitempty"`
+	Data         NullString  `db:"data" json:"encode,omitempty"`
 	Progress     NullFloat64 `db:"progress" json:"progress,omitempty"`
 }
 

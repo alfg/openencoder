@@ -11,11 +11,11 @@ func GetJobs(offset, count int) *[]types.Job {
 	const query = `
 	  SELECT
         jobs.*,
-        encode_data.id "encode_data.id",
-        encode_data.data "encode_data.data",
-        encode_data.progress "encode_data.progress"
+        encode.id "encode.id",
+        encode.data "encode.data",
+        encode.progress "encode.progress"
 	  FROM jobs
-      LEFT JOIN encode_data ON jobs.id = encode_data.job_id
+      LEFT JOIN encode ON jobs.id = encode.job_id
 	  ORDER BY id DESC
       LIMIT $1 OFFSET $2`
 
@@ -34,11 +34,11 @@ func GetJobByID(id int) (*types.Job, error) {
 	const query = `
       SELECT
         jobs.*,
-        encode_data.id "encode_data.id",
-        encode_data.data "encode_data.data",
-        encode_data.progress "encode_data.progress"
+        encode.id "encode.id",
+        encode.data "encode.data",
+        encode.progress "encode.progress"
       FROM jobs
-      LEFT JOIN encode_data ON jobs.id = encode_data.job_id
+      LEFT JOIN encode ON jobs.id = encode.job_id
       WHERE jobs.id = $1`
 
 	db, _ := ConnectDB()
@@ -57,11 +57,11 @@ func GetJobByGUID(id string) (*types.Job, error) {
 	const query = `
       SELECT
         jobs.*,
-        encode_data.id "encode_data.id",
-        encode_data.data "encode_data.data",
-        encode_data.progress "encode_data.progress"
+        encode.id "encode.id",
+        encode.data "encode.data",
+        encode.progress "encode.progress"
       FROM jobs
-      LEFT JOIN encode_data ON jobs.id = encode_data.job_id
+      LEFT JOIN encode ON jobs.id = encode.job_id
       WHERE jobs.guid = $1`
 
 	db, _ := ConnectDB()
@@ -154,11 +154,11 @@ func CreateJob(job types.Job) *types.Job {
 	return &job
 }
 
-// CreateEncodeData creates encode_data in database.
+// CreateEncodeData creates encode in database.
 func CreateEncodeData(ed types.EncodeData) *types.EncodeData {
 	const query = `
       INSERT INTO
-        encode_data (data,progress,job_id)
+        encode (data,progress,job_id)
       VALUES (:data,:progress,:job_id)
       RETURNING id`
 
@@ -183,9 +183,9 @@ func CreateEncodeData(ed types.EncodeData) *types.EncodeData {
 	return &ed
 }
 
-// UpdateEncodeDataByID Update encode_data by ID.
+// UpdateEncodeDataByID Update encode by ID.
 func UpdateEncodeDataByID(id int64, jsonString string) error {
-	const query = `UPDATE encode_data SET data = $1 WHERE id = $2`
+	const query = `UPDATE encode SET data = $1 WHERE id = $2`
 
 	db, _ := ConnectDB()
 	tx := db.MustBegin()
@@ -202,7 +202,7 @@ func UpdateEncodeDataByID(id int64, jsonString string) error {
 
 // UpdateEncodeProgressByID Update progress by ID.
 func UpdateEncodeProgressByID(id int64, progress float64) error {
-	const query = `UPDATE encode_data SET progress = $1 WHERE id = $2`
+	const query = `UPDATE encode SET progress = $1 WHERE id = $2`
 
 	db, _ := ConnectDB()
 	tx := db.MustBegin()
