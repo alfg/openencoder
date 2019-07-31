@@ -1,6 +1,17 @@
 <template>
   <div id="jobs-table">
-    <b-table striped hover dark :items="items"></b-table>
+    <b-table
+      striped hover dark
+      :fields="fields"
+      :items="items">
+      <template slot="progress" slot-scope="data">
+        <b-progress
+          :value="data.item.progress"
+          show-progress
+          :animated="data.value !== 100"></b-progress>
+      </template>
+    </b-table>
+
     <b-pagination-nav
       @change="onChangePage"
       :link-gen="linkGen"
@@ -10,9 +21,12 @@
 </template>
 
 <script>
+const UPDATE_INTERVAL = 1000;
+
 export default {
   data() {
     return {
+      fields: ['id', 'guid', 'profile', 'created_date', 'status', 'progress'],
       items: [],
       count: 0,
     };
@@ -26,7 +40,11 @@ export default {
 
   mounted() {
     const page = this.$route.query.page || 0;
+
     this.getJobs(page);
+    setInterval(() => {
+      this.getJobs(page);
+    }, UPDATE_INTERVAL);
   },
 
   methods: {

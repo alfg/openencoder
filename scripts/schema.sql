@@ -6,7 +6,7 @@ create table jobs
     constraint jobs_pk
     primary key,
   profile      varchar(128) not null,
-  created_date timestamp default CURRENT_DATE,
+  created_date timestamp default CURRENT_TIMESTAMP,
   status       varchar(64)
 );
 
