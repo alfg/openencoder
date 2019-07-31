@@ -9,6 +9,7 @@ import (
 const (
 	JobQueued      = "queued"
 	JobDownloading = "downloading"
+	JobProbing     = "probing"
 	JobEncoding    = "encoding"
 	JobUploading   = "uploading"
 	JobCompleted   = "completed"
@@ -19,6 +20,7 @@ const (
 var JobStatuses = []string{
 	JobQueued,
 	JobDownloading,
+	JobProbing,
 	JobEncoding,
 	JobUploading,
 	JobCompleted,
@@ -27,15 +29,27 @@ var JobStatuses = []string{
 
 // Job describes the job info.
 type Job struct {
-	ID               int64  `db:"id" json:"id,omitempty"`
-	GUID             string `db:"guid" json:"guid,omitempty"`
-	Profile          string `db:"profile" json:"profile,omitempty"`
-	CreatedDate      string `db:"created_date" json:"created_date"`
-	Status           string `db:"status" json:"status"`
+	ID          int64  `db:"id" json:"id"`
+	GUID        string `db:"guid" json:"guid"`
+	Profile     string `db:"profile" json:"profile"`
+	CreatedDate string `db:"created_date" json:"created_date"`
+	Status      string `db:"status" json:"status"`
+
+	// EncodeData.
+	EncodeData `db:"encode"`
+
 	Source           string `json:"source,omitempty"`
 	Destination      string `json:"destination,omitempty"`
 	LocalSource      string `json:"local_source,omitempty"`
 	LocalDestination string `json:"local_destination,omitempty"`
+}
+
+// EncodeData describes the encode data.
+type EncodeData struct {
+	EncodeDataID int64       `db:"id" json:"-"`
+	JobID        int64       `db:"job_id" json:"-"`
+	Data         NullString  `db:"data" json:"encode,omitempty"`
+	Progress     NullFloat64 `db:"progress" json:"progress,omitempty"`
 }
 
 // NullString is an alias for sql.NullString data type
@@ -49,4 +63,30 @@ func (ns *NullString) MarshalJSON() ([]byte, error) {
 		return []byte("null"), nil
 	}
 	return json.Marshal(ns.String)
+}
+
+// NullInt64 is an alias for sql.NullInt64 data type
+type NullInt64 struct {
+	sql.NullInt64
+}
+
+// MarshalJSON for NullInt64
+func (ni *NullInt64) MarshalJSON() ([]byte, error) {
+	if !ni.Valid {
+		return []byte("null"), nil
+	}
+	return json.Marshal(ni.Int64)
+}
+
+// NullFloat64 is an alias for sql.NullFloat64 data type
+type NullFloat64 struct {
+	sql.NullFloat64
+}
+
+// MarshalJSON for NullFloat64
+func (nf *NullFloat64) MarshalJSON() ([]byte, error) {
+	if !nf.Valid {
+		return []byte("null"), nil
+	}
+	return json.Marshal(nf.Float64)
 }

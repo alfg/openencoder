@@ -1,6 +1,7 @@
 package server
 
 import (
+	"database/sql"
 	"fmt"
 	"log"
 	"net/http"
@@ -41,9 +42,9 @@ type index struct {
 
 func indexHandler(c *gin.Context) {
 	resp := index{
-		Name:    "openenc",
+		Name:    "openencoder",
 		Version: "0.0.1",
-		Github:  "https://github.com/alfg/enc",
+		Github:  "https://github.com/alfg/openencoder",
 	}
 	c.JSON(200, resp)
 }
@@ -76,8 +77,26 @@ func createJobHandler(c *gin.Context) {
 	if err != nil {
 		log.Fatal(err)
 	}
-
 	created := data.CreateJob(job)
+
+	// Create the encode relationship.
+	ed := types.EncodeData{
+		JobID: created.ID,
+		Progress: types.NullFloat64{
+			NullFloat64: sql.NullFloat64{
+				Float64: 0,
+				Valid:   true,
+			},
+		},
+		Data: types.NullString{
+			NullString: sql.NullString{
+				String: "{}",
+				Valid:  true,
+			},
+		},
+	}
+	edCreated := data.CreateEncodeData(ed)
+	created.EncodeDataID = edCreated.EncodeDataID
 
 	// Create response.
 	resp := response{
