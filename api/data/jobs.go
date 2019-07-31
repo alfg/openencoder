@@ -8,8 +8,16 @@ import (
 
 // GetJobs Gets all jobs.
 func GetJobs(offset, count int) *[]types.Job {
-	const query = `SELECT * FROM jobs ORDER BY id DESC
-    LIMIT $1 OFFSET $2`
+	const query = `
+	  SELECT
+        jobs.*,
+        encode_data.id "encode_data.id",
+        encode_data.data "encode_data.data",
+        encode_data.progress "encode_data.progress"
+	  FROM jobs
+      LEFT JOIN encode_data ON jobs.id = encode_data.job_id
+	  ORDER BY id DESC
+      LIMIT $1 OFFSET $2`
 
 	db, _ := ConnectDB()
 	jobs := []types.Job{}
