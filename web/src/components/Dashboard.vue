@@ -20,7 +20,8 @@
 </template>
 
 <script>
-const STATS_INTERVAL = 5000;
+const UPDATE_INTERVAL = 5000;
+let intervalId;
 
 export default {
   name: 'dashboard',
@@ -33,9 +34,11 @@ export default {
 
   mounted() {
     this.getStats();
-    setInterval(() => {
-      this.getStats();
-    }, STATS_INTERVAL);
+    intervalId = setInterval(this.getStats, UPDATE_INTERVAL);
+  },
+
+  destroyed() {
+    clearInterval(intervalId);
   },
 
   methods: {

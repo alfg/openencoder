@@ -21,7 +21,8 @@
 </template>
 
 <script>
-const UPDATE_INTERVAL = 1000;
+const UPDATE_INTERVAL = 5000;
+let intervalId;
 
 export default {
   data() {
@@ -42,9 +43,11 @@ export default {
     const page = this.$route.query.page || 0;
 
     this.getJobs(page);
-    setInterval(() => {
-      this.getJobs(page);
-    }, UPDATE_INTERVAL);
+    intervalId = setInterval(() => { this.getJobs(page); }, UPDATE_INTERVAL);
+  },
+
+  destroyed() {
+    clearInterval(intervalId);
   },
 
   methods: {

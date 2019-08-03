@@ -2,6 +2,7 @@ package worker
 
 import (
 	"encoding/json"
+	"fmt"
 	"math"
 	"path"
 	"strconv"
@@ -113,6 +114,7 @@ func runEncodeJob(job types.Job) {
 	if err != nil {
 		log.Error(err)
 		data.UpdateJobStatus(job.GUID, types.JobError)
+		return
 	}
 
 	// 2. Probe data.
@@ -120,6 +122,7 @@ func runEncodeJob(job types.Job) {
 	if err != nil {
 		log.Error(err)
 		data.UpdateJobStatus(job.GUID, types.JobError)
+		return
 	}
 
 	// 3. Encode.
@@ -127,6 +130,7 @@ func runEncodeJob(job types.Job) {
 	if err != nil {
 		log.Error(err)
 		data.UpdateJobStatus(job.GUID, types.JobError)
+		return
 	}
 
 	// 4. Upload.
@@ -134,6 +138,7 @@ func runEncodeJob(job types.Job) {
 	if err != nil {
 		log.Error(err)
 		data.UpdateJobStatus(job.GUID, types.JobError)
+		return
 	}
 
 	// 5. Done
@@ -157,7 +162,7 @@ func trackProgress(encodeID int64, p *encoder.FFProbeResponse, f *encoder.FFmpeg
 
 			// Update DB with progress.
 			pct = math.Round(pct*100) / 100
-			log.Infof("progress: %d / %d - %0.2f%%\n", currentFrame, totalFrames, pct)
+			fmt.Printf("progress: %d / %d - %0.2f%%\r", currentFrame, totalFrames, pct)
 			data.UpdateEncodeProgressByID(encodeID, pct)
 		}
 	}
