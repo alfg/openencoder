@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"math"
+	"os"
 	"path"
 	"strconv"
 	"time"
@@ -96,6 +97,17 @@ func upload(job types.Job) error {
 	return err
 }
 
+func cleanup(job types.Job) error {
+	log.Info("running cleanup task")
+
+	tmpPath := helpers.GetTmpPath(config.Get().WorkDirectory, job.GUID)
+	err := os.RemoveAll(tmpPath)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func completed(job types.Job) error {
 	log.Info("job completed")
 
@@ -107,7 +119,8 @@ func completed(job types.Job) error {
 
 func runEncodeJob(job types.Job) {
 	// Set local src path.
-	job.LocalSource = helpers.GetLocalSourcePath(job.Source, job.GUID)
+	job.LocalSource = helpers.CreateLocalSourcePath(
+		config.Get().WorkDirectory, job.Source, job.GUID)
 
 	// 1. Download.
 	err := download(job)
@@ -141,8 +154,19 @@ func runEncodeJob(job types.Job) {
 		return
 	}
 
-	// 5. Done
+	// 5. Cleanup.
+	err = cleanup(job)
+	if err != nil {
+		log.Error(err)
+		data.UpdateJobStatus(job.GUID, types.JobError)
+		return
+	}
+
+	// 6. Done
 	completed(job)
+
+	// 7. Alert
+	// TODO
 }
 
 func trackProgress(encodeID int64, p *encoder.FFProbeResponse, f *encoder.FFmpeg) {

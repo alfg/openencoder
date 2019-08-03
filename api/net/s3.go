@@ -151,6 +151,7 @@ func uploadFile(path string, job types.Job) error {
 	if err != nil {
 		return err
 	}
+	file.Close()
 	return nil
 }
 
