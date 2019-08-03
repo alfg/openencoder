@@ -28,6 +28,7 @@ type Config struct {
 	S3OutboundBucket  string `mapstructure:"s3_outbound_bucket"`
 	S3OutboundRegion  string `mapstructure:"s3_outbound_region"`
 	WorkDirectory     string `mapstructure:"work_dir"`
+	SlackWebhook      string `mapstructure:"slack_webhook"`
 
 	Profiles []profile
 }

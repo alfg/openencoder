@@ -9,6 +9,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/alfg/openencoder/api/alert"
 	"github.com/alfg/openencoder/api/config"
 	"github.com/alfg/openencoder/api/data"
 	"github.com/alfg/openencoder/api/encoder"
@@ -73,7 +74,7 @@ func encode(job types.Job, probeData *encoder.FFProbeResponse) error {
 
 	// Run FFmpeg.
 	f := &encoder.FFmpeg{}
-	go trackProgress(encodeID, probeData, f)
+	go trackEncodeProgress(encodeID, probeData, f)
 	f.Run(job.LocalSource, dest, p.Options)
 	close(quit)
 
@@ -113,7 +114,23 @@ func completed(job types.Job) error {
 
 	// Update status.
 	data.UpdateJobStatus(job.GUID, types.JobCompleted)
+	return nil
+}
 
+func sendAlert(job types.Job) error {
+	log.Info("sending alert")
+
+	message := fmt.Sprintf(
+		"*Encode Successful!* :tada:\n"+
+			"*Job ID*: %s:\n"+
+			"*Profile*: %s\n"+
+			"*Source*: %s\n"+
+			"*Destination*: %s\n\n",
+		job.GUID, job.Profile, job.Source, job.Destination)
+	err := alert.SendSlackMessage(config.Get().SlackWebhook, message)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -164,12 +181,18 @@ func runEncodeJob(job types.Job) {
 
 	// 6. Done
 	completed(job)
+	if err != nil {
+		log.Error(err)
+	}
 
 	// 7. Alert
-	// TODO
+	sendAlert(job)
+	if err != nil {
+		log.Error(err)
+	}
 }
 
-func trackProgress(encodeID int64, p *encoder.FFProbeResponse, f *encoder.FFmpeg) {
+func trackEncodeProgress(encodeID int64, p *encoder.FFProbeResponse, f *encoder.FFmpeg) {
 	quit = make(chan struct{})
 	ticker := time.NewTicker(time.Second * 2)
 
