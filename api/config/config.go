@@ -27,6 +27,7 @@ type Config struct {
 	S3InboundRegion   string `mapstructure:"s3_inbound_region"`
 	S3OutboundBucket  string `mapstructure:"s3_outbound_bucket"`
 	S3OutboundRegion  string `mapstructure:"s3_outbound_region"`
+	WorkDirectory     string `mapstructure:"work_dir"`
 
 	Profiles []profile
 }

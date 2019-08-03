@@ -25,7 +25,6 @@ export default {
           response.json()
         ))
         .then((json) => {
-          console.log(json);
           this.items = json;
         });
     },
