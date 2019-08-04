@@ -1,13 +1,11 @@
 package net
 
 import (
-	"fmt"
-	"io"
 	"net/url"
 	"os"
 	"path"
 	"path/filepath"
-	"sync/atomic"
+	"time"
 
 	"github.com/alfg/openencoder/api/config"
 	"github.com/alfg/openencoder/api/types"
@@ -18,9 +16,21 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+// S3 creates a new S3 instance.
+type S3 struct {
+	Progress progress
+	Writer   *ProgressWriter
+	Reader   *ProgressReader
+}
+
+type progress struct {
+	quit     chan struct{}
+	Progress float32
+}
+
 // S3Download downloads source files from S3.
 // AWS_REGION, AWS_ACCESS_KEY, and AWS_SECRET_KEY envvars must be set!
-func S3Download(job types.Job) error {
+func (s *S3) S3Download(job types.Job) error {
 	log.Info("downloading from S3: ", job.Source)
 
 	// Get local destination path.
@@ -52,25 +62,53 @@ func S3Download(job types.Job) error {
 	log.Println("starting download, size: ", byteCountDecimal(size))
 
 	// Get object input details.
-	writer := &progressWriter{writer: file, size: size, written: 0}
+	s.Writer = &ProgressWriter{writer: file, size: size, written: 0}
 	objInput := s3.GetObjectInput{
 		Bucket: aws.String(config.Get().S3InboundBucket),
 		Key:    aws.String(key),
 	}
 
 	// Download file to local.
-	if _, err = downloader.Download(writer, &objInput); err != nil {
+	go s.trackProgress("download")
+	if _, err = downloader.Download(s.Writer, &objInput); err != nil {
 		log.Printf("download failed! deleting file: %s", file.Name())
 		os.Remove(file.Name())
 		panic(err)
 	}
 	file.Close()
 
+	s.finish()
 	return err
 }
 
+func (s *S3) trackProgress(t string) {
+	s.Progress.quit = make(chan struct{})
+	ticker := time.NewTicker(1 * time.Second)
+
+	for {
+		select {
+		case <-s.Progress.quit:
+			ticker.Stop()
+			return
+		case <-ticker.C:
+			if t == "download" {
+				// Download progress.
+				s.Progress.Progress = float32(s.Writer.written*100) / float32(s.Writer.size)
+			} else if t == "upload" {
+				// Upload progress.
+				s.Progress.Progress = float32(s.Reader.read*100/2) / float32(s.Reader.size) // Upload.
+			}
+
+		}
+	}
+}
+
+func (s *S3) finish() {
+	close(s.Progress.quit)
+}
+
 // S3Upload uploads a file to S3.
-func S3Upload(job types.Job) error {
+func (s *S3) S3Upload(job types.Job) error {
 	log.Info("uploading files to S3: ", job.Destination)
 	defer log.Info("upload complete")
 
@@ -84,7 +122,57 @@ func S3Upload(job types.Job) error {
 		return nil
 	})
 
-	uploadDir(filelist, job)
+	s.uploadDir(filelist, job)
+	return nil
+}
+
+func (s *S3) uploadDir(filelist []string, job types.Job) {
+	for _, file := range filelist {
+		s.uploadFile(file, job)
+	}
+}
+
+func (s *S3) uploadFile(path string, job types.Job) error {
+	log.Info("uploading file to S3.", job.Destination)
+
+	// Open source path file.
+	// tmpDir := "/tmp" + "/asdf/"
+	// file, err := os.Open(tmpDir + path.Base(job.Source))
+	file, err := os.Open(path)
+	if err != nil {
+		return err
+	}
+
+	fileInfo, err := file.Stat()
+	if err != nil {
+		log.Println("upload error: ", err)
+		return err
+	}
+
+	// Set key.
+	parsedURL, _ := url.Parse(job.Destination)
+	key := parsedURL.Path + filepath.Base(path)
+
+	s.Reader = &ProgressReader{
+		fp:   file,
+		size: fileInfo.Size(),
+	}
+
+	go s.trackProgress("upload")
+	uploader := s3manager.NewUploader(session.New(), func(u *s3manager.Uploader) {
+		u.PartSize = 5 * 1024 * 1024
+		u.LeavePartsOnError = true
+	})
+
+	_, err = uploader.Upload(&s3manager.UploadInput{
+		Body:   s.Reader,
+		Bucket: aws.String(config.Get().S3OutboundBucket),
+		Key:    aws.String(key),
+	})
+	if err != nil {
+		return err
+	}
+	file.Close()
 	return nil
 }
 
@@ -106,55 +194,6 @@ func S3ListFiles(prefix string) (*s3.ListObjectsV2Output, error) {
 	return resp, nil
 }
 
-func uploadDir(filelist []string, job types.Job) {
-	for _, file := range filelist {
-		uploadFile(file, job)
-	}
-}
-
-func uploadFile(path string, job types.Job) error {
-	log.Info("uploading file to S3.", job.Destination)
-
-	// Open source path file.
-	// tmpDir := "/tmp" + "/asdf/"
-	// file, err := os.Open(tmpDir + path.Base(job.Source))
-	file, err := os.Open(path)
-	if err != nil {
-		return err
-	}
-
-	fileInfo, err := file.Stat()
-	if err != nil {
-		log.Println("upload error: ", err)
-		return err
-	}
-
-	// Set key.
-	parsedURL, _ := url.Parse(job.Destination)
-	key := parsedURL.Path + filepath.Base(path)
-
-	reader := &progressReader{
-		fp:   file,
-		size: fileInfo.Size(),
-	}
-
-	uploader := s3manager.NewUploader(session.New(), func(u *s3manager.Uploader) {
-		u.PartSize = 5 * 1024 * 1024
-		u.LeavePartsOnError = true
-	})
-
-	_, err = uploader.Upload(&s3manager.UploadInput{
-		Body:   reader,
-		Bucket: aws.String(config.Get().S3OutboundBucket),
-		Key:    aws.String(key),
-	})
-	if err != nil {
-		return err
-	}
-	file.Close()
-	return nil
-}
-
 func isDirectory(path string) bool {
 	fd, err := os.Stat(path)
 	if err != nil {
@@ -168,69 +207,4 @@ func isDirectory(path string) bool {
 		return false
 	}
 	return false
-}
-
-// progressWriter tracks the download progress.
-type progressWriter struct {
-	written int64
-	writer  io.WriterAt
-	size    int64
-}
-
-func (pw *progressWriter) WriteAt(p []byte, off int64) (int, error) {
-	atomic.AddInt64(&pw.written, int64(len(p)))
-	percentageDownloaded := float32(pw.written*100) / float32(pw.size)
-	fmt.Printf("File size:%d downloaded:%d percentage:%.2f%%\r", pw.size, pw.written, percentageDownloaded)
-	return pw.writer.WriteAt(p, off)
-}
-
-func byteCountDecimal(b int64) string {
-	const unit = 1000
-	if b < unit {
-		return fmt.Sprintf("%d B", b)
-	}
-	div, exp := int64(unit), 0
-	for n := b / unit; n >= unit; n /= unit {
-		div *= unit
-		exp++
-	}
-	return fmt.Sprintf("%.1f %cB", float64(b)/float64(div), "kMGTPE"[exp])
-}
-
-func getFileSize(svc *s3.S3, bucket, prefix string) (filesize int64, error error) {
-	params := &s3.HeadObjectInput{
-		Bucket: aws.String(bucket),
-		Key:    aws.String(prefix),
-	}
-
-	resp, err := svc.HeadObject(params)
-	if err != nil {
-		return 0, err
-	}
-	return *resp.ContentLength, nil
-}
-
-// progressReader for uploading progress.
-type progressReader struct {
-	fp   *os.File
-	size int64
-	read int64
-}
-
-func (r *progressReader) Read(p []byte) (int, error) {
-	return r.fp.Read(p)
-}
-
-func (r *progressReader) ReadAt(p []byte, off int64) (int, error) {
-	n, err := r.fp.ReadAt(p, off)
-	if err != nil {
-		return n, err
-	}
-	atomic.AddInt64(&r.read, int64(n))
-	fmt.Printf("total read:%d progress:%d%%\r", r.read/2, int(float32(r.read*100/2)/float32(r.size)))
-	return n, err
-}
-
-func (r *progressReader) Seek(offset int64, whence int) (int64, error) {
-	return r.fp.Seek(offset, whence)
 }

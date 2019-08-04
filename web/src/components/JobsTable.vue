@@ -7,8 +7,9 @@
       <template slot="progress" slot-scope="data">
         <b-progress
           :value="data.item.progress"
-          show-progress
-          :animated="data.value !== 100"></b-progress>
+          :animated="data.value !== 100"
+          :variant="data.value === 100 ? 'success' : 'primary'"
+          show-progress></b-progress>
       </template>
     </b-table>
 

@@ -19,7 +19,9 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-var quit chan struct{}
+var progressCh chan struct{}
+
+const progressInterval = time.Second * 2
 
 func download(job types.Job) error {
 	log.Info("running download task")
@@ -27,11 +29,25 @@ func download(job types.Job) error {
 	// Update status.
 	data.UpdateJobStatus(job.GUID, types.JobDownloading)
 
-	d := net.GetDownloadFunc()
-	err := d(job)
+	// Get job data.
+	j, _ := data.GetJobByGUID(job.GUID)
+	encodeID := j.EncodeDataID
+
+	// Get downloader type.
+	d := net.GetDownloader()
+
+	// Do download and track progress.
+	go trackTransferProgress(encodeID, d)
+	err := d.S3Download(job)
 	if err != nil {
 		log.Error(err)
 	}
+
+	// Close channel to stop progress updates.
+	close(progressCh)
+
+	// Set progress to 100.
+	data.UpdateEncodeProgressByID(encodeID, 100)
 	return err
 }
 
@@ -76,11 +92,10 @@ func encode(job types.Job, probeData *encoder.FFProbeResponse) error {
 	f := &encoder.FFmpeg{}
 	go trackEncodeProgress(encodeID, probeData, f)
 	f.Run(job.LocalSource, dest, p.Options)
-	close(quit)
+	close(progressCh)
 
 	// Set encode progress to 100.
 	data.UpdateEncodeProgressByID(encodeID, 100)
-
 	return err
 }
 
@@ -90,11 +105,24 @@ func upload(job types.Job) error {
 	// Update status.
 	data.UpdateJobStatus(job.GUID, types.JobUploading)
 
-	d := net.GetUploadFunc()
-	err := d(job)
+	// Get job data.
+	j, _ := data.GetJobByGUID(job.GUID)
+	encodeID := j.EncodeDataID
+
+	d := net.GetUploader()
+
+	// Do download and track progress.
+	go trackTransferProgress(encodeID, d)
+	err := d.S3Upload(job)
 	if err != nil {
 		log.Error(err)
 	}
+
+	// Close channel to stop progress updates.
+	close(progressCh)
+
+	// Set progress to 100.
+	data.UpdateEncodeProgressByID(encodeID, 100)
 	return err
 }
 
@@ -193,12 +221,12 @@ func runEncodeJob(job types.Job) {
 }
 
 func trackEncodeProgress(encodeID int64, p *encoder.FFProbeResponse, f *encoder.FFmpeg) {
-	quit = make(chan struct{})
-	ticker := time.NewTicker(time.Second * 2)
+	progressCh = make(chan struct{})
+	ticker := time.NewTicker(progressInterval)
 
 	for {
 		select {
-		case <-quit:
+		case <-progressCh:
 			ticker.Stop()
 			return
 		case <-ticker.C:
@@ -211,6 +239,22 @@ func trackEncodeProgress(encodeID int64, p *encoder.FFProbeResponse, f *encoder.
 			pct = math.Round(pct*100) / 100
 			fmt.Printf("progress: %d / %d - %0.2f%%\r", currentFrame, totalFrames, pct)
 			data.UpdateEncodeProgressByID(encodeID, pct)
+		}
+	}
+}
+
+func trackTransferProgress(encodeID int64, d *net.S3) {
+	progressCh = make(chan struct{})
+	ticker := time.NewTicker(progressInterval)
+
+	for {
+		select {
+		case <-progressCh:
+			ticker.Stop()
+			return
+		case <-ticker.C:
+			fmt.Println("transfer progress: ", d.Progress.Progress)
+			data.UpdateEncodeProgressByID(encodeID, float64(d.Progress.Progress))
 		}
 	}
 }
