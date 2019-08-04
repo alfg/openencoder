@@ -25,7 +25,7 @@ type S3 struct {
 
 type progress struct {
 	quit     chan struct{}
-	Progress float64
+	Progress float32
 }
 
 // S3Download downloads source files from S3.
@@ -93,10 +93,10 @@ func (s *S3) trackProgress(t string) {
 		case <-ticker.C:
 			if t == "download" {
 				// Download progress.
-				s.Progress.Progress = float64(s.Writer.written*100) / float64(s.Writer.size)
+				s.Progress.Progress = float32(s.Writer.written*100) / float32(s.Writer.size)
 			} else if t == "upload" {
 				// Upload progress.
-				s.Progress.Progress = float64(s.Reader.read*100/2) / float64(s.Reader.size) // Upload.
+				s.Progress.Progress = float32(s.Reader.read*100/2) / float32(s.Reader.size) // Upload.
 			}
 
 		}
