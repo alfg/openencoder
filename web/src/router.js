@@ -6,6 +6,7 @@ import Create from './views/Create.vue';
 import Jobs from './views/Jobs.vue';
 import Queue from './views/Queue.vue';
 import Workers from './views/Workers.vue';
+import Machines from './views/Machines.vue';
 
 import 'bootstrap/dist/css/bootstrap.css';
 import 'bootstrap-vue/dist/bootstrap-vue.css';
@@ -41,6 +42,11 @@ export default new Router({
       path: '/workers',
       name: 'workers',
       component: Workers,
+    },
+    {
+      path: '/machines',
+      name: 'machines',
+      component: Machines,
     },
     {
       path: '/status',
