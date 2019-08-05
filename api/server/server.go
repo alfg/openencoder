@@ -80,7 +80,10 @@ func NewServer(serverCfg Config) {
 		// Worker info.
 		api.GET("/worker/queue", workerQueueHandler)
 		api.GET("/worker/pools", workerPoolsHandler)
-		api.GET("/worker/busy", workerBusyHandler)
+        api.GET("/worker/busy", workerBusyHandler)
+        
+        // Machines.
+        api.GET("/machines", machinesHandler)
 	}
 
 	log.Info("started server on port: ", serverCfg.ServerPort)

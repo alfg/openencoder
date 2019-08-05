@@ -4,6 +4,7 @@ go 1.12
 
 require (
 	github.com/aws/aws-sdk-go v1.20.15
+	github.com/digitalocean/godo v1.19.0
 	github.com/gin-gonic/gin v1.4.0
 	github.com/gocraft/work v0.5.1
 	github.com/gomodule/redigo v2.0.0+incompatible
@@ -14,4 +15,5 @@ require (
 	github.com/sirupsen/logrus v1.2.0
 	github.com/spf13/cobra v0.0.5
 	github.com/spf13/viper v1.4.0
+	golang.org/x/oauth2 v0.0.0-20190402181905-9f3314589c9a
 )

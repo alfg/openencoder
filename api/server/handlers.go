@@ -1,6 +1,7 @@
 package server
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"log"
@@ -10,6 +11,7 @@ import (
 
 	"github.com/alfg/openencoder/api/config"
 	"github.com/alfg/openencoder/api/data"
+	"github.com/alfg/openencoder/api/machine"
 	"github.com/alfg/openencoder/api/net"
 	"github.com/alfg/openencoder/api/types"
 	"github.com/gin-gonic/gin"
@@ -282,5 +284,21 @@ func profilesHandler(c *gin.Context) {
 
 	c.JSON(200, gin.H{
 		"profiles": profiles,
+	})
+}
+
+func machinesHandler(c *gin.Context) {
+	client, _ := machine.NewDigitalOceanClient()
+
+	ctx := context.TODO()
+
+	// Get list of maachines from DO client.
+	machines, err := client.DropletListByTag(ctx, "openencoder")
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	c.JSON(200, gin.H{
+		"machines": machines,
 	})
 }
