@@ -9,6 +9,7 @@ import (
 )
 
 const providerName = "digitalocean"
+const tagName = "openencoder"
 
 // TokenSource defines an access token for oauth2.TokenSource.
 type TokenSource struct {
@@ -98,7 +99,7 @@ func (do *DigitalOcean) CreateDroplets(ctx context.Context, count int) ([]Machin
 		// 	godo.DropletCreateSSHKey{ID: 107149},
 		// },
 		IPv6: true,
-		Tags: []string{"openencoder"},
+		Tags: []string{tagName},
 	}
 
 	droplets, _, err := do.client.Droplets.CreateMultiple(ctx, createRequest)
