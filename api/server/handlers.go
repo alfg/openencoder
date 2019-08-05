@@ -42,6 +42,10 @@ type index struct {
 	Github  string `json:"github"`
 }
 
+type machineRequest struct {
+	Count int `json:"count" binding:"required,min=1,max=10"` // Max of 10 machines.
+}
+
 func indexHandler(c *gin.Context) {
 	resp := index{
 		Name:    "openencoder",
@@ -289,11 +293,10 @@ func profilesHandler(c *gin.Context) {
 
 func machinesHandler(c *gin.Context) {
 	client, _ := machine.NewDigitalOceanClient()
-
 	ctx := context.TODO()
 
-	// Get list of maachines from DO client.
-	machines, err := client.DropletListByTag(ctx, "openencoder")
+	// Get list of machines from DO client.
+	machines, err := client.ListDropletByTag(ctx, "openencoder")
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -301,4 +304,61 @@ func machinesHandler(c *gin.Context) {
 	c.JSON(200, gin.H{
 		"machines": machines,
 	})
+}
+
+func createMachineHandler(c *gin.Context) {
+	// Decode json.
+	var json machineRequest
+	if err := c.ShouldBindJSON(&json); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	client, _ := machine.NewDigitalOceanClient()
+	ctx := context.TODO()
+
+	// Create machine.
+	machine, err := client.CreateDroplets(ctx, json.Count)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	c.JSON(200, gin.H{
+		"machine": machine,
+	})
+	return
+}
+
+func deleteMachineHandler(c *gin.Context) {
+	id, _ := strconv.Atoi(c.Param("id"))
+
+	client, _ := machine.NewDigitalOceanClient()
+	ctx := context.TODO()
+
+	// Create machine.
+	machine, err := client.DeleteDropletByID(ctx, id)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	c.JSON(200, gin.H{
+		"machine": machine,
+	})
+	return
+}
+
+func deleteMachineByTagHandler(c *gin.Context) {
+	client, _ := machine.NewDigitalOceanClient()
+	ctx := context.TODO()
+
+	// Create machine.
+	err := client.DeleteDropletByTag(ctx, "openencoder")
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	c.JSON(200, gin.H{
+		"deleted": true,
+	})
+	return
 }

@@ -12,3 +12,15 @@ type Machine struct {
 
 	Provider string `json:"provider"`
 }
+
+// MachineCreated defines the response for creating a machine.
+type MachineCreated struct {
+	ID       int    `json:"id"`
+	Provider string `json:"provider"`
+}
+
+// MachineDeleted defines the response for deleted a machine.
+type MachineDeleted struct {
+	ID       int    `json:"id"`
+	Provider string `json:"provider"`
+}
