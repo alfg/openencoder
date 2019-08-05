@@ -50,6 +50,12 @@ func NewServer(serverCfg Config) {
 	// Web dashboard.
 	r.Static("/dashboard", "./web/dist")
 
+	// Catch all fallback for HTML5 History Mode.
+	// https://router.vuejs.org/guide/essentials/history-mode.html
+	r.NoRoute(func(c *gin.Context) {
+		c.File("./web/dist/index.html")
+	})
+
 	// API routes.
 	api := r.Group("/api")
 	{
