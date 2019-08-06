@@ -24,3 +24,16 @@ type MachineDeleted struct {
 	ID       int    `json:"id"`
 	Provider string `json:"provider"`
 }
+
+type Region struct {
+	Name      string   `json:"name"`
+	Sizes     []string `json:"sizes"`
+	Available bool     `json:"available"`
+}
+
+type Size struct {
+	Slug         string  `json:"slug"`
+	Available    bool    `json:"available"`
+	PriceMonthly float64 `json:"price_monthly"`
+	PriceHourly  float64 `json:"price_hourly"`
+}

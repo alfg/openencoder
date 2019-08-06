@@ -87,6 +87,8 @@ func NewServer(serverCfg Config) {
 		api.POST("/machines", createMachineHandler)
 		api.DELETE("/machines", deleteMachineByTagHandler)
 		api.DELETE("/machines/:id", deleteMachineHandler)
+		api.GET("/machines/regions", listMachineRegionsHandler)
+		api.GET("/machines/sizes", listMachineSizesHandler)
 	}
 
 	log.Info("started server on port: ", serverCfg.ServerPort)

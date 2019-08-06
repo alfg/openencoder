@@ -362,3 +362,33 @@ func deleteMachineByTagHandler(c *gin.Context) {
 	})
 	return
 }
+
+func listMachineRegionsHandler(c *gin.Context) {
+	client, _ := machine.NewDigitalOceanClient()
+	ctx := context.TODO()
+
+	// Get list of machine regions from DO client.
+	regions, err := client.ListRegions(ctx)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	c.JSON(200, gin.H{
+		"regions": regions,
+	})
+}
+
+func listMachineSizesHandler(c *gin.Context) {
+	client, _ := machine.NewDigitalOceanClient()
+	ctx := context.TODO()
+
+	// Get list of machine sizes from DO client.
+	sizes, err := client.ListSizes(ctx)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	c.JSON(200, gin.H{
+		"sizes": sizes,
+	})
+}

@@ -8,8 +8,27 @@ import (
 	"golang.org/x/oauth2"
 )
 
-const providerName = "digitalocean"
-const tagName = "openencoder"
+const (
+	providerName    = "digitalocean"
+	workerName      = "openencoder-worker"
+	tagName         = "openencoder"
+	dockerImageName = "docker-18-04"
+)
+
+var (
+	sizesLimiter = []string{"s-1vcpu-1gb", "s-1vcpu-2gb"}
+)
+
+const userData = `
+#cloud-config
+package_upgrade: true
+write-files:
+    - path: "/etc/profile.env"
+      content: |
+        export MY_VAR="foo"
+runcmd:
+  - touch /test.txt
+`
 
 // TokenSource defines an access token for oauth2.TokenSource.
 type TokenSource struct {
@@ -85,7 +104,7 @@ func (do *DigitalOcean) CreateDroplets(ctx context.Context, count int) ([]Machin
 
 	var names []string
 	for i := 0; i < count; i++ {
-		names = append(names, "openencoder-worker")
+		names = append(names, workerName)
 	}
 
 	createRequest := &godo.DropletMultiCreateRequest{
@@ -93,13 +112,15 @@ func (do *DigitalOcean) CreateDroplets(ctx context.Context, count int) ([]Machin
 		Region: "sfo2",
 		Size:   "s-1vcpu-1gb",
 		Image: godo.DropletCreateImage{
-			Slug: "docker-18-04",
+			Slug: dockerImageName,
 		},
 		// SSHKeys: []godo.DropletCreateSSHKey{
 		// 	godo.DropletCreateSSHKey{ID: 107149},
 		// },
-		IPv6: true,
-		Tags: []string{tagName},
+		IPv6:       true,
+		Tags:       []string{tagName},
+		Monitoring: true,
+		UserData:   userData,
 	}
 
 	droplets, _, err := do.client.Droplets.CreateMultiple(ctx, createRequest)
@@ -135,4 +156,64 @@ func (do *DigitalOcean) DeleteDropletByID(ctx context.Context, ID int) (*Machine
 func (do *DigitalOcean) DeleteDropletByTag(ctx context.Context, tag string) error {
 	_, err := do.client.Droplets.DeleteByTag(ctx, tag)
 	return err
+}
+
+// ListRegions gets a list of DigitalOcean regions.
+func (do *DigitalOcean) ListRegions(ctx context.Context) ([]Region, error) {
+	opt := &godo.ListOptions{
+		Page:    1,
+		PerPage: 200,
+	}
+
+	regions, _, err := do.client.Regions.List(ctx, opt)
+	if err != nil {
+		return nil, err
+	}
+
+	list := []Region{}
+	for _, d := range regions {
+		list = append(list, Region{
+			Name:      d.Name,
+			Sizes:     d.Sizes,
+			Available: d.Available,
+		})
+	}
+
+	return list, err
+}
+
+// ListSizes gets a list of DigitalOcean sizes.
+func (do *DigitalOcean) ListSizes(ctx context.Context) ([]Size, error) {
+	opt := &godo.ListOptions{
+		Page:    1,
+		PerPage: 200,
+	}
+
+	sizes, _, err := do.client.Sizes.List(ctx, opt)
+	if err != nil {
+		return nil, err
+	}
+
+	list := []Size{}
+	for _, d := range sizes {
+		if contains(sizesLimiter, d.Slug) {
+			list = append(list, Size{
+				Slug:         d.Slug,
+				Available:    d.Available,
+				PriceMonthly: d.PriceMonthly,
+				PriceHourly:  d.PriceHourly,
+			})
+		}
+	}
+
+	return list, err
+}
+
+func contains(slice []string, item string) bool {
+	for _, s := range slice {
+		if s == item {
+			return true
+		}
+	}
+	return false
 }
