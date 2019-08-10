@@ -1,9 +1,7 @@
 <div align="center">
-    <h1>open<strong>encoder</strong></h1>
+    <h1><code>openencoder</code></h1>
     <p><strong>Open Source Cloud Encoder</strong></p>
-
-    <p>⚠️<strong>Currently a work-in-progress!</strong></p>
-
+    <p>⚠️ Currently a work-in-progress!</p>
     <p>
         <a href="https://travis-ci.org/alfg/openencoder"><img src="https://travis-ci.org/alfg/openencoder.svg?branch=master" alt="Build Status" /></a>
         <a href="https://godoc.org/github.com/alfg/openencoder"><img src="https://godoc.org/github.com/alfg/openencoder?status.svg" alt="GoDoc" /></a>
