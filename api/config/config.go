@@ -23,6 +23,9 @@ type Config struct {
 	WorkerNamespace         string `mapstructure:"worker_namespace"`
 	WorkerJobName           string `mapstructure:"worker_job_name"`
 	WorkerConcurrency       uint   `mapstructure:"worker_concurrency"`
+	AWSRegion               string `mapstructure:"aws_region"`
+	AWSAccessKey            string `mapstructure:"aws_access_key"`
+	AWSSecretKey            string `mapstructure:"aws_secret_key"`
 	S3InboundBucket         string `mapstructure:"s3_inbound_bucket"`
 	S3InboundRegion         string `mapstructure:"s3_inbound_region"`
 	S3OutboundBucket        string `mapstructure:"s3_outbound_bucket"`

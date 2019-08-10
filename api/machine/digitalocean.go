@@ -1,7 +1,10 @@
 package machine
 
 import (
+	"bytes"
 	"context"
+	"log"
+	"text/template"
 
 	"github.com/alfg/openencoder/api/config"
 	"github.com/digitalocean/godo"
@@ -19,15 +22,17 @@ var (
 	sizesLimiter = []string{"s-1vcpu-1gb", "s-1vcpu-2gb"}
 )
 
-const userData = `
+const userDataTmpl = `
 #cloud-config
 package_upgrade: true
-write-files:
-    - path: "/etc/profile.env"
+write_files:
+    - path: "/opt/.env"
       content: |
-        export MY_VAR="foo"
+        export AWS_REGION="{{.AWSRegion}}"
+        export AWS_ACCESS_KEY="{{.AWSAccessKey}}"
+        export AWS_SECRET_KEY="{{.AWSSecretKey}}"
 runcmd:
-  - touch /test.txt
+  - source /opt/.env
 `
 
 // TokenSource defines an access token for oauth2.TokenSource.
@@ -120,7 +125,7 @@ func (do *DigitalOcean) CreateDroplets(ctx context.Context, count int) ([]Machin
 		IPv6:       true,
 		Tags:       []string{tagName},
 		Monitoring: true,
-		UserData:   userData,
+		UserData:   createUserData(),
 	}
 
 	droplets, _, err := do.client.Droplets.CreateMultiple(ctx, createRequest)
@@ -206,6 +211,7 @@ func (do *DigitalOcean) ListSizes(ctx context.Context) ([]Size, error) {
 		}
 	}
 
+	createUserData()
 	return list, err
 }
 
@@ -216,4 +222,27 @@ func contains(slice []string, item string) bool {
 		}
 	}
 	return false
+}
+
+// UserData defines the userdata used for cloud-init.
+type UserData struct {
+	AWSRegion, AWSAccessKey, AWSSecretKey string
+}
+
+func createUserData() string {
+	data := &UserData{
+		AWSRegion:    config.Get().AWSRegion,
+		AWSAccessKey: config.Get().AWSAccessKey,
+		AWSSecretKey: config.Get().AWSSecretKey,
+	}
+
+	var tpl bytes.Buffer
+	t := template.Must(template.New("userdata").Parse(userDataTmpl))
+
+	if err := t.Execute(&tpl, data); err != nil {
+		log.Println(err)
+	}
+
+	result := tpl.String()
+	return result
 }

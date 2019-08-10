@@ -9,6 +9,7 @@ database_name: enc
 worker_namespace: enc
 worker_job_name: encode
 worker_concurrency: 1
+aws_region:
 aws_access_key:
 aws_secret_key:
 s3_inbound_bucket: enc-inbound
