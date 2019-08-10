@@ -1,19 +1,20 @@
-# open**encoder**
-> Open Source Cloud Encoder
+<div align="center">
+    <h1><code>openencoder</code></h1>
+    <p><strong>Open Source Cloud Encoder</strong></p>
+    <p>⚠️ Currently a work-in-progress!</p>
+    <p>
+        <a href="https://travis-ci.org/alfg/openencoder"><img src="https://travis-ci.org/alfg/openencoder.svg?branch=master" alt="Build Status" /></a>
+        <a href="https://godoc.org/github.com/alfg/openencoder"><img src="https://godoc.org/github.com/alfg/openencoder?status.svg" alt="GoDoc" /></a>
+        <a href="https://goreportcard.com/report/github.com/alfg/openencoder"><img src="https://goreportcard.com/badge/github.com/alfg/openencoder" alt="Go Report Card" /></img></a>
+    </p>
+</div>
 
-⚠️*Currently a work-in-progress!*
-
+## Features
 * HTTP API for submitting jobs to an FFmpeg worker
 * Redis-backed worker
 * S3-based storage
 * Web Dashboard UI for managing encode jobs
-
-https://godoc.org/github.com/alfg/openencoder
-
-[![Build Status](https://travis-ci.org/alfg/openencoder.svg?branch=master)](https://travis-ci.org/alfg/openencoder) 
-[![GoDoc](https://godoc.org/github.com/alfg/openencoder?status.svg)](https://godoc.org/github.com/alfg/openencoder)
-[![Go Report Card](https://goreportcard.com/badge/github.com/alfg/openencoder)](https://goreportcard.com/report/github.com/alfg/openencoder)
-
+    
 ## Develop
 #### Requirements
 * Docker
