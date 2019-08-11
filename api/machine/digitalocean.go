@@ -1,10 +1,7 @@
 package machine
 
 import (
-	"bytes"
 	"context"
-	"log"
-	"text/template"
 
 	"github.com/alfg/openencoder/api/config"
 	"github.com/digitalocean/godo"
@@ -21,19 +18,6 @@ const (
 var (
 	sizesLimiter = []string{"s-1vcpu-1gb", "s-1vcpu-2gb"}
 )
-
-const userDataTmpl = `
-#cloud-config
-package_upgrade: true
-write_files:
-    - path: "/opt/.env"
-      content: |
-        export AWS_REGION="{{.AWSRegion}}"
-        export AWS_ACCESS_KEY="{{.AWSAccessKey}}"
-        export AWS_SECRET_KEY="{{.AWSSecretKey}}"
-runcmd:
-  - source /opt/.env
-`
 
 // TokenSource defines an access token for oauth2.TokenSource.
 type TokenSource struct {
@@ -114,8 +98,8 @@ func (do *DigitalOcean) CreateDroplets(ctx context.Context, region, size string,
 
 	createRequest := &godo.DropletMultiCreateRequest{
 		Names:  names,
-		Region: "sfo2",
-		Size:   "s-1vcpu-1gb",
+		Region: region,
+		Size:   size,
 		Image: godo.DropletCreateImage{
 			Slug: dockerImageName,
 		},
@@ -223,27 +207,4 @@ func contains(slice []string, item string) bool {
 		}
 	}
 	return false
-}
-
-// UserData defines the userdata used for cloud-init.
-type UserData struct {
-	AWSRegion, AWSAccessKey, AWSSecretKey string
-}
-
-func createUserData() string {
-	data := &UserData{
-		AWSRegion:    config.Get().AWSRegion,
-		AWSAccessKey: config.Get().AWSAccessKey,
-		AWSSecretKey: config.Get().AWSSecretKey,
-	}
-
-	var tpl bytes.Buffer
-	t := template.Must(template.New("userdata").Parse(userDataTmpl))
-
-	if err := t.Execute(&tpl, data); err != nil {
-		log.Println(err)
-	}
-
-	result := tpl.String()
-	return result
 }

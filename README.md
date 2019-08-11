@@ -3,9 +3,21 @@
     <p><strong>Open Source Cloud Encoder</strong></p>
     <p>⚠️ Currently a work-in-progress!</p>
     <p>
-        <a href="https://travis-ci.org/alfg/openencoder"><img src="https://travis-ci.org/alfg/openencoder.svg?branch=master" alt="Build Status" /></a>
-        <a href="https://godoc.org/github.com/alfg/openencoder"><img src="https://godoc.org/github.com/alfg/openencoder?status.svg" alt="GoDoc" /></a>
-        <a href="https://goreportcard.com/report/github.com/alfg/openencoder"><img src="https://goreportcard.com/badge/github.com/alfg/openencoder" alt="Go Report Card" /></img></a>
+        <a href="https://travis-ci.org/alfg/openencoder">
+          <img src="https://travis-ci.org/alfg/openencoder.svg?branch=master" alt="Build Status" />
+        </a>
+        <a href="https://godoc.org/github.com/alfg/openencoder">
+          <img src="https://godoc.org/github.com/alfg/openencoder?status.svg" alt="GoDoc" />
+        </a>
+        <a href="https://goreportcard.com/report/github.com/alfg/openencoder">
+          <img src="https://goreportcard.com/badge/github.com/alfg/openencoder" alt="Go Report Card" />
+        </a>
+        <a href="https://hub.docker.com/r/alfg/openencoder/builds">
+          <img src="https://img.shields.io/docker/automated/alfg/openencoder.svg" alt="Docker Automated build" />
+        </a>
+        <a href="https://hub.docker.com/r/alfg/openencoder">
+          <img src="https://img.shields.io/docker/pulls/alfg/openencoder.svg" alt="Docker Pulls" />
+        </a>
     </p>
 </div>
 
