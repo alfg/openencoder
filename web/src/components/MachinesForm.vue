@@ -52,6 +52,7 @@
         ></b-form-input>
 
       <b-button type="submit" variant="primary">Apply</b-button>
+      <b-button class="delete-all" variant="danger" @click="deleteAllMachines">Delete All</b-button>
     </b-form>
 
     <b-alert
@@ -153,6 +154,21 @@ export default {
       });
     },
 
+    deleteAllMachines() {
+      const url = '/api/machines/';
+
+      fetch(url, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }).then(response => (
+        response.json()
+      )).then((json) => {
+        console.log('Deleting all machine: ', json);
+      });
+    },
+
     onRegionChange() {
       const { region } = this.form;
 
@@ -186,5 +202,9 @@ export default {
 <style scoped>
 #inline-form-custom-select-count {
   width: 80px;
+}
+
+button.delete-all {
+  margin-left: auto;
 }
 </style>
