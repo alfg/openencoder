@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <b-navbar class="mb-4" toggleable="lg" type="dark" variant="dark">
-      <b-navbar-brand href="#">Cloud Encoder</b-navbar-brand>
+      <b-navbar-brand href="#">Open Encoder</b-navbar-brand>
       <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
     </b-navbar>
 

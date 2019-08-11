@@ -201,14 +201,14 @@ func (do *DigitalOcean) ListSizes(ctx context.Context) ([]Size, error) {
 
 	list := []Size{}
 	for _, d := range sizes {
-		if contains(sizesLimiter, d.Slug) {
-			list = append(list, Size{
-				Slug:         d.Slug,
-				Available:    d.Available,
-				PriceMonthly: d.PriceMonthly,
-				PriceHourly:  d.PriceHourly,
-			})
-		}
+		// if contains(sizesLimiter, d.Slug) {
+		list = append(list, Size{
+			Slug:         d.Slug,
+			Available:    d.Available,
+			PriceMonthly: d.PriceMonthly,
+			PriceHourly:  d.PriceHourly,
+		})
+		// }
 	}
 
 	createUserData()
