@@ -9,6 +9,7 @@ database_name: enc
 worker_namespace: enc
 worker_job_name: encode
 worker_concurrency: 1
+aws_region:
 aws_access_key:
 aws_secret_key:
 s3_inbound_bucket: enc-inbound
@@ -17,6 +18,8 @@ s3_outbound_bucket: enc-outbound
 s3_outbound_region: us-west-1
 work_dir: /tmp
 slack_webhook:
+digitalocean_access_token:
+
 
 profiles:
 - profile: h264_baseline_360p_600

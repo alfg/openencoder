@@ -12,6 +12,7 @@
           show-progress></b-progress>
       </template>
     </b-table>
+    <h2 class="text-center" v-if="items.length === 0">No Jobs Found</h2>
 
     <b-pagination-nav
       @change="onChangePage"

@@ -3,9 +3,21 @@
     <p><strong>Open Source Cloud Encoder</strong></p>
     <p>⚠️ Currently a work-in-progress!</p>
     <p>
-        <a href="https://travis-ci.org/alfg/openencoder"><img src="https://travis-ci.org/alfg/openencoder.svg?branch=master" alt="Build Status" /></a>
-        <a href="https://godoc.org/github.com/alfg/openencoder"><img src="https://godoc.org/github.com/alfg/openencoder?status.svg" alt="GoDoc" /></a>
-        <a href="https://goreportcard.com/report/github.com/alfg/openencoder"><img src="https://goreportcard.com/badge/github.com/alfg/openencoder" alt="Go Report Card" /></img></a>
+        <a href="https://travis-ci.org/alfg/openencoder">
+          <img src="https://travis-ci.org/alfg/openencoder.svg?branch=master" alt="Build Status" />
+        </a>
+        <a href="https://godoc.org/github.com/alfg/openencoder">
+          <img src="https://godoc.org/github.com/alfg/openencoder?status.svg" alt="GoDoc" />
+        </a>
+        <a href="https://goreportcard.com/report/github.com/alfg/openencoder">
+          <img src="https://goreportcard.com/badge/github.com/alfg/openencoder" alt="Go Report Card" />
+        </a>
+        <a href="https://hub.docker.com/r/alfg/openencoder/builds">
+          <img src="https://img.shields.io/docker/automated/alfg/openencoder.svg" alt="Docker Automated build" />
+        </a>
+        <a href="https://hub.docker.com/r/alfg/openencoder">
+          <img src="https://img.shields.io/docker/pulls/alfg/openencoder.svg" alt="Docker Pulls" />
+        </a>
     </p>
 </div>
 
@@ -15,7 +27,9 @@
 * S3-based storage
 * Web Dashboard UI for managing encode jobs
     
+
 ## Develop
+
 #### Requirements
 * Docker
 * Go 1.11+
@@ -61,7 +75,7 @@ cd static && npm run serve
 ## Usage
 ```bash
 curl -X POST \
-  http://localhost:8080/api/encode \
+  http://localhost:8080/api/jobs \
   -H 'Content-Type: application/json' \
   -d '{
 	"profile": "h264_baseline_360p_600",
@@ -74,13 +88,16 @@ curl -X POST \
 See: [API.md](/API.md)
 
 ## Scaling
-TBD
+You can scale workers by adding more machines via the Web UI or API.
+
+Currently only `Digital Ocean` is supported. More providers are planned.
+
+See: [API.md](/API.md) for Machines API.
 
 ## TODO
 * Distributed chunked encoding
 * Encoding profiles API/DB
 * Encoding status and health-checks
-* Machine scaling
 * Digital Ocean S3-Compatibility
 
 ## License

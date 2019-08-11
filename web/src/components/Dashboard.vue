@@ -16,6 +16,7 @@
           </b-card>
       </div>
     </b-card-group>
+    <h2 class="text-center" v-if="!stats.jobs">No Stats Found</h2>
   </div>
 </template>
 
