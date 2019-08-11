@@ -75,7 +75,7 @@ cd static && npm run serve
 ## Usage
 ```bash
 curl -X POST \
-  http://localhost:8080/api/encode \
+  http://localhost:8080/api/jobs \
   -H 'Content-Type: application/json' \
   -d '{
 	"profile": "h264_baseline_360p_600",
@@ -88,13 +88,16 @@ curl -X POST \
 See: [API.md](/API.md)
 
 ## Scaling
-TBD
+You can scale workers by adding more machines via the Web UI or API.
+
+Currently only `Digital Ocean` is supported. More providers are planned.
+
+See: [API.md](/API.md) for Machines API.
 
 ## TODO
 * Distributed chunked encoding
 * Encoding profiles API/DB
 * Encoding status and health-checks
-* Machine scaling
 * Digital Ocean S3-Compatibility
 
 ## License

@@ -24,7 +24,7 @@ Content-Type: application/json
     "profile": "h264_baseline_360p_600",
     "source": "s3:///src/tears-of-steel-2s.mp4",
     "dest": "s3:///dst/tears-of-steel-2s/"
-}}
+}
 ```
 
 ##### Response
@@ -89,3 +89,192 @@ Content-Type: application/json
   "created_date": "2019-07-14t00:00:00z"
 }
 ```
+
+#### Machines API
+Machines API resource.
+
+| Method | Endpoint | Description |
+| :----: | ---- | --------------- |
+| **POST** | [/api/machines](#create-machine) | Create a machine. |
+| **GET** | [/api/machines](#list-machines) | Get machines list. |
+| **DELETE** | [/api/machines/:id](#delete-machine) | Delete a machine by ID. |
+| **DELETE** | [/api/machines](#delete-all-machines) | Delete all machines by tag. |
+| **GET** | [/api/machines/regions](#list-machine-regions) | Get machine regions list. |
+| **GET** | [/api/machines/sizes](#list-machine-sizes) | Get machine sizes list. |
+
+---
+
+#### Create Machine
+```
+POST /api/machine
+```
+
+##### Parameters
+```
+Content-Type: application/json
+```
+
+```json
+{
+	"provider": "digitalocean",
+	"region": "sfo1",
+	"size": "s-1vcpu-1gb",
+	"count": 1
+}
+```
+
+##### Response
+```
+Content-Type: application/json
+```
+
+```json
+{
+  "machine": [
+    {
+      "id": 154372950,
+      "provider": "digitalocean"
+    }
+  ]
+}
+```
+
+---
+
+#### List Machines
+```
+GET /api/machines
+```
+
+##### Response
+```
+Content-Type: application/json
+```
+```json
+{
+  "machines": [
+    {
+      "id": 154485626,
+      "name": "openencoder-worker",
+      "status": "new",
+      "size_slug": "s-1vcpu-1gb",
+      "created_at": "2019-08-11T05:50:26Z",
+      "region": "San Francisco 1",
+      "tags": [
+        "openencoder"
+      ],
+      "provider": "digitalocean"
+    }
+  ]
+}
+```
+
+---
+
+#### Delete Machine
+```
+DELETE /api/machine/:id
+```
+
+##### Parameters
+```
+Content-Type: application/json
+```
+
+##### Response
+```
+Content-Type: application/json
+```
+
+```json
+{
+  "machine": {
+    "id": 154472730,
+    "provider": "digitalocean"
+  }
+}
+```
+
+---
+
+#### Delete All Machines
+This will delete all machines tagged with `openencoder`.
+
+```
+DELETE /api/machine
+```
+
+##### Parameters
+```
+Content-Type: application/json
+```
+
+##### Response
+```
+Content-Type: application/json
+```
+
+```json
+{
+  "deleted": true
+}
+```
+
+---
+
+#### List Machine Regions
+```
+GET /api/machines/regions
+```
+
+##### Response
+```
+Content-Type: application/json
+```
+```json
+{
+  "regions": [
+    {
+      "name": "New York 1",
+      "slug": "nyc1",
+      "sizes": [
+        "32gb",
+        "16gb"
+      ],
+      "available": true
+    }
+  ]
+}
+```
+
+---
+
+#### List Machine Sizes
+```
+GET /api/machines/sizes
+```
+
+##### Response
+```
+Content-Type: application/json
+```
+```json
+{
+  "sizes": [
+    {
+      "slug": "512mb",
+      "available": true,
+      "price_monthly": 5,
+      "price_hourly": 0.007439999841153622
+    },
+    {
+      "slug": "s-1vcpu-1gb",
+      "available": true,
+      "price_monthly": 5,
+      "price_hourly": 0.007439999841153622
+    }
+  ]
+}
+```
+
+---
