@@ -27,6 +27,7 @@ type MachineDeleted struct {
 
 type Region struct {
 	Name      string   `json:"name"`
+	Slug      string   `json:"slug"`
 	Sizes     []string `json:"sizes"`
 	Available bool     `json:"available"`
 }

@@ -1,7 +1,7 @@
 <template>
   <div id="machines-form">
     <h4>Create Machines</h4>
-    <b-form inline>
+    <b-form class="mb-3" inline @submit="onSubmit">
       <b-form-select
         id="inline-form-custom-select-provider"
         class="mb-2 mr-sm-2 mb-sm-0"
@@ -33,17 +33,37 @@
         <option slot="first" :value="null">Size</option>
       </b-form-select>
 
-      <b-form-select
+      <!-- <b-form-select
+        id="inline-form-custom-select-count"
         class="mb-2 mr-sm-2 mb-sm-0"
+        v-model="form.count"
         :value="null"
         :options="count"
-        id="inline-form-custom-select-count"
       >
         <option slot="first" :value="null">Count</option>
-      </b-form-select>
+      </b-form-select> -->
 
-      <b-button variant="primary">Apply</b-button>
+      <b-form-input
+        id="inline-form-custom-select-count"
+        class="mb-2 mr-sm-2 mb-sm-0"
+        v-model="form.count"
+        type="number"
+        :number="true"
+        ></b-form-input>
+
+      <b-button type="submit" variant="primary">Apply</b-button>
     </b-form>
+
+    <b-alert
+      :show="dismissCountDown"
+      dismissible
+      fade
+      variant="success"
+      @dismissed="dismissCountDown=0"
+      @dismiss-count-down="countDownChanged"
+    >
+      Created Machine!
+    </b-alert>
     <hr />
   </div>
 </template>
@@ -56,19 +76,29 @@ export default {
         provider: 'digitalocean',
         region: null,
         size: null,
-        count: null,
+        count: 0,
       },
       providers: { digitalocean: 'Digital Ocean' },
       regionsData: [],
       sizesData: [],
       sizes: [],
       count: Object.assign({}, [...Array(10).keys()]), // 0..10.
+      dismissSecs: 5,
+      dismissCountDown: 0,
+      showDismissibleAlert: false,
     };
   },
 
   computed: {
     regions() {
-      return this.regionsData.map(o => o.name).sort();
+      // return this.regionsData.map(o => o.name).sort();
+      return this.regionsData.map((o) => {
+        const obj = {
+          text: `${o.name}`,
+          value: o.slug,
+        };
+        return obj;
+      }).sort();
     },
   },
 
@@ -78,6 +108,10 @@ export default {
   },
 
   methods: {
+    countDownChanged(dismissCountDown) {
+      this.dismissCountDown = dismissCountDown;
+    },
+
     getRegions() {
       const url = '/api/machines/regions';
 
@@ -102,20 +136,55 @@ export default {
         });
     },
 
+    createMachine(data) {
+      const url = '/api/machines';
+
+      fetch(url, {
+        method: 'POST',
+        body: JSON.stringify(data),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }).then(response => (
+        response.json()
+      )).then((json) => {
+        console.log('Created machine: ', json);
+        this.dismissCountDown = this.dismissSecs;
+      });
+    },
+
     onRegionChange() {
       const { region } = this.form;
 
       // Get pricing data with regions available.
-      const sizesAvailable = this.regionsData.find(o => o.name === region).sizes;
+      const sizesAvailable = this.regionsData.find(o => o.slug === region).sizes;
 
       // Filter sizes data and sort by price to array.
       const filtered = this.sizesData
         .filter(o => sizesAvailable.includes(o.slug) && o.available)
         .sort((a, b) => a.price_monthly > b.price_monthly)
-        .map(o => `${o.slug} -- $${o.price_monthly} /mo`);
+        .map((o) => {
+          const obj = {
+            text: `${o.slug} -- $${o.price_monthly} /mo`,
+            value: o.slug,
+          };
+          return obj;
+        });
 
       this.sizes = filtered;
+    },
+
+    onSubmit(evt) {
+      evt.preventDefault();
+      console.log(JSON.stringify(this.form));
+      this.createMachine(this.form);
     },
   },
 };
 </script>
+
+<style scoped>
+#inline-form-custom-select-count {
+  width: 80px;
+}
+</style>

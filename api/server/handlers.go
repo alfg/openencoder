@@ -43,7 +43,10 @@ type index struct {
 }
 
 type machineRequest struct {
-	Count int `json:"count" binding:"required,min=1,max=10"` // Max of 10 machines.
+	Provider string `json:"provider" binding:"required"`
+	Region   string `json:"region" binding:"required"`
+	Size     string `json:"size" binding:"required"`
+	Count    int    `json:"count" binding:"required,min=1,max=10"` // Max of 10 machines.
 }
 
 func indexHandler(c *gin.Context) {
@@ -318,7 +321,7 @@ func createMachineHandler(c *gin.Context) {
 	ctx := context.TODO()
 
 	// Create machine.
-	machine, err := client.CreateDroplets(ctx, json.Count)
+	machine, err := client.CreateDroplets(ctx, json.Region, json.Size, json.Count)
 	if err != nil {
 		fmt.Println(err)
 	}

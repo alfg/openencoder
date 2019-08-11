@@ -6,6 +6,9 @@
 </template>
 
 <script>
+const UPDATE_INTERVAL = 5000;
+let intervalId;
+
 export default {
   data() {
     return {
@@ -15,6 +18,11 @@ export default {
 
   mounted() {
     this.getMachines();
+    intervalId = setInterval(() => { this.getMachines(); }, UPDATE_INTERVAL);
+  },
+
+  destroyed() {
+    clearInterval(intervalId);
   },
 
   methods: {

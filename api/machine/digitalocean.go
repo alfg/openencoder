@@ -105,7 +105,7 @@ func (do *DigitalOcean) ListDropletByTag(ctx context.Context, tag string) ([]Mac
 }
 
 // CreateDroplets creates a new DigitalOcean droplet.
-func (do *DigitalOcean) CreateDroplets(ctx context.Context, count int) ([]MachineCreated, error) {
+func (do *DigitalOcean) CreateDroplets(ctx context.Context, region, size string, count int) ([]MachineCreated, error) {
 
 	var names []string
 	for i := 0; i < count; i++ {
@@ -179,6 +179,7 @@ func (do *DigitalOcean) ListRegions(ctx context.Context) ([]Region, error) {
 	for _, d := range regions {
 		list = append(list, Region{
 			Name:      d.Name,
+			Slug:      d.Slug,
 			Sizes:     d.Sizes,
 			Available: d.Available,
 		})
