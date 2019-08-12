@@ -14,16 +14,17 @@ package_upgrade: false
 write_files:
     - path: "/opt/.env"
       content: |
-        AWS_REGION="{{.AWSRegion}}"
-        AWS_ACCESS_KEY="{{.AWSAccessKey}}"
-        AWS_SECRET_KEY="{{.AWSSecretKey}}"
-        REDIS_HOST="{{.RedisHost}}"
+        AWS_REGION={{.AWSRegion}}
+        AWS_ACCESS_KEY={{.AWSAccessKey}}
+        AWS_SECRET_KEY={{.AWSSecretKey}}
+        REDIS_HOST=dev.openencode.com
         REDIS_PORT={{.RedisPort}}
-        DATABASE_HOST="{{.DatabaseHost}}"
+        DATABASE_HOST=dev.openencode.com
         DATABASE_PORT={{.DatabasePort}}
-        DATABASE_USER="{{.DatabaseUser}}"
-        DATABASE_PASSWORD="{{.DatabasePassword}}"
-        DATABASE_NAME="{{.DatabaseName}}"
+        DATABASE_USER={{.DatabaseUser}}
+        DATABASE_PASSWORD={{.DatabasePassword}}
+        DATABASE_NAME={{.DatabaseName}}
+        SLACK_WEBHOOK={{.SlackWebhook}}
 runcmd:
   - docker run -d --env-file /opt/.env --rm alfg/openencoder worker
 `
