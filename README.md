@@ -1,6 +1,6 @@
 <div align="center">
     <h1><code>openencoder</code></h1>
-    <p><strong>Open Source Cloud Encoder</strong></p>
+    <p><strong>Open Source Cloud Encoder for FFmpeg</strong></p>
     <p>⚠️ Currently a work-in-progress!</p>
     <p>
         <a href="https://travis-ci.org/alfg/openencoder">
@@ -26,6 +26,7 @@
 * Redis-backed worker
 * S3-based storage
 * Web Dashboard UI for managing encode jobs
+* UI/API for scaling worker instances
     
 
 ## Develop
@@ -36,6 +37,7 @@
 * FFmpeg
 * Postgres
 * AWS S3 Credentials & Bucket
+* Digital Ocean API Keys (optional)
 
 #### Setup
 * Start Redis and Postgres in Docker:
@@ -95,9 +97,10 @@ Currently only `Digital Ocean` is supported. More providers are planned.
 See: [API.md](/API.md) for Machines API.
 
 ## TODO
+* Accounts API
 * Distributed chunked encoding
-* Encoding profiles API/DB
-* Encoding status and health-checks
+* Encoding presets API/DB
+* More health-checks
 * Digital Ocean S3-Compatibility
 
 ## License
