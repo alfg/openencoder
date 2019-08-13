@@ -17,46 +17,48 @@ write_files:
         AWS_REGION={{.AWSRegion}}
         AWS_ACCESS_KEY={{.AWSAccessKey}}
         AWS_SECRET_KEY={{.AWSSecretKey}}
-        REDIS_HOST=dev.openencode.com
-        REDIS_PORT={{.RedisPort}}
-        DATABASE_HOST=dev.openencode.com
-        DATABASE_PORT={{.DatabasePort}}
-        DATABASE_USER={{.DatabaseUser}}
-        DATABASE_PASSWORD={{.DatabasePassword}}
-        DATABASE_NAME={{.DatabaseName}}
         SLACK_WEBHOOK={{.SlackWebhook}}
+        REDIS_HOST={{.CloudinitRedisHost}}
+        REDIS_PORT={{.CloudinitRedisPort}}
+        DATABASE_HOST={{.CloudinitDatabaseHost}}
+        DATABASE_PORT={{.CloudinitDatabasePort}}
+        DATABASE_USER={{.CloudinitDatabaseUser}}
+        DATABASE_PASSWORD={{.CloudinitDatabasePassword}}
+        DATABASE_NAME={{.CloudinitDatabaseName}}
 runcmd:
   - docker run -d --env-file /opt/.env --rm alfg/openencoder worker
 `
 
 // UserData defines the userdata used for cloud-init.
 type UserData struct {
-	AWSRegion        string
-	AWSAccessKey     string
-	AWSSecretKey     string
-	RedisHost        string
-	RedisPort        int
-	DatabaseHost     string
-	DatabasePort     int
-	DatabaseUser     string
-	DatabasePassword string
-	DatabaseName     string
-	SlackWebhook     string
+	AWSRegion    string
+	AWSAccessKey string
+	AWSSecretKey string
+	SlackWebhook string
+
+	CloudinitRedisHost        string
+	CloudinitRedisPort        int
+	CloudinitDatabaseHost     string
+	CloudinitDatabasePort     int
+	CloudinitDatabaseUser     string
+	CloudinitDatabasePassword string
+	CloudinitDatabaseName     string
 }
 
 func createUserData() string {
 	data := &UserData{
-		AWSRegion:        config.Get().AWSRegion,
-		AWSAccessKey:     config.Get().AWSAccessKey,
-		AWSSecretKey:     config.Get().AWSSecretKey,
-		RedisHost:        config.Get().RedisHost,
-		RedisPort:        config.Get().RedisPort,
-		DatabaseHost:     config.Get().DatabaseHost,
-		DatabasePort:     config.Get().DatabasePort,
-		DatabaseUser:     config.Get().DatabaseUser,
-		DatabasePassword: config.Get().DatabasePassword,
-		DatabaseName:     config.Get().DatabaseName,
-		SlackWebhook:     config.Get().SlackWebhook,
+		AWSRegion:    config.Get().AWSRegion,
+		AWSAccessKey: config.Get().AWSAccessKey,
+		AWSSecretKey: config.Get().AWSSecretKey,
+		SlackWebhook: config.Get().SlackWebhook,
+
+		CloudinitRedisHost:        config.Get().CloudinitRedisHost,
+		CloudinitRedisPort:        config.Get().CloudinitRedisPort,
+		CloudinitDatabaseHost:     config.Get().CloudinitDatabaseHost,
+		CloudinitDatabasePort:     config.Get().CloudinitDatabasePort,
+		CloudinitDatabaseUser:     config.Get().CloudinitDatabaseUser,
+		CloudinitDatabasePassword: config.Get().CloudinitDatabasePassword,
+		CloudinitDatabaseName:     config.Get().CloudinitDatabaseName,
 	}
 
 	var tpl bytes.Buffer

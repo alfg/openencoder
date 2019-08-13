@@ -19,6 +19,13 @@ s3_outbound_region: us-west-1
 work_dir: /tmp
 slack_webhook:
 digitalocean_access_token:
+cloudinit_redis_host: dev.openencode.com
+cloudinit_redis_port: 6379
+cloudinit_database_host: dev.openencode.com
+cloudinit_database_port: 5432
+cloudinit_database_user: postgres
+cloudinit_database_password: postgres
+cloudinit_database_name: enc
 
 
 profiles:
