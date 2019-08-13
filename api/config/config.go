@@ -34,6 +34,14 @@ type Config struct {
 	SlackWebhook            string `mapstructure:"slack_webhook"`
 	DigitalOceanAccessToken string `mapstructure:"digitalocean_access_token"`
 
+	CloudinitRedisHost        string `mapstructure:"cloudinit_redis_host"`
+	CloudinitRedisPort        int    `mapstructure:"cloudinit_redis_port"`
+	CloudinitDatabaseHost     string `mapstructure:"cloudinit_database_host"`
+	CloudinitDatabasePort     int    `mapstructure:"cloudinit_database_port"`
+	CloudinitDatabaseUser     string `mapstructure:"cloudinit_database_user"`
+	CloudinitDatabasePassword string `mapstructure:"cloudinit_database_password"`
+	CloudinitDatabaseName     string `mapstructure:"cloudinit_database_name"`
+
 	Profiles []profile
 }
 
