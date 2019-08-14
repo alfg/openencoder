@@ -5,7 +5,9 @@
       <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
     </b-navbar>
 
-    <div class="container mb-4">
+    <div
+      class="container mb-4"
+      v-if="!$route.meta.hideNavigation">
       <b-nav tabs>
         <b-nav-item to="/">Dashboard</b-nav-item>
         <b-nav-item to="/create">Create</b-nav-item>
@@ -19,6 +21,26 @@
     <router-view/>
   </div>
 </template>
+
+<script>
+import store from './store';
+import cookie from './cookie';
+
+export default {
+  created() {
+    // Check if token exists from cookie and set the store.
+    // If not, then redirect to the login page to get a new token.
+    const token = cookie.get('token');
+    if (!store.state.token) {
+      if (token) {
+        store.setTokenAction(token);
+      } else {
+        this.$router.push({ name: 'login' });
+      }
+    }
+  },
+};
+</script>
 
 <style>
 #app {

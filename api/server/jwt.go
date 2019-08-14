@@ -51,7 +51,8 @@ func setJWT() *jwt.GinJWTMiddleware {
 			userID := loginVals.Username
 			password := loginVals.Password
 
-			if (userID == "admin" && password == "admin") || (userID == "test" && password == "test") {
+			// TODO: Validate from DB.
+			if (userID == "admin@test.com" && password == "admin") || (userID == "test@test.com" && password == "test") {
 				return &User{
 					UserName:  userID,
 					LastName:  "Bo-Yi",
@@ -62,7 +63,7 @@ func setJWT() *jwt.GinJWTMiddleware {
 			return nil, jwt.ErrFailedAuthentication
 		},
 		Authorizator: func(data interface{}, c *gin.Context) bool {
-			if v, ok := data.(*User); ok && v.UserName == "admin" {
+			if v, ok := data.(*User); ok && v.UserName == "admin@test.com" {
 				return true
 			}
 

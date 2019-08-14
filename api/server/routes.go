@@ -5,8 +5,8 @@ import "github.com/gin-gonic/gin"
 func registerRoutes(r *gin.Engine) {
 	// JWT middleware.
 	authMiddlware := setJWT()
-	r.POST("/login", authMiddlware.LoginHandler)
-	r.GET("/refresh-token", authMiddlware.RefreshHandler)
+	r.POST("/api/login", authMiddlware.LoginHandler)
+	r.GET("/api/refresh-token", authMiddlware.RefreshHandler)
 
 	// API routes.
 	api := r.Group("/api")

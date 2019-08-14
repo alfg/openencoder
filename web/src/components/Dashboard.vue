@@ -17,10 +17,14 @@
       </div>
     </b-card-group>
     <h2 class="text-center" v-if="!stats.jobs">No Stats Found</h2>
+
+    {{ storeState.message }}
   </div>
 </template>
 
 <script>
+import store from '../store';
+
 const UPDATE_INTERVAL = 5000;
 let intervalId;
 
@@ -30,6 +34,7 @@ export default {
   data() {
     return {
       stats: {},
+      storeState: store.state,
     };
   },
 
@@ -54,15 +59,26 @@ export default {
       };
       return statusMap[o] || 'secondary';
     },
+
     getStats() {
       const url = '/api/stats';
 
-      fetch(url)
+      fetch(url, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${this.storeState.token}`,
+        },
+      })
         .then(response => (
           response.json()
         ))
         .then((json) => {
-          this.stats = json.stats;
+          if (json.stats) {
+            this.stats = json.stats;
+          }
+        })
+        .catch((err) => {
+          console.log(err);
         });
     },
   },

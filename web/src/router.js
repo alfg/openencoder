@@ -7,6 +7,7 @@ import Jobs from './views/Jobs.vue';
 import Queue from './views/Queue.vue';
 import Workers from './views/Workers.vue';
 import Machines from './views/Machines.vue';
+import Login from './views/Login.vue';
 
 import 'bootstrap/dist/css/bootstrap.css';
 import 'bootstrap-vue/dist/bootstrap-vue.css';
@@ -55,6 +56,12 @@ export default new Router({
       // this generates a separate chunk (about.[hash].js) for this route
       // which is lazy-loaded when the route is visited.
       component: () => import(/* webpackChunkName: "about" */ './views/Status.vue'),
+    },
+    {
+      path: '/login',
+      name: 'login',
+      component: Login,
+      meta: { hideNavigation: true },
     },
   ],
 });
