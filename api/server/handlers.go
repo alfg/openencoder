@@ -14,9 +14,11 @@ import (
 	"github.com/alfg/openencoder/api/machine"
 	"github.com/alfg/openencoder/api/net"
 	"github.com/alfg/openencoder/api/types"
+	jwt "github.com/appleboy/gin-jwt/v2"
 	"github.com/gin-gonic/gin"
 	"github.com/gocraft/work"
 	"github.com/rs/xid"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type request struct {
@@ -35,13 +37,6 @@ type response struct {
 	Job     *types.Job `json:"job"`
 }
 
-type index struct {
-	Name    string `json:"name"`
-	Version string `json:"version"`
-	Docs    string `json:"docs"`
-	Github  string `json:"github"`
-}
-
 type machineRequest struct {
 	Provider string `json:"provider" binding:"required"`
 	Region   string `json:"region" binding:"required"`
@@ -50,12 +45,16 @@ type machineRequest struct {
 }
 
 func indexHandler(c *gin.Context) {
-	resp := index{
-		Name:    "openencoder",
-		Version: "0.0.1",
-		Github:  "https://github.com/alfg/openencoder",
-	}
-	c.JSON(200, resp)
+	claims := jwt.ExtractClaims(c)
+	user, _ := c.Get(identityKey)
+
+	c.JSON(200, gin.H{
+		"name":    "openencoder",
+		"version": "0.0.1",
+		"github":  "https://github.com/alfg/openencoder",
+		"user_id": claims["id"],
+		"user":    user.(*User).UserName,
+	})
 }
 
 func createJobHandler(c *gin.Context) {
@@ -394,4 +393,26 @@ func listMachineSizesHandler(c *gin.Context) {
 	c.JSON(200, gin.H{
 		"sizes": sizes,
 	})
+}
+
+func registerHandler(c *gin.Context) {
+	hash, err := bcrypt.GenerateFromPassword([]byte("test"), bcrypt.MinCost)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	fmt.Println(string(hash))
+
+	c.JSON(200, gin.H{})
+}
+
+func loginHandler(c *gin.Context) {
+	err := bcrypt.CompareHashAndPassword([]byte("$2a$04$2wHmBSAneLjvdFddNzlxFevZ/LoL6ZV02CZ7q0DwmR0uRYCIj4vxu"), []byte("test"))
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	fmt.Println(err == nil)
+
+	c.JSON(200, gin.H{})
 }
