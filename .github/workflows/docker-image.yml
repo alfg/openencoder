@@ -13,4 +13,5 @@ jobs:
     - name: Build and push the Docker image
       run: |
         docker build . --file Dockerfile --tag openencoder:latest
+        docker tag openencoder alfg/openencoder:latest
         docker push alfg/openencoder:latest
