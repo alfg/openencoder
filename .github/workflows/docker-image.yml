@@ -10,7 +10,7 @@ jobs:
  
     steps:
     - uses: actions/checkout@master
-    - name: Build and push the Docker image
+    - name: Build the Docker image
       run: |
         docker build . --file Dockerfile --tag openencoder:latest
         docker tag openencoder alfg/openencoder:latest
