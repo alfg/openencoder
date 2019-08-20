@@ -14,4 +14,3 @@ jobs:
       run: |
         docker build . --file Dockerfile --tag openencoder:latest
         docker tag openencoder alfg/openencoder:latest
-        docker push alfg/openencoder:latest
