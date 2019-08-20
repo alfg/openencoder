@@ -10,5 +10,7 @@ jobs:
  
     steps:
     - uses: actions/checkout@master
-    - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag my-image-name:$(date +%s)
+    - name: Build and push the Docker image
+      run: |
+        docker build . --file Dockerfile --tag openencoder:latest
+        docker push alfg/openencoder:latest
