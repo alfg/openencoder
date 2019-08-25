@@ -8,6 +8,7 @@ import Queue from './views/Queue.vue';
 import Workers from './views/Workers.vue';
 import Machines from './views/Machines.vue';
 import Login from './views/Login.vue';
+import Register from './views/Register.vue';
 
 import 'bootstrap/dist/css/bootstrap.css';
 import 'bootstrap-vue/dist/bootstrap-vue.css';
@@ -61,6 +62,12 @@ export default new Router({
       path: '/login',
       name: 'login',
       component: Login,
+      meta: { hideNavigation: true },
+    },
+    {
+      path: '/register',
+      name: 'register',
+      component: Register,
       meta: { hideNavigation: true },
     },
   ],

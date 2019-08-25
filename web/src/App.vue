@@ -31,7 +31,7 @@ export default {
     // Check if token exists from cookie and set the store.
     // If not, then redirect to the login page to get a new token.
     const token = cookie.get('token');
-    if (!store.state.token) {
+    if (!store.state.token && this.$route.name !== 'register') {
       if (token) {
         store.setTokenAction(token);
       } else {
