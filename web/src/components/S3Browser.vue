@@ -14,11 +14,14 @@
 </template>
 
 <script>
+import store from '../store';
+
 export default {
   data() {
     return {
       prefix: '',
       data: [],
+      storeState: store.state,
     };
   },
 
@@ -74,7 +77,12 @@ export default {
     getData(prefix = '') {
       const url = `/api/s3/list?prefix=${prefix}`;
 
-      fetch(url)
+      fetch(url, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${this.storeState.token}`,
+        },
+      })
         .then(response => (
           response.json()
         ))

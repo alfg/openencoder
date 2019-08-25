@@ -13,6 +13,8 @@
 </template>
 
 <script>
+import store from '../store';
+
 const UPDATE_INTERVAL = 5000;
 let intervalId;
 
@@ -21,6 +23,7 @@ export default {
     return {
       fields: ['id', 'name', 'status', 'size_slug', 'created_at', 'region', 'tags', 'provider', 'action'],
       items: [],
+      storeState: store.state,
     };
   },
 
@@ -37,7 +40,12 @@ export default {
     getMachines() {
       const url = '/api/machines';
 
-      fetch(url)
+      fetch(url, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${this.storeState.token}`,
+        },
+      })
         .then(response => (
           response.json()
         ))
@@ -53,6 +61,7 @@ export default {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
+          Authorization: `Bearer ${this.storeState.token}`,
         },
       }).then(response => (
         response.json()

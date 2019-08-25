@@ -70,6 +70,8 @@
 </template>
 
 <script>
+import store from '../store';
+
 export default {
   data() {
     return {
@@ -87,6 +89,7 @@ export default {
       dismissSecs: 5,
       dismissCountDown: 0,
       showDismissibleAlert: false,
+      storeState: store.state,
     };
   },
 
@@ -116,7 +119,12 @@ export default {
     getRegions() {
       const url = '/api/machines/regions';
 
-      fetch(url)
+      fetch(url, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${this.storeState.token}`,
+        },
+      })
         .then(response => (
           response.json()
         ))
@@ -128,7 +136,12 @@ export default {
     getSizes() {
       const url = '/api/machines/sizes';
 
-      fetch(url)
+      fetch(url, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${this.storeState.token}`,
+        },
+      })
         .then(response => (
           response.json()
         ))
@@ -145,6 +158,7 @@ export default {
         body: JSON.stringify(data),
         headers: {
           'Content-Type': 'application/json',
+          Authorization: `Bearer ${this.storeState.token}`,
         },
       }).then(response => (
         response.json()
@@ -161,6 +175,7 @@ export default {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
+          Authorization: `Bearer ${this.storeState.token}`,
         },
       }).then(response => (
         response.json()

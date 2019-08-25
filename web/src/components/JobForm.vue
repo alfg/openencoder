@@ -49,6 +49,7 @@
 </template>
 
 <script>
+import store from '../store';
 import S3Browser from '@/components/S3Browser.vue';
 
 export default {
@@ -68,6 +69,7 @@ export default {
       dismissSecs: 5,
       dismissCountDown: 0,
       showDismissibleAlert: false,
+      storeState: store.state,
     };
   },
 
@@ -89,7 +91,12 @@ export default {
     getProfiles() {
       const url = '/api/profiles';
 
-      fetch(url)
+      fetch(url, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${this.storeState.token}`,
+        },
+      })
         .then(response => (
           response.json()
         ))

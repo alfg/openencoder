@@ -6,10 +6,13 @@
 </template>
 
 <script>
+import store from '../store';
+
 export default {
   data() {
     return {
       items: [],
+      storeState: store.state,
     };
   },
 
@@ -21,7 +24,12 @@ export default {
     getQueue() {
       const url = '/api/worker/queue';
 
-      fetch(url)
+      fetch(url, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${this.storeState.token}`,
+        },
+      })
         .then(response => (
           response.json()
         ))
