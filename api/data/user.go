@@ -7,21 +7,48 @@ import (
 )
 
 // CreateUser creates a user.
-func CreateUser(user types.User) *types.User {
-	const query = "INSERT INTO user (email) VALUES (:email)"
+func CreateUser(user types.User) (*types.User, error) {
+	const query = `
+	  INSERT INTO
+	    users (username,password)
+	  VALUES (:username,:password)
+	  RETURNING id`
 
 	db, _ := ConnectDB()
 	tx := db.MustBegin()
-	result, err := tx.NamedExec(query, &user)
+	stmt, err := tx.PrepareNamed(query)
 	if err != nil {
 		fmt.Println("Error", err)
 	}
+
+	var id int64 // Returned ID.
+	err = stmt.QueryRowx(&user).Scan(&id)
+	if err != nil {
+		fmt.Println("Error", err.Error())
+		return nil, err
+	}
 	tx.Commit()
+	user.ID = id
 
-	fmt.Println("transaction done")
+	db.Close()
+	return &user, nil
+}
 
-	lastID, _ := result.LastInsertId()
-	user.ID = lastID
+// GetUserByUsername Gets a user by username.
+func GetUserByUsername(username string) (*types.User, error) {
+	const query = `
+      SELECT
+        users.*
+      FROM users
+      WHERE users.username = $1`
 
-	return &user
+	db, _ := ConnectDB()
+	user := types.User{}
+	err := db.Get(&user, query, username)
+	if err != nil {
+		fmt.Println(err)
+		return &user, err
+	}
+	db.Close()
+	return &user, nil
 }

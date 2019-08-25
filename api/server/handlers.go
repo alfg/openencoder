@@ -44,6 +44,11 @@ type machineRequest struct {
 	Count    int    `json:"count" binding:"required,min=1,max=10"` // Max of 10 machines.
 }
 
+type registerRequest struct {
+	Username string `json:"username" binding:"required"`
+	Password string `json:"password" binding:"required"`
+}
+
 func indexHandler(c *gin.Context) {
 	claims := jwt.ExtractClaims(c)
 	user, _ := c.Get(identityKey)
@@ -53,7 +58,8 @@ func indexHandler(c *gin.Context) {
 		"version": "0.0.1",
 		"github":  "https://github.com/alfg/openencoder",
 		"user_id": claims["id"],
-		"user":    user.(*User).UserName,
+		"user":    user.(*User).Username,
+		"role":    user.(*User).Role,
 	})
 }
 
@@ -396,23 +402,43 @@ func listMachineSizesHandler(c *gin.Context) {
 }
 
 func registerHandler(c *gin.Context) {
-	hash, err := bcrypt.GenerateFromPassword([]byte("test"), bcrypt.MinCost)
+	// Decode json.
+	var json registerRequest
+	if err := c.ShouldBindJSON(&json); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	hash, err := bcrypt.GenerateFromPassword([]byte(json.Password), bcrypt.MinCost)
 	if err != nil {
 		fmt.Println(err)
 	}
 
-	fmt.Println(string(hash))
-
-	c.JSON(200, gin.H{})
-}
-
-func loginHandler(c *gin.Context) {
-	err := bcrypt.CompareHashAndPassword([]byte("$2a$04$2wHmBSAneLjvdFddNzlxFevZ/LoL6ZV02CZ7q0DwmR0uRYCIj4vxu"), []byte("test"))
-	if err != nil {
-		fmt.Println(err)
+	// Create Job and push the work to work queue.
+	user := types.User{
+		Username: json.Username,
+		Password: string(hash),
 	}
 
-	fmt.Println(err == nil)
+	u, err := data.CreateUser(user)
+	if err != nil {
+		c.JSON(400, gin.H{
+			"message": "error creating user",
+		})
+		return
+	}
 
-	c.JSON(200, gin.H{})
+	c.JSON(200, gin.H{
+		"user":    u.Username,
+		"message": "user created",
+	})
 }
+
+// func loginHandler(c *gin.Context) {
+// 	err := bcrypt.CompareHashAndPassword([]byte("$2a$04$2wHmBSAneLjvdFddNzlxFevZ/LoL6ZV02CZ7q0DwmR0uRYCIj4vxu"), []byte("test"))
+// 	if err != nil {
+// 		fmt.Println(err)
+// 	}
+
+// 	c.JSON(200, gin.H{})
+// }

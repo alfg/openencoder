@@ -13,6 +13,7 @@ var C Config
 // Config defines the main configuration object.
 type Config struct {
 	Port                    string `mapstructure:"server_port"`
+	JWTKey                  string `mapstructure:"jwt_key"`
 	RedisHost               string `mapstructure:"redis_host"`
 	RedisPort               int    `mapstructure:"redis_port"`
 	DatabaseHost            string `mapstructure:"database_host"`

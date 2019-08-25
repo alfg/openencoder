@@ -1,11 +1,16 @@
 package server
 
 import (
+	"fmt"
 	"log"
 	"time"
 
+	"github.com/alfg/openencoder/api/config"
+	"github.com/alfg/openencoder/api/data"
+	"github.com/alfg/openencoder/api/helpers"
 	jwt "github.com/appleboy/gin-jwt/v2"
 	"github.com/gin-gonic/gin"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type login struct {
@@ -13,36 +18,54 @@ type login struct {
 	Password string `form:"password" json:"password" binding:"required"`
 }
 
-var identityKey = "id"
+const (
+	identityKey = "id"
+	roleKey     = "role"
+)
+
+var jwtKey []byte
 
 // User demo
 type User struct {
-	UserName  string
-	FirstName string
-	LastName  string
+	Username string
+	Role     string
 }
 
-func setJWT() *jwt.GinJWTMiddleware {
+func jwtMiddleware() *jwt.GinJWTMiddleware {
+
+	// Set the JWT Key if provided in config. Otherwise, generate a random one.
+	key := config.Get().JWTKey
+	if key == "" {
+		jwtKey = helpers.GenerateRandomKey(16)
+	} else {
+		jwtKey = []byte(key)
+	}
+
 	authMiddleware, err := jwt.New(&jwt.GinJWTMiddleware{
-		Realm:       "test zone",
-		Key:         []byte("secret key"),
+		Realm:       "openencoder",
+		Key:         jwtKey,
 		Timeout:     time.Hour,
 		MaxRefresh:  time.Hour,
 		IdentityKey: identityKey,
+
 		PayloadFunc: func(data interface{}) jwt.MapClaims {
 			if v, ok := data.(*User); ok {
 				return jwt.MapClaims{
-					identityKey: v.UserName,
+					identityKey: v.Username,
+					roleKey:     v.Role,
 				}
 			}
 			return jwt.MapClaims{}
 		},
+
 		IdentityHandler: func(c *gin.Context) interface{} {
 			claims := jwt.ExtractClaims(c)
 			return &User{
-				UserName: claims["id"].(string),
+				Username: claims["id"].(string),
+				Role:     claims["role"].(string),
 			}
 		},
+
 		Authenticator: func(c *gin.Context) (interface{}, error) {
 			var loginVals login
 			if err := c.ShouldBind(&loginVals); err != nil {
@@ -51,24 +74,34 @@ func setJWT() *jwt.GinJWTMiddleware {
 			userID := loginVals.Username
 			password := loginVals.Password
 
-			// TODO: Validate from DB.
-			if (userID == "admin@test.com" && password == "admin") || (userID == "test@test.com" && password == "test") {
-				return &User{
-					UserName:  userID,
-					LastName:  "Bo-Yi",
-					FirstName: "Wu",
-				}, nil
+			user, err := data.GetUserByUsername(userID)
+			if err != nil {
+				fmt.Println(err)
+				return nil, jwt.ErrFailedAuthentication
 			}
 
-			return nil, jwt.ErrFailedAuthentication
+			// Check the encrypted password.
+			err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
+			if err != nil {
+				fmt.Println(err)
+				return nil, jwt.ErrFailedAuthentication
+			}
+
+			// Log-in the user.
+			return &User{
+				Username: user.Username,
+				Role:     user.Role,
+			}, nil
 		},
+
 		Authorizator: func(data interface{}, c *gin.Context) bool {
-			if v, ok := data.(*User); ok && v.UserName == "admin@test.com" {
+			// Only authorize if user is an operator.
+			if v, ok := data.(*User); ok && v.Role == "operator" {
 				return true
 			}
-
 			return false
 		},
+
 		Unauthorized: func(c *gin.Context, code int, message string) {
 			c.JSON(code, gin.H{
 				"code":    code,
