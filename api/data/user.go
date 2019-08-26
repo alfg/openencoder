@@ -10,8 +10,8 @@ import (
 func CreateUser(user types.User) (*types.User, error) {
 	const query = `
 	  INSERT INTO
-	    users (username,password)
-	  VALUES (:username,:password)
+	    users (username,password,role)
+	  VALUES (:username,:password,:role)
 	  RETURNING id`
 
 	db, _ := ConnectDB()

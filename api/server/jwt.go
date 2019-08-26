@@ -8,6 +8,7 @@ import (
 	"github.com/alfg/openencoder/api/config"
 	"github.com/alfg/openencoder/api/data"
 	"github.com/alfg/openencoder/api/helpers"
+	"github.com/alfg/openencoder/api/types"
 	jwt "github.com/appleboy/gin-jwt/v2"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
@@ -18,18 +19,16 @@ type login struct {
 	Password string `form:"password" json:"password" binding:"required"`
 }
 
+// JWT settings.
 const (
+	realm       = "openencoder"
 	identityKey = "id"
 	roleKey     = "role"
+	timeout     = time.Hour // Duration a JWT is valid.
+	maxRefresh  = time.Hour // Duration a JWT can be refreshed.
 )
 
 var jwtKey []byte
-
-// User demo
-type User struct {
-	Username string
-	Role     string
-}
 
 func jwtMiddleware() *jwt.GinJWTMiddleware {
 
@@ -42,14 +41,14 @@ func jwtMiddleware() *jwt.GinJWTMiddleware {
 	}
 
 	authMiddleware, err := jwt.New(&jwt.GinJWTMiddleware{
-		Realm:       "openencoder",
+		Realm:       realm,
 		Key:         jwtKey,
-		Timeout:     time.Hour,
-		MaxRefresh:  time.Hour,
+		Timeout:     timeout,
+		MaxRefresh:  maxRefresh,
 		IdentityKey: identityKey,
 
 		PayloadFunc: func(data interface{}) jwt.MapClaims {
-			if v, ok := data.(*User); ok {
+			if v, ok := data.(*types.User); ok {
 				return jwt.MapClaims{
 					identityKey: v.Username,
 					roleKey:     v.Role,
@@ -60,7 +59,7 @@ func jwtMiddleware() *jwt.GinJWTMiddleware {
 
 		IdentityHandler: func(c *gin.Context) interface{} {
 			claims := jwt.ExtractClaims(c)
-			return &User{
+			return &types.User{
 				Username: claims["id"].(string),
 				Role:     claims["role"].(string),
 			}
@@ -88,7 +87,7 @@ func jwtMiddleware() *jwt.GinJWTMiddleware {
 			}
 
 			// Log-in the user.
-			return &User{
+			return &types.User{
 				Username: user.Username,
 				Role:     user.Role,
 			}, nil
@@ -96,7 +95,7 @@ func jwtMiddleware() *jwt.GinJWTMiddleware {
 
 		Authorizator: func(data interface{}, c *gin.Context) bool {
 			// Only authorize if user is an operator.
-			if v, ok := data.(*User); ok && v.Role == "operator" {
+			if v, ok := data.(*types.User); ok && v.Role == "operator" {
 				return true
 			}
 			return false
@@ -108,23 +107,10 @@ func jwtMiddleware() *jwt.GinJWTMiddleware {
 				"message": message,
 			})
 		},
-		// TokenLookup is a string in the form of "<source>:<name>" that is used
-		// to extract token from the request.
-		// Optional. Default value "header:Authorization".
-		// Possible values:
-		// - "header:<name>"
-		// - "query:<name>"
-		// - "cookie:<name>"
-		// - "param:<name>"
-		TokenLookup: "header: Authorization, query: token, cookie: jwt",
-		// TokenLookup: "query:token",
-		// TokenLookup: "cookie:token",
 
-		// TokenHeadName is a string in the header. Default value is "Bearer"
+		TokenLookup:   "header: Authorization, query: token, cookie: jwt",
 		TokenHeadName: "Bearer",
-
-		// TimeFunc provides the current time. You can override it to use another time value. This is useful for testing or if your server uses a different time zone than your tokens.
-		TimeFunc: time.Now,
+		TimeFunc:      time.Now,
 	})
 
 	if err != nil {

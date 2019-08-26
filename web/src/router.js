@@ -1,5 +1,6 @@
 import Vue from 'vue';
 import Router from 'vue-router';
+import VueResource from 'vue-resource';
 import BootstrapVue from 'bootstrap-vue';
 import Home from './views/Home.vue';
 import Create from './views/Create.vue';
@@ -15,6 +16,11 @@ import 'bootstrap-vue/dist/bootstrap-vue.css';
 
 Vue.use(Router);
 Vue.use(BootstrapVue);
+Vue.use(VueResource);
+
+// Vue.http.headers.common['Authorization'] = 'Bearer ' + cookie.get('token');
+// Check the user's auth status when the app starts
+// auth.checkAuth()
 
 export default new Router({
   mode: 'history',

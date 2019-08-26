@@ -23,6 +23,7 @@
 </template>
 
 <script>
+import jwtDecode from 'jwt-decode';
 import store from './store';
 import cookie from './cookie';
 
@@ -32,7 +33,12 @@ export default {
     // If not, then redirect to the login page to get a new token.
     const token = cookie.get('token');
     if (!store.state.token && this.$route.name !== 'register') {
-      if (token) {
+      if (!token == null) {
+    console.log('here', token);
+        const isExpired = Date.now() >= jwtDecode(token).exp * 1000;
+        if (isExpired) {
+          this.$router.push({ name: 'login' });
+        }
         store.setTokenAction(token);
       } else {
         this.$router.push({ name: 'login' });

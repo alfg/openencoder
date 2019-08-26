@@ -58,8 +58,8 @@ func indexHandler(c *gin.Context) {
 		"version": "0.0.1",
 		"github":  "https://github.com/alfg/openencoder",
 		"user_id": claims["id"],
-		"user":    user.(*User).Username,
-		"role":    user.(*User).Role,
+		"user":    user.(*types.User).Username,
+		"role":    user.(*types.User).Role,
 	})
 }
 
@@ -411,13 +411,17 @@ func registerHandler(c *gin.Context) {
 
 	hash, err := bcrypt.GenerateFromPassword([]byte(json.Password), bcrypt.MinCost)
 	if err != nil {
-		fmt.Println(err)
+		c.JSON(400, gin.H{
+			"message": "error creating user",
+		})
+		return
 	}
 
 	// Create Job and push the work to work queue.
 	user := types.User{
 		Username: json.Username,
 		Password: string(hash),
+		Role:     "guest",
 	}
 
 	u, err := data.CreateUser(user)
@@ -433,12 +437,3 @@ func registerHandler(c *gin.Context) {
 		"message": "user created",
 	})
 }
-
-// func loginHandler(c *gin.Context) {
-// 	err := bcrypt.CompareHashAndPassword([]byte("$2a$04$2wHmBSAneLjvdFddNzlxFevZ/LoL6ZV02CZ7q0DwmR0uRYCIj4vxu"), []byte("test"))
-// 	if err != nil {
-// 		fmt.Println(err)
-// 	}
-
-// 	c.JSON(200, gin.H{})
-// }
