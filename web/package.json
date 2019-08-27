@@ -9,23 +9,23 @@
   },
   "dependencies": {
     "bootstrap": "^4.3.1",
-    "bootstrap-vue": "^2.0.0-rc.27",
+    "bootstrap-vue": "^2.0.0-rc.28",
     "core-js": "^2.6.5",
     "js-cookie": "^2.2.1",
     "jwt-decode": "^2.2.0",
     "register-service-worker": "^1.6.2",
     "vue": "^2.6.10",
     "vue-resource": "^1.5.1",
-    "vue-router": "^3.0.3"
+    "vue-router": "^3.1.2"
   },
   "devDependencies": {
-    "@vue/cli-plugin-babel": "^3.9.2",
-    "@vue/cli-plugin-eslint": "^3.9.2",
-    "@vue/cli-plugin-pwa": "^3.9.0",
-    "@vue/cli-service": "^3.9.2",
+    "@vue/cli-plugin-babel": "^3.11.0",
+    "@vue/cli-plugin-eslint": "^3.11.0",
+    "@vue/cli-plugin-pwa": "^3.11.0",
+    "@vue/cli-service": "^3.11.0",
     "@vue/eslint-config-airbnb": "^4.0.1",
-    "babel-eslint": "^10.0.2",
-    "eslint": "^5.16.0",
+    "babel-eslint": "^10.0.3",
+    "eslint": "^6.2.2",
     "eslint-plugin-vue": "^5.2.3",
     "vue-template-compiler": "^2.6.10"
   }
