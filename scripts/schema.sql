@@ -41,4 +41,25 @@ alter table encode
 create unique index encode_id_uindex
   on encode (id);
 
+-- auto-generated definition
+create table users
+(
+  id       serial       not null,
+  username varchar(128) not null
+    constraint user_pkey
+    primary key,
+  password varchar(128) not null,
+  role     varchar(64)
+);
+
+alter table users
+  owner to postgres;
+
+create unique index user_id_uindex
+  on users (id);
+
+create unique index user_username_uindex
+  on users (username);
+
+
 

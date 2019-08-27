@@ -6,6 +6,8 @@
 </template>
 
 <script>
+import auth from '../auth';
+
 export default {
   data() {
     return {
@@ -21,7 +23,9 @@ export default {
     getWorkers() {
       const url = '/api/worker/pools';
 
-      fetch(url)
+      this.$http.get(url, {
+        headers: auth.getAuthHeader(),
+      })
         .then(response => (
           response.json()
         ))

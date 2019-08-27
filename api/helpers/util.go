@@ -1,6 +1,8 @@
 package helpers
 
 import (
+	"crypto/rand"
+	"io"
 	"os"
 	"path"
 )
@@ -17,4 +19,12 @@ func CreateLocalSourcePath(workDir string, src string, ID string) string {
 func GetTmpPath(workDir string, ID string) string {
 	tmpDir := workDir + "/" + ID + "/"
 	return tmpDir
+}
+
+func GenerateRandomKey(length int) []byte {
+	k := make([]byte, length)
+	if _, err := io.ReadFull(rand.Reader, k); err != nil {
+		return nil
+	}
+	return k
 }

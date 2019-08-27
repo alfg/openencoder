@@ -21,6 +21,8 @@
 </template>
 
 <script>
+import auth from '../auth';
+
 const UPDATE_INTERVAL = 5000;
 let intervalId;
 
@@ -54,15 +56,23 @@ export default {
       };
       return statusMap[o] || 'secondary';
     },
+
     getStats() {
       const url = '/api/stats';
 
-      fetch(url)
+      this.$http.get(url, {
+        headers: auth.getAuthHeader(),
+      })
         .then(response => (
           response.json()
         ))
         .then((json) => {
-          this.stats = json.stats;
+          if (json.stats) {
+            this.stats = json.stats;
+          }
+        })
+        .catch((err) => {
+          console.log(err);
         });
     },
   },

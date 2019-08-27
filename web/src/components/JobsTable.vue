@@ -23,6 +23,8 @@
 </template>
 
 <script>
+import auth from '../auth';
+
 const UPDATE_INTERVAL = 5000;
 let intervalId;
 
@@ -64,7 +66,9 @@ export default {
     getJobs(page) {
       const url = `/api/jobs?page=${page}`;
 
-      fetch(url)
+      this.$http.get(url, {
+        headers: auth.getAuthHeader(),
+      })
         .then(response => (
           response.json()
         ))

@@ -13,6 +13,8 @@
 </template>
 
 <script>
+import auth from '../auth';
+
 const UPDATE_INTERVAL = 5000;
 let intervalId;
 
@@ -37,7 +39,9 @@ export default {
     getMachines() {
       const url = '/api/machines';
 
-      fetch(url)
+      this.$http.get(url, {
+        headers: auth.getAuthHeader(),
+      })
         .then(response => (
           response.json()
         ))
@@ -49,11 +53,9 @@ export default {
     deleteMachine(id) {
       const url = `/api/machines/${id}`;
 
-      fetch(url, {
+      this.$http.delete(url, {
         method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: auth.getAuthHeader(),
       }).then(response => (
         response.json()
       )).then((json) => {

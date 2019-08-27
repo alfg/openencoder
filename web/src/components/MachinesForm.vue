@@ -70,6 +70,8 @@
 </template>
 
 <script>
+import auth from '../auth';
+
 export default {
   data() {
     return {
@@ -116,7 +118,9 @@ export default {
     getRegions() {
       const url = '/api/machines/regions';
 
-      fetch(url)
+      this.$http.get(url, {
+        headers: auth.getAuthHeader(),
+      })
         .then(response => (
           response.json()
         ))
@@ -128,7 +132,9 @@ export default {
     getSizes() {
       const url = '/api/machines/sizes';
 
-      fetch(url)
+      this.$http.get(url, {
+        headers: auth.getAuthHeader(),
+      })
         .then(response => (
           response.json()
         ))
@@ -140,12 +146,8 @@ export default {
     createMachine(data) {
       const url = '/api/machines';
 
-      fetch(url, {
-        method: 'POST',
-        body: JSON.stringify(data),
-        headers: {
-          'Content-Type': 'application/json',
-        },
+      this.$http.post(url, data, {
+        headers: auth.getAuthHeader(),
       }).then(response => (
         response.json()
       )).then((json) => {
@@ -157,11 +159,8 @@ export default {
     deleteAllMachines() {
       const url = '/api/machines/';
 
-      fetch(url, {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+      this.$http.delete(url, {
+        headers: auth.getAuthHeader(),
       }).then(response => (
         response.json()
       )).then((json) => {

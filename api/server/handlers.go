@@ -14,9 +14,11 @@ import (
 	"github.com/alfg/openencoder/api/machine"
 	"github.com/alfg/openencoder/api/net"
 	"github.com/alfg/openencoder/api/types"
+	jwt "github.com/appleboy/gin-jwt/v2"
 	"github.com/gin-gonic/gin"
 	"github.com/gocraft/work"
 	"github.com/rs/xid"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type request struct {
@@ -35,13 +37,6 @@ type response struct {
 	Job     *types.Job `json:"job"`
 }
 
-type index struct {
-	Name    string `json:"name"`
-	Version string `json:"version"`
-	Docs    string `json:"docs"`
-	Github  string `json:"github"`
-}
-
 type machineRequest struct {
 	Provider string `json:"provider" binding:"required"`
 	Region   string `json:"region" binding:"required"`
@@ -49,13 +44,23 @@ type machineRequest struct {
 	Count    int    `json:"count" binding:"required,min=1,max=10"` // Max of 10 machines.
 }
 
+type registerRequest struct {
+	Username string `json:"username" binding:"required"`
+	Password string `json:"password" binding:"required"`
+}
+
 func indexHandler(c *gin.Context) {
-	resp := index{
-		Name:    "openencoder",
-		Version: "0.0.1",
-		Github:  "https://github.com/alfg/openencoder",
-	}
-	c.JSON(200, resp)
+	claims := jwt.ExtractClaims(c)
+	user, _ := c.Get(identityKey)
+
+	c.JSON(200, gin.H{
+		"name":    "openencoder",
+		"version": "0.0.1",
+		"github":  "https://github.com/alfg/openencoder",
+		"user_id": claims["id"],
+		"user":    user.(*types.User).Username,
+		"role":    user.(*types.User).Role,
+	})
 }
 
 func createJobHandler(c *gin.Context) {
@@ -393,5 +398,42 @@ func listMachineSizesHandler(c *gin.Context) {
 
 	c.JSON(200, gin.H{
 		"sizes": sizes,
+	})
+}
+
+func registerHandler(c *gin.Context) {
+	// Decode json.
+	var json registerRequest
+	if err := c.ShouldBindJSON(&json); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	hash, err := bcrypt.GenerateFromPassword([]byte(json.Password), bcrypt.MinCost)
+	if err != nil {
+		c.JSON(400, gin.H{
+			"message": "error creating user",
+		})
+		return
+	}
+
+	// Create Job and push the work to work queue.
+	user := types.User{
+		Username: json.Username,
+		Password: string(hash),
+		Role:     "guest",
+	}
+
+	u, err := data.CreateUser(user)
+	if err != nil {
+		c.JSON(400, gin.H{
+			"message": "error creating user",
+		})
+		return
+	}
+
+	c.JSON(200, gin.H{
+		"user":    u.Username,
+		"message": "user created",
 	})
 }

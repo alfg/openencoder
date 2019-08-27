@@ -6,6 +6,8 @@
 </template>
 
 <script>
+import auth from '../auth';
+
 export default {
   data() {
     return {
@@ -21,12 +23,13 @@ export default {
     getQueue() {
       const url = '/api/worker/queue';
 
-      fetch(url)
+      this.$http.get(url, {
+        headers: auth.getAuthHeader(),
+      })
         .then(response => (
           response.json()
         ))
         .then((json) => {
-          console.log(json);
           this.items = json;
         });
     },
