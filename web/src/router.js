@@ -11,6 +11,8 @@ import Machines from './views/Machines.vue';
 import Login from './views/Login.vue';
 import Register from './views/Register.vue';
 
+import cookie from './cookie';
+
 import 'bootstrap/dist/css/bootstrap.css';
 import 'bootstrap-vue/dist/bootstrap-vue.css';
 
@@ -18,9 +20,7 @@ Vue.use(Router);
 Vue.use(BootstrapVue);
 Vue.use(VueResource);
 
-// Vue.http.headers.common['Authorization'] = 'Bearer ' + cookie.get('token');
-// Check the user's auth status when the app starts
-// auth.checkAuth()
+Vue.http.headers.common.Authorization = `Bearer ${cookie.get('token')}`;
 
 export default new Router({
   mode: 'history',

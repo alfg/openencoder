@@ -1,3 +1,4 @@
+import jwtDecode from 'jwt-decode';
 import cookie from './cookie';
 import store from './store';
 
@@ -7,6 +8,7 @@ const REGISTER_URL = '/api/register';
 export default {
 
   user: {
+    username: null,
     authenticated: false,
   },
 
@@ -40,23 +42,33 @@ export default {
     });
   },
 
-  logout() {
+  logout(context) {
     cookie.remove('token');
     this.user.authenticated = false;
+    context.$router.push({ name: 'login' });
   },
 
-  checkAuth() {
+  checkAuth(context) {
     const jwt = cookie.get('token');
-    if (jwt) {
+
+    // Check if token exists from cookie and set the store.
+    // If not, then redirect to the login page to get a new token.
+    if (jwt && !this.isExpired(jwt)) {
+      store.setTokenAction(jwt);
       this.user.authenticated = true;
+      this.user.username = jwtDecode(jwt).id;
     } else {
-      this.user.authenticated = false;
+      context.$router.push({ name: 'login' });
     }
+  },
+
+  isExpired(jwt) {
+    return Date.now() >= jwtDecode(jwt).exp * 1000;
   },
 
   getAuthHeader() {
     return {
-      Authorization: `Bearer ${cookie.get('token')}`,
+      Authorization: `Bearer ${store.state.token}`,
     };
   },
 };

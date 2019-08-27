@@ -6,13 +6,12 @@
 </template>
 
 <script>
-import store from '../store';
+import auth from '../auth';
 
 export default {
   data() {
     return {
       items: [],
-      storeState: store.state,
     };
   },
 
@@ -24,17 +23,13 @@ export default {
     getQueue() {
       const url = '/api/worker/queue';
 
-      fetch(url, {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${this.storeState.token}`,
-        },
+      this.$http.get(url, {
+        headers: auth.getAuthHeader(),
       })
         .then(response => (
           response.json()
         ))
         .then((json) => {
-          console.log(json);
           this.items = json;
         });
     },

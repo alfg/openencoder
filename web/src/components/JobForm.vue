@@ -49,7 +49,7 @@
 </template>
 
 <script>
-import store from '../store';
+import auth from '../auth';
 import S3Browser from '@/components/S3Browser.vue';
 
 export default {
@@ -69,7 +69,6 @@ export default {
       dismissSecs: 5,
       dismissCountDown: 0,
       showDismissibleAlert: false,
-      storeState: store.state,
     };
   },
 
@@ -91,11 +90,8 @@ export default {
     getProfiles() {
       const url = '/api/profiles';
 
-      fetch(url, {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${this.storeState.token}`,
-        },
+      this.$http.get(url, {
+        headers: auth.getAuthHeader(),
       })
         .then(response => (
           response.json()
@@ -108,12 +104,8 @@ export default {
     submitJob(data) {
       const url = '/api/jobs';
 
-      fetch(url, {
-        method: 'POST',
-        body: JSON.stringify(data),
-        headers: {
-          'Content-Type': 'application/json',
-        },
+      this.$http.post(url, data, {
+        headers: auth.getAuthHeader(),
       }).then(response => (
         response.json()
       )).then((json) => {

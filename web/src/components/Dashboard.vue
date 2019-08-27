@@ -17,13 +17,11 @@
       </div>
     </b-card-group>
     <h2 class="text-center" v-if="!stats.jobs">No Stats Found</h2>
-
-    {{ storeState.message }}
   </div>
 </template>
 
 <script>
-import store from '../store';
+import auth from '../auth';
 
 const UPDATE_INTERVAL = 5000;
 let intervalId;
@@ -34,7 +32,6 @@ export default {
   data() {
     return {
       stats: {},
-      storeState: store.state,
     };
   },
 
@@ -63,11 +60,8 @@ export default {
     getStats() {
       const url = '/api/stats';
 
-      fetch(url, {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${this.storeState.token}`,
-        },
+      this.$http.get(url, {
+        headers: auth.getAuthHeader(),
       })
         .then(response => (
           response.json()

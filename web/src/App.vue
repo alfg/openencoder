@@ -3,6 +3,12 @@
     <b-navbar class="mb-4" toggleable="lg" type="dark" variant="dark">
       <b-navbar-brand href="#">Open Encoder</b-navbar-brand>
       <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
+      <b-navbar-nav class="ml-auto">
+      <b-nav-item-dropdown right>
+        <template slot="button-content">{{ user.username }}</template>
+        <b-dropdown-item href="#" @click="logout">Sign Out</b-dropdown-item>
+      </b-nav-item-dropdown>
+      </b-navbar-nav>
     </b-navbar>
 
     <div
@@ -23,27 +29,23 @@
 </template>
 
 <script>
-import jwtDecode from 'jwt-decode';
-import store from './store';
-import cookie from './cookie';
+import auth from './auth';
 
 export default {
+  data() {
+    return {
+      user: auth.user,
+    };
+  },
+
   created() {
-    // Check if token exists from cookie and set the store.
-    // If not, then redirect to the login page to get a new token.
-    const token = cookie.get('token');
-    if (!store.state.token && this.$route.name !== 'register') {
-      if (!token == null) {
-    console.log('here', token);
-        const isExpired = Date.now() >= jwtDecode(token).exp * 1000;
-        if (isExpired) {
-          this.$router.push({ name: 'login' });
-        }
-        store.setTokenAction(token);
-      } else {
-        this.$router.push({ name: 'login' });
-      }
-    }
+    auth.checkAuth(this);
+  },
+
+  methods: {
+    logout() {
+      auth.logout(this);
+    },
   },
 };
 </script>

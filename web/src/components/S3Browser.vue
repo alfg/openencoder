@@ -14,14 +14,13 @@
 </template>
 
 <script>
-import store from '../store';
+import auth from '../auth';
 
 export default {
   data() {
     return {
       prefix: '',
       data: [],
-      storeState: store.state,
     };
   },
 
@@ -77,11 +76,8 @@ export default {
     getData(prefix = '') {
       const url = `/api/s3/list?prefix=${prefix}`;
 
-      fetch(url, {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${this.storeState.token}`,
-        },
+      this.$http.get(url, {
+        headers: auth.getAuthHeader(),
       })
         .then(response => (
           response.json()

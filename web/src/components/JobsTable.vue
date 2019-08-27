@@ -23,7 +23,7 @@
 </template>
 
 <script>
-import store from '../store';
+import auth from '../auth';
 
 const UPDATE_INTERVAL = 5000;
 let intervalId;
@@ -34,7 +34,6 @@ export default {
       fields: ['id', 'guid', 'profile', 'created_date', 'status', 'progress'],
       items: [],
       count: 0,
-      storeState: store.state,
     };
   },
 
@@ -67,11 +66,8 @@ export default {
     getJobs(page) {
       const url = `/api/jobs?page=${page}`;
 
-      fetch(url, {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${this.storeState.token}`,
-        },
+      this.$http.get(url, {
+        headers: auth.getAuthHeader(),
       })
         .then(response => (
           response.json()

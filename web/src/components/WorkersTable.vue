@@ -6,13 +6,12 @@
 </template>
 
 <script>
-import store from '../store';
+import auth from '../auth';
 
 export default {
   data() {
     return {
       items: [],
-      storeState: store.state,
     };
   },
 
@@ -24,11 +23,8 @@ export default {
     getWorkers() {
       const url = '/api/worker/pools';
 
-      fetch(url, {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${this.storeState.token}`,
-        },
+      this.$http.get(url, {
+        headers: auth.getAuthHeader(),
       })
         .then(response => (
           response.json()

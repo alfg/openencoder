@@ -70,7 +70,7 @@
 </template>
 
 <script>
-import store from '../store';
+import auth from '../auth';
 
 export default {
   data() {
@@ -89,7 +89,6 @@ export default {
       dismissSecs: 5,
       dismissCountDown: 0,
       showDismissibleAlert: false,
-      storeState: store.state,
     };
   },
 
@@ -119,11 +118,8 @@ export default {
     getRegions() {
       const url = '/api/machines/regions';
 
-      fetch(url, {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${this.storeState.token}`,
-        },
+      this.$http.get(url, {
+        headers: auth.getAuthHeader(),
       })
         .then(response => (
           response.json()
@@ -136,11 +132,8 @@ export default {
     getSizes() {
       const url = '/api/machines/sizes';
 
-      fetch(url, {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${this.storeState.token}`,
-        },
+      this.$http.get(url, {
+        headers: auth.getAuthHeader(),
       })
         .then(response => (
           response.json()
@@ -153,13 +146,8 @@ export default {
     createMachine(data) {
       const url = '/api/machines';
 
-      fetch(url, {
-        method: 'POST',
-        body: JSON.stringify(data),
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${this.storeState.token}`,
-        },
+      this.$http.post(url, data, {
+        headers: auth.getAuthHeader(),
       }).then(response => (
         response.json()
       )).then((json) => {
@@ -171,12 +159,8 @@ export default {
     deleteAllMachines() {
       const url = '/api/machines/';
 
-      fetch(url, {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${this.storeState.token}`,
-        },
+      this.$http.delete(url, {
+        headers: auth.getAuthHeader(),
       }).then(response => (
         response.json()
       )).then((json) => {
