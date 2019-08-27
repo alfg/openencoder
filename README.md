@@ -1,7 +1,9 @@
 <div align="center">
     <h1><code>openencoder</code></h1>
     <p><strong>Open Source Cloud Encoder for FFmpeg</strong></p>
-    <p>⚠️ Currently a work-in-progress!</p>
+    <p>The goal of this project is to create a distributed and scalable video encoding pipeline to be used
+    as an API or web interface using your own hosted infrastructure and FFmpeg encoding profiles!</p>
+    <p>⚠️ Currently a work-in-progress! Check back for updates!</p>
     <p>
         <a href="https://travis-ci.org/alfg/openencoder">
           <img src="https://travis-ci.org/alfg/openencoder.svg?branch=master" alt="Build Status" />
@@ -97,7 +99,6 @@ Currently only `Digital Ocean` is supported. More providers are planned.
 See: [API.md](/API.md) for Machines API.
 
 ## TODO
-* Accounts API
 * Distributed chunked encoding
 * Encoding presets API/DB
 * More health-checks
