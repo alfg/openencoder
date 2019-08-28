@@ -1,3 +1,70 @@
+#### Authentication
+Authentication API resource.
+
+| Method | Endpoint | Description |
+| :----: | ---- | --------------- |
+| **POST** | [/api/register](#register) | Register a user. |
+| **POST** | [/api/login](#login) | Login user. |
+
+---
+
+#### Register
+```
+POST /api/register
+```
+
+##### Parameters
+```
+Content-Type: application/json
+```
+
+```json
+{
+    "username": "foo@bar.com",
+    "password": "baz"
+}
+```
+
+##### Response
+```
+Content-Type: application/json
+```
+
+```json
+{
+  "user": "foo@bar.com",
+  "message": "User registered"
+}
+```
+
+#### Login
+```
+POST /api/register
+```
+
+##### Parameters
+```
+Content-Type: application/json
+```
+
+```json
+{
+  "username": "foo@bar.com",
+  "password": "baz"
+}
+```
+
+##### Response
+```
+Content-Type: application/json
+```
+
+```json
+{
+  "token": "<jwt token>"
+}
+```
+
 #### Jobs API
 Jobs API resource.
 
@@ -9,9 +76,9 @@ Jobs API resource.
 
 ---
 
-#### Create Encode
+#### Create Job
 ```
-POST /api/encode
+POST /api/job
 ```
 
 ##### Parameters
