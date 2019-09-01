@@ -21,6 +21,7 @@
         <b-nav-item to="/queue">Queue</b-nav-item>
         <b-nav-item to="/workers">Workers</b-nav-item>
         <b-nav-item to="/machines">Machines</b-nav-item>
+        <b-nav-item to="/settings">Settings</b-nav-item>
       </b-nav>
     </div>
 
