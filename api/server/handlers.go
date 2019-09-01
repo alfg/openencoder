@@ -267,12 +267,15 @@ type file struct {
 
 func s3ListHandler(c *gin.Context) {
 	prefix := c.DefaultQuery("prefix", "")
-	files, err := net.S3ListFiles(prefix)
-	if err != nil {
-		log.Fatal(err)
-	}
 
 	resp := s3ListResponse{}
+	files, err := net.S3ListFiles(prefix)
+	if err != nil {
+		c.JSON(200, gin.H{
+			"data": resp,
+		})
+		return
+	}
 
 	// var prefixes &[]S3ListResponse.Folders
 	for _, item := range files.CommonPrefixes {
@@ -398,6 +401,53 @@ func listMachineSizesHandler(c *gin.Context) {
 
 	c.JSON(200, gin.H{
 		"sizes": sizes,
+	})
+}
+
+type setting struct {
+	Name  string `json:"name"`
+	Value string `json:"value"`
+}
+
+func settingsHandler(c *gin.Context) {
+	user, _ := c.Get(identityKey)
+	userID := user.(*types.User).ID
+
+	settings := data.GetSettingsByUserID(userID)
+	fmt.Println(settings)
+
+	// Get all settings for response and set blank defaults.
+	var resp []setting
+	for _, v := range types.SettingsTypes {
+		s := setting{}
+		for _, j := range settings {
+			if j.Name == v {
+				s.Name = j.Name
+				s.Value = j.Value
+			} else {
+				s.Name = v
+				s.Value = ""
+			}
+		}
+		resp = append(resp, s)
+	}
+
+	c.JSON(200, gin.H{
+		"settings": resp,
+	})
+}
+
+func createSettingsHandler(c *gin.Context) {
+
+	c.JSON(200, gin.H{
+		"settings": "",
+	})
+}
+
+func updateSettingsHandler(c *gin.Context) {
+
+	c.JSON(200, gin.H{
+		"settings": "",
 	})
 }
 

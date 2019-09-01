@@ -1,6 +1,7 @@
 package net
 
 import (
+	"fmt"
 	"net/url"
 	"os"
 	"path"
@@ -179,8 +180,8 @@ func (s *S3) uploadFile(path string, job types.Job) error {
 // S3ListFiles lists s3 objects for a given prefix.
 func S3ListFiles(prefix string) (*s3.ListObjectsV2Output, error) {
 	sess := session.New()
-
 	svc := s3.New(sess)
+
 	resp, err := svc.ListObjectsV2(
 		&s3.ListObjectsV2Input{
 			Bucket:    aws.String(config.Get().S3InboundBucket),
@@ -188,10 +189,8 @@ func S3ListFiles(prefix string) (*s3.ListObjectsV2Output, error) {
 			Prefix:    aws.String(prefix),
 		},
 	)
-	if err != nil {
-		return nil, err
-	}
-	return resp, nil
+	fmt.Println("woah", err)
+	return resp, err
 }
 
 func isDirectory(path string) bool {

@@ -9,12 +9,12 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/alfg/openencoder/api/alert"
 	"github.com/alfg/openencoder/api/config"
 	"github.com/alfg/openencoder/api/data"
 	"github.com/alfg/openencoder/api/encoder"
 	"github.com/alfg/openencoder/api/helpers"
 	"github.com/alfg/openencoder/api/net"
+	"github.com/alfg/openencoder/api/notify"
 	"github.com/alfg/openencoder/api/types"
 	log "github.com/sirupsen/logrus"
 )
@@ -155,7 +155,7 @@ func sendAlert(job types.Job) error {
 			"*Source*: %s\n"+
 			"*Destination*: %s\n\n",
 		job.GUID, job.Profile, job.Source, job.Destination)
-	err := alert.SendSlackMessage(config.Get().SlackWebhook, message)
+	err := notify.SendSlackMessage(config.Get().SlackWebhook, message)
 	if err != nil {
 		return err
 	}
