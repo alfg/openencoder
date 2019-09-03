@@ -33,16 +33,6 @@
         <option slot="first" :value="null">Size</option>
       </b-form-select>
 
-      <!-- <b-form-select
-        id="inline-form-custom-select-count"
-        class="mb-2 mr-sm-2 mb-sm-0"
-        v-model="form.count"
-        :value="null"
-        :options="count"
-      >
-        <option slot="first" :value="null">Count</option>
-      </b-form-select> -->
-
       <b-form-input
         id="inline-form-custom-select-count"
         class="mb-2 mr-sm-2 mb-sm-0"

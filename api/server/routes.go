@@ -44,9 +44,8 @@ func registerRoutes(r *gin.Engine) {
 		api.GET("/machines/regions", listMachineRegionsHandler)
 		api.GET("/machines/sizes", listMachineSizesHandler)
 
-		// Settings
+		// Settings.
 		api.GET("/settings", settingsHandler)
-		api.POST("/setttings", createSettingsHandler)
 		api.PUT("/settings", updateSettingsHandler)
 	}
 

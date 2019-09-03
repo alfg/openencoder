@@ -5,6 +5,7 @@ const (
 	AWSAccessKey      = "AWS_ACCESS_KEY"
 	AWSSecretKey      = "AWS_SECRET_KEY"
 	DigitalOceanToken = "DIGITAL_OCEAN_TOKEN"
+	SlackWebhook      = "SLACK_WEBHOOK"
 )
 
 // SettingsTypes list of all settings available.
@@ -12,6 +13,7 @@ var SettingsTypes = []string{
 	AWSAccessKey,
 	AWSSecretKey,
 	DigitalOceanToken,
+	SlackWebhook,
 }
 
 // Setting defines a setting for a user.
@@ -29,5 +31,21 @@ type Setting struct {
 type SettingsOption struct {
 	ID          int64  `db:"id" json:"-"`
 	Name        string `db:"name" json:"name"`
+	Title       string `db:"title" json:"title"`
 	Description string `db:"description" json:"description"`
 }
+
+type SettingsForm struct {
+	Name        string `json:"name"`
+	Title       string `json:"title"`
+	Value       string `json:"value"`
+	Description string `json:"description"`
+	Type        string `json:"type"`
+}
+
+// type SettingsUpdate struct {
+// 	AWSAccessKey      string
+// 	AWSSecretKey      string
+// 	DigitalOceanToken string
+// 	SlackWebhook      string
+// }

@@ -49,6 +49,13 @@ type registerRequest struct {
 	Password string `json:"password" binding:"required"`
 }
 
+type settingsUpdateRequest struct {
+	AWSAccessKey      string `json:"AWS_ACCESS_KEY"`
+	AWSSecretKey      string `json:"AWS_SECRET_KEY"`
+	DigitalOceanToken string `json:"DIGITAL_OCEAN_TOKEN"`
+	SlackWebhook      string `json:"SLACK_WEBHOOK"`
+}
+
 func indexHandler(c *gin.Context) {
 	claims := jwt.ExtractClaims(c)
 	user, _ := c.Get(identityKey)
@@ -404,28 +411,25 @@ func listMachineSizesHandler(c *gin.Context) {
 	})
 }
 
-type setting struct {
-	Name  string `json:"name"`
-	Value string `json:"value"`
-}
-
 func settingsHandler(c *gin.Context) {
 	user, _ := c.Get(identityKey)
 	userID := user.(*types.User).ID
 
 	settings := data.GetSettingsByUserID(userID)
-	fmt.Println(settings)
+	settingOptions := data.GetSettingsOptions()
 
 	// Get all settings for response and set blank defaults.
-	var resp []setting
-	for _, v := range types.SettingsTypes {
-		s := setting{}
+	var resp []types.SettingsForm
+	for _, v := range settingOptions {
+		s := types.SettingsForm{
+			Title:       v.Title,
+			Name:        v.Name,
+			Description: v.Description,
+		}
 		for _, j := range settings {
-			if j.Name == v {
-				s.Name = j.Name
+			if j.Name == v.Name {
 				s.Value = j.Value
 			} else {
-				s.Name = v
 				s.Value = ""
 			}
 		}
@@ -437,14 +441,26 @@ func settingsHandler(c *gin.Context) {
 	})
 }
 
-func createSettingsHandler(c *gin.Context) {
-
-	c.JSON(200, gin.H{
-		"settings": "",
-	})
-}
-
 func updateSettingsHandler(c *gin.Context) {
+	user, _ := c.Get(identityKey)
+	userID := user.(*types.User).ID
+
+	// Decode json.
+	var json settingsUpdateRequest
+	if err := c.ShouldBindJSON(&json); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	s := map[string]string{
+		types.AWSAccessKey:      json.AWSAccessKey,
+		types.AWSSecretKey:      json.AWSSecretKey,
+		types.DigitalOceanToken: json.DigitalOceanToken,
+		types.SlackWebhook:      json.SlackWebhook,
+	}
+
+	err := data.UpdateSettingsByUserID(userID, s)
+	fmt.Println(err)
 
 	c.JSON(200, gin.H{
 		"settings": "",

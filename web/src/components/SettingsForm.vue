@@ -2,46 +2,25 @@
   <div id="settings-form">
     <h4>Settings</h4>
 
-    <b-form class="" @submit="onSubmit">
-      <b-form-group
-        id="fieldset-horizontal"
-        label-cols-sm="4"
-        label-cols-lg="4"
-        label="AWS ACCESS KEY"
-        label-for="input-horizontal"
+    <b-form @submit="onSubmit">
+      <div
+        v-for="(o, i) in settings"
+        v-bind:key="i"
       >
-        <b-form-input id="input-horizontal"></b-form-input>
-      </b-form-group>
-
-      <b-form-group
-        id="fieldset-horizontal"
-        label-cols-sm="4"
-        label-cols-lg="4"
-        label="AWS SECRET KEY"
-        label-for="input-horizontal"
-      >
-        <b-form-input id="input-horizontal"></b-form-input>
-      </b-form-group>
-
-      <b-form-group
-        id="fieldset-horizontal"
-        label-cols-sm="4"
-        label-cols-lg="4"
-        label="DIGITAL OCEAN ACCESS KEY"
-        label-for="input-horizontal"
-      >
-        <b-form-input id="input-horizontal"></b-form-input>
-      </b-form-group>
-
-      <b-form-group
-        id="fieldset-horizontal"
-        label-cols-sm="4"
-        label-cols-lg="4"
-        label="DIGITAL OCEAN SECRET KEY"
-        label-for="input-horizontal"
-      >
-        <b-form-input id="input-horizontal"></b-form-input>
-      </b-form-group>
+        <b-form-group
+          id="fieldset-horizontal"
+          label-cols-sm="4"
+          label-cols-lg="4"
+          label-for="input-horizontal"
+          :label="o.title"
+          :description="o.description"
+        >
+          <b-form-input
+            id="input-horizontal"
+            v-model="form[o.name]"
+          ></b-form-input>
+        </b-form-group>
+      </div>
 
       <b-button type="submit" variant="primary">Save</b-button>
       <b-button
@@ -57,8 +36,8 @@ import auth from '../auth';
 export default {
   data() {
     return {
-      form: {
-      },
+      form: {},
+      settings: {},
     };
   },
 
@@ -66,12 +45,51 @@ export default {
   },
 
   mounted() {
+    this.getSettings();
   },
 
   methods: {
+    getSettings() {
+      const url = '/api/settings';
+
+      this.$http.get(url, {
+        headers: auth.getAuthHeader(),
+      })
+        .then(response => (
+          response.json()
+        ))
+        .then((json) => {
+          if (json.settings) {
+            this.settings = json.settings;
+
+            // Populate form items if availble.
+            this.settings.forEach(item => {
+              this.form[item.name] = item.value;
+            });
+          }
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    },
+
+    updateSettings(data) {
+      const url = '/api/settings';
+
+      this.$http.put(url, data, {
+        headers: auth.getAuthHeader(),
+      }).then(response => (
+        response.json()
+      )).then((json) => {
+        console.log('Updated settings: ', json);
+        // this.dismissCountDown = this.dismissSecs;
+      });
+    },
+
     onSubmit(evt) {
       evt.preventDefault();
       console.log(JSON.stringify(this.form));
+      this.updateSettings(this.form);
     },
   },
 };
