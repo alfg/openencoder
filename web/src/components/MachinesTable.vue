@@ -46,7 +46,7 @@ export default {
           response.json()
         ))
         .then((json) => {
-          this.items = json && json.machines;
+          this.items = json && json.machines || [];
         });
     },
 
