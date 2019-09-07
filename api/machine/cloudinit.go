@@ -26,7 +26,7 @@ write_files:
         DATABASE_PASSWORD={{.CloudinitDatabasePassword}}
         DATABASE_NAME={{.CloudinitDatabaseName}}
 runcmd:
-  - docker run -d --env-file /opt/.env --rm alfg/openencoder worker
+  - docker run -d --env-file /opt/.env --rm alfg/openencoder:latest worker
 `
 
 // UserData defines the userdata used for cloud-init.

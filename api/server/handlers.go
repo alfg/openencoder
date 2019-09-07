@@ -50,10 +50,10 @@ type registerRequest struct {
 }
 
 type settingsUpdateRequest struct {
-	AWSAccessKey      string `json:"AWS_ACCESS_KEY"`
-	AWSSecretKey      string `json:"AWS_SECRET_KEY"`
-	DigitalOceanToken string `json:"DIGITAL_OCEAN_TOKEN"`
-	SlackWebhook      string `json:"SLACK_WEBHOOK"`
+	AWSAccessKey            string `json:"AWS_ACCESS_KEY"`
+	AWSSecretKey            string `json:"AWS_SECRET_KEY"`
+	DigitalOceanAccessToken string `json:"DIGITAL_OCEAN_ACCESS_TOKEN"`
+	SlackWebhook            string `json:"SLACK_WEBHOOK"`
 }
 
 func indexHandler(c *gin.Context) {
@@ -413,9 +413,9 @@ func listMachineSizesHandler(c *gin.Context) {
 
 func settingsHandler(c *gin.Context) {
 	user, _ := c.Get(identityKey)
-	userID := user.(*types.User).ID
+	username := user.(*types.User).Username
 
-	settings := data.GetSettingsByUserID(userID)
+	settings := data.GetSettingsByUsername(username)
 	settingOptions := data.GetSettingsOptions()
 
 	// Get all settings for response and set blank defaults.
@@ -429,8 +429,6 @@ func settingsHandler(c *gin.Context) {
 		for _, j := range settings {
 			if j.Name == v.Name {
 				s.Value = j.Value
-			} else {
-				s.Value = ""
 			}
 		}
 		resp = append(resp, s)
@@ -443,7 +441,7 @@ func settingsHandler(c *gin.Context) {
 
 func updateSettingsHandler(c *gin.Context) {
 	user, _ := c.Get(identityKey)
-	userID := user.(*types.User).ID
+	username := user.(*types.User).Username
 
 	// Decode json.
 	var json settingsUpdateRequest
@@ -453,17 +451,23 @@ func updateSettingsHandler(c *gin.Context) {
 	}
 
 	s := map[string]string{
-		types.AWSAccessKey:      json.AWSAccessKey,
-		types.AWSSecretKey:      json.AWSSecretKey,
-		types.DigitalOceanToken: json.DigitalOceanToken,
-		types.SlackWebhook:      json.SlackWebhook,
+		types.AWSAccessKey:            json.AWSAccessKey,
+		types.AWSSecretKey:            json.AWSSecretKey,
+		types.DigitalOceanAccessToken: json.DigitalOceanAccessToken,
+		types.SlackWebhook:            json.SlackWebhook,
 	}
 
+	// userID is 0 for some reason.
+	userID := data.GetUserID(username)
 	err := data.UpdateSettingsByUserID(userID, s)
-	fmt.Println(err)
+	if err != nil {
+		c.JSON(400, gin.H{
+			"message": "error updating settings",
+		})
+	}
 
 	c.JSON(200, gin.H{
-		"settings": "",
+		"settings": "updated",
 	})
 }
 

@@ -52,3 +52,17 @@ func GetUserByUsername(username string) (*types.User, error) {
 	db.Close()
 	return &user, nil
 }
+
+// GetUserID Gets a user ID by username.
+func GetUserID(username string) int64 {
+	const query = "SELECT id FROM users WHERE username = $1"
+
+	var id int64
+
+	db, _ := ConnectDB()
+	err := db.QueryRow(query, username).Scan(&id)
+	if err != nil {
+		fmt.Println(err)
+	}
+	return id
+}

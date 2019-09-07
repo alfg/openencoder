@@ -2,24 +2,24 @@ package types
 
 // Settings types.
 const (
-	AWSAccessKey      = "AWS_ACCESS_KEY"
-	AWSSecretKey      = "AWS_SECRET_KEY"
-	DigitalOceanToken = "DIGITAL_OCEAN_TOKEN"
-	SlackWebhook      = "SLACK_WEBHOOK"
+	AWSAccessKey            = "AWS_ACCESS_KEY"
+	AWSSecretKey            = "AWS_SECRET_KEY"
+	DigitalOceanAccessToken = "DIGITAL_OCEAN_ACCESS_TOKEN"
+	SlackWebhook            = "SLACK_WEBHOOK"
 )
 
 // SettingsTypes list of all settings available.
 var SettingsTypes = []string{
 	AWSAccessKey,
 	AWSSecretKey,
-	DigitalOceanToken,
+	DigitalOceanAccessToken,
 	SlackWebhook,
 }
 
 // Setting defines a setting for a user.
 type Setting struct {
-	ID     int64  `db:"id" json:"-"`
-	UserID string `db:"user_id" json:"-"`
+	ID     int64 `db:"id" json:"-"`
+	UserID int64 `db:"user_id" json:"-"`
 
 	SettingsOptionID int64 `db:"settings_option_id" json:"-"`
 	SettingsOption   `db:"settings_option"`
@@ -42,10 +42,3 @@ type SettingsForm struct {
 	Description string `json:"description"`
 	Type        string `json:"type"`
 }
-
-// type SettingsUpdate struct {
-// 	AWSAccessKey      string
-// 	AWSSecretKey      string
-// 	DigitalOceanToken string
-// 	SlackWebhook      string
-// }

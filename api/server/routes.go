@@ -3,6 +3,7 @@ package server
 import "github.com/gin-gonic/gin"
 
 func registerRoutes(r *gin.Engine) {
+
 	// JWT middleware.
 	authMiddlware := jwtMiddleware()
 	r.POST("/api/register", registerHandler)
@@ -48,8 +49,4 @@ func registerRoutes(r *gin.Engine) {
 		api.GET("/settings", settingsHandler)
 		api.PUT("/settings", updateSettingsHandler)
 	}
-
-	// Auth.
-	// api.POST("/register", registerHandler)
-	// api.POST("/login", loginHandler)
 }
