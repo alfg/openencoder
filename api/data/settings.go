@@ -9,6 +9,37 @@ import (
 	"github.com/alfg/openencoder/api/types"
 )
 
+// GetSettingByUsername Gets a setting by a UserID.
+func GetSetting(key string) types.Setting {
+	const query = `
+	  SELECT
+        settings.*,
+        settings_option.id "settings_option.id",
+        settings_option.name "settings_option.name",
+        settings_option.title "settings_option.title",
+        settings_option.description "settings_option.description",
+        settings_option.secure "settings_option.secure"
+	  FROM settings
+      JOIN settings_option ON settings.settings_option_id = settings_option.id
+      WHERE settings_option.name = $1
+      ORDER BY id DESC`
+
+	db, _ := ConnectDB()
+	setting := types.Setting{}
+	err := db.Get(&setting, query, key)
+	if err != nil {
+		fmt.Println(err)
+	}
+	db.Close()
+
+	if setting.Secure {
+		enc, _ := hex.DecodeString(setting.Value)
+		plaintext, _ := helpers.Decrypt(enc, config.Keyseed())
+		setting.Value = string(plaintext)
+	}
+	return setting
+}
+
 // GetSettingsByUsername Gets settings by a UserID.
 func GetSettingsByUsername(username string) []types.Setting {
 	const query = `

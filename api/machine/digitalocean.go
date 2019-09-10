@@ -3,7 +3,6 @@ package machine
 import (
 	"context"
 
-	"github.com/alfg/openencoder/api/config"
 	"github.com/digitalocean/godo"
 	"golang.org/x/oauth2"
 )
@@ -38,9 +37,9 @@ type DigitalOcean struct {
 }
 
 // NewDigitalOceanClient creates a Digital Ocean client.
-func NewDigitalOceanClient() (*DigitalOcean, error) {
+func NewDigitalOceanClient(token string) (*DigitalOcean, error) {
 	tokenSource := &TokenSource{
-		AccessToken: config.Get().DigitalOceanAccessToken,
+		AccessToken: token,
 	}
 
 	oauthClient := oauth2.NewClient(context.Background(), tokenSource)

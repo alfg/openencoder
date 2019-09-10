@@ -20,7 +20,6 @@ s3_outbound_bucket: enc-outbound
 s3_outbound_region: us-west-1
 work_dir: /tmp
 slack_webhook:
-digitalocean_access_token:
 cloudinit_redis_host: dev.openencode.com
 cloudinit_redis_port: 6379
 cloudinit_database_host: dev.openencode.com

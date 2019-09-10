@@ -6,9 +6,12 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/alfg/openencoder/api/data"
 	"github.com/alfg/openencoder/api/machine"
 	"github.com/gin-gonic/gin"
 )
+
+const settingKey = "DIGITAL_OCEAN_ACCESS_TOKEN"
 
 type machineRequest struct {
 	Provider string `json:"provider" binding:"required"`
@@ -18,7 +21,8 @@ type machineRequest struct {
 }
 
 func machinesHandler(c *gin.Context) {
-	client, _ := machine.NewDigitalOceanClient()
+	token := data.GetSetting(settingKey).Value
+	client, _ := machine.NewDigitalOceanClient(token)
 	ctx := context.TODO()
 
 	// Get list of machines from DO client.
@@ -40,7 +44,8 @@ func createMachineHandler(c *gin.Context) {
 		return
 	}
 
-	client, _ := machine.NewDigitalOceanClient()
+	token := data.GetSetting(settingKey).Value
+	client, _ := machine.NewDigitalOceanClient(token)
 	ctx := context.TODO()
 
 	// Create machine.
@@ -58,7 +63,8 @@ func createMachineHandler(c *gin.Context) {
 func deleteMachineHandler(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
 
-	client, _ := machine.NewDigitalOceanClient()
+	token := data.GetSetting(settingKey).Value
+	client, _ := machine.NewDigitalOceanClient(token)
 	ctx := context.TODO()
 
 	// Create machine.
@@ -74,7 +80,8 @@ func deleteMachineHandler(c *gin.Context) {
 }
 
 func deleteMachineByTagHandler(c *gin.Context) {
-	client, _ := machine.NewDigitalOceanClient()
+	token := data.GetSetting(settingKey).Value
+	client, _ := machine.NewDigitalOceanClient(token)
 	ctx := context.TODO()
 
 	// Create machine.
@@ -90,7 +97,8 @@ func deleteMachineByTagHandler(c *gin.Context) {
 }
 
 func listMachineRegionsHandler(c *gin.Context) {
-	client, _ := machine.NewDigitalOceanClient()
+	token := data.GetSetting(settingKey).Value
+	client, _ := machine.NewDigitalOceanClient(token)
 	ctx := context.TODO()
 
 	// Get list of machine regions from DO client.
@@ -105,7 +113,8 @@ func listMachineRegionsHandler(c *gin.Context) {
 }
 
 func listMachineSizesHandler(c *gin.Context) {
-	client, _ := machine.NewDigitalOceanClient()
+	token := data.GetSetting(settingKey).Value
+	client, _ := machine.NewDigitalOceanClient(token)
 	ctx := context.TODO()
 
 	// Get list of machine sizes from DO client.

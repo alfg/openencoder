@@ -1,7 +1,6 @@
 package net
 
 import (
-	"fmt"
 	"net/url"
 	"os"
 	"path"
@@ -34,12 +33,7 @@ type progress struct {
 func (s *S3) S3Download(job types.Job) error {
 	log.Info("downloading from S3: ", job.Source)
 
-	// Get local destination path.
-	// tmpDir := "/tmp" + "/asdf/"
-	// os.MkdirAll(tmpDir, 0700)
-
 	// Open file for writing.
-	// file, err := os.Create(tmpDir + path.Base(job.Source))
 	file, err := os.Create(job.LocalSource)
 	if err != nil {
 		return err
@@ -189,7 +183,6 @@ func S3ListFiles(prefix string) (*s3.ListObjectsV2Output, error) {
 			Prefix:    aws.String(prefix),
 		},
 	)
-	fmt.Println("woah", err)
 	return resp, err
 }
 
