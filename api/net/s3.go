@@ -10,6 +10,7 @@ import (
 	"github.com/alfg/openencoder/api/config"
 	"github.com/alfg/openencoder/api/types"
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/aws/aws-sdk-go/service/s3/s3manager"
@@ -21,6 +22,10 @@ type S3 struct {
 	Progress progress
 	Writer   *ProgressWriter
 	Reader   *ProgressReader
+
+	AccessKey string
+	SecretKey string
+	Region    string
 }
 
 type progress struct {
@@ -28,8 +33,16 @@ type progress struct {
 	Progress float32
 }
 
+// NewS3 creates a new S3 instance.
+func NewS3(accessKey, secretKey, region string) *S3 {
+	return &S3{
+		AccessKey: accessKey,
+		SecretKey: secretKey,
+		Region:    region,
+	}
+}
+
 // S3Download downloads source files from S3.
-// AWS_REGION, AWS_ACCESS_KEY, and AWS_SECRET_KEY envvars must be set!
 func (s *S3) S3Download(job types.Job) error {
 	log.Info("downloading from S3: ", job.Source)
 
@@ -40,7 +53,10 @@ func (s *S3) S3Download(job types.Job) error {
 	}
 
 	// Create session and client.
-	sess, err := session.NewSession()
+	sess, err := session.NewSession(&aws.Config{
+		Region:      aws.String(s.Region),
+		Credentials: credentials.NewStaticCredentials(s.AccessKey, s.SecretKey, ""),
+	})
 	if err != nil {
 		panic(err)
 	}
@@ -154,7 +170,12 @@ func (s *S3) uploadFile(path string, job types.Job) error {
 	}
 
 	go s.trackProgress("upload")
-	uploader := s3manager.NewUploader(session.New(), func(u *s3manager.Uploader) {
+
+	sess, err := session.NewSession(&aws.Config{
+		Region:      aws.String(s.Region),
+		Credentials: credentials.NewStaticCredentials(s.AccessKey, s.SecretKey, ""),
+	})
+	uploader := s3manager.NewUploader(sess, func(u *s3manager.Uploader) {
 		u.PartSize = 5 * 1024 * 1024
 		u.LeavePartsOnError = true
 	})
@@ -172,8 +193,11 @@ func (s *S3) uploadFile(path string, job types.Job) error {
 }
 
 // S3ListFiles lists s3 objects for a given prefix.
-func S3ListFiles(prefix string) (*s3.ListObjectsV2Output, error) {
-	sess := session.New()
+func (s *S3) S3ListFiles(prefix string) (*s3.ListObjectsV2Output, error) {
+	sess, err := session.NewSession(&aws.Config{
+		Region:      aws.String(s.Region),
+		Credentials: credentials.NewStaticCredentials(s.AccessKey, s.SecretKey, ""),
+	})
 	svc := s3.New(sess)
 
 	resp, err := svc.ListObjectsV2(

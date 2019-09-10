@@ -4,6 +4,7 @@ package types
 const (
 	AWSAccessKey            = "AWS_ACCESS_KEY"
 	AWSSecretKey            = "AWS_SECRET_KEY"
+	AWSRegion               = "AWS_REGION"
 	DigitalOceanAccessToken = "DIGITAL_OCEAN_ACCESS_TOKEN"
 	SlackWebhook            = "SLACK_WEBHOOK"
 )
@@ -12,6 +13,7 @@ const (
 var SettingsTypes = []string{
 	AWSAccessKey,
 	AWSSecretKey,
+	AWSRegion,
 	DigitalOceanAccessToken,
 	SlackWebhook,
 }

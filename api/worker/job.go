@@ -22,6 +22,7 @@ import (
 var progressCh chan struct{}
 
 const progressInterval = time.Second * 2
+const slackWebhookKey = "SLACK_WEBHOOK"
 
 func download(job types.Job) error {
 	log.Info("running download task")
@@ -148,6 +149,7 @@ func completed(job types.Job) error {
 func sendAlert(job types.Job) error {
 	log.Info("sending alert")
 
+	webhook := data.GetSetting(slackWebhookKey).Value
 	message := fmt.Sprintf(
 		"*Encode Successful!* :tada:\n"+
 			"*Job ID*: %s:\n"+
@@ -155,7 +157,7 @@ func sendAlert(job types.Job) error {
 			"*Source*: %s\n"+
 			"*Destination*: %s\n\n",
 		job.GUID, job.Profile, job.Source, job.Destination)
-	err := notify.SendSlackMessage(config.Get().SlackWebhook, message)
+	err := notify.SendSlackMessage(webhook, message)
 	if err != nil {
 		return err
 	}

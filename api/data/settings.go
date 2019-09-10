@@ -9,7 +9,7 @@ import (
 	"github.com/alfg/openencoder/api/types"
 )
 
-// GetSettingByUsername Gets a setting by a UserID.
+// GetSetting Gets a setting.
 func GetSetting(key string) types.Setting {
 	const query = `
 	  SELECT
@@ -101,7 +101,7 @@ func UpdateSettingsByUserID(id int64, s map[string]string) error {
 func CreateOrUpdateUserSetting(id int64, key, value string) {
 	availableSettings := GetSettingsOptions()
 	k := getOptionKeyID(availableSettings, key)
-	isSecure := isSecure(availableSettings)
+	isSecure := isSecure(availableSettings, key)
 	exists := SettingExists(id, k)
 
 	s := types.Setting{
@@ -200,9 +200,9 @@ func getOptionKeyID(s []types.SettingsOption, key string) int64 {
 	return -1
 }
 
-func isSecure(s []types.SettingsOption) bool {
+func isSecure(s []types.SettingsOption, key string) bool {
 	for _, a := range s {
-		if a.Secure {
+		if a.Secure && key == a.Name {
 			return true
 		}
 	}

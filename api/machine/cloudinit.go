@@ -6,6 +6,7 @@ import (
 	"log"
 
 	"github.com/alfg/openencoder/api/config"
+	"github.com/alfg/openencoder/api/data"
 )
 
 const userDataTmpl = `
@@ -46,11 +47,16 @@ type UserData struct {
 }
 
 func createUserData() string {
+	ak := data.GetSetting("AWS_ACCESS_KEY").Value
+	sk := data.GetSetting("AWS_SECRET_KEY").Value
+	rg := data.GetSetting("AWS_REGION").Value
+	sl := data.GetSetting("SLACK_WEBHOOK").Value
+
 	data := &UserData{
-		AWSRegion:    config.Get().AWSRegion,
-		AWSAccessKey: config.Get().AWSAccessKey,
-		AWSSecretKey: config.Get().AWSSecretKey,
-		SlackWebhook: config.Get().SlackWebhook,
+		AWSRegion:    rg,
+		AWSAccessKey: ak,
+		AWSSecretKey: sk,
+		SlackWebhook: sl,
 
 		CloudinitRedisHost:        config.Get().CloudinitRedisHost,
 		CloudinitRedisPort:        config.Get().CloudinitRedisPort,

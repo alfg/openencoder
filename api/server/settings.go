@@ -11,6 +11,7 @@ import (
 type settingsUpdateRequest struct {
 	AWSAccessKey            string `json:"AWS_ACCESS_KEY"`
 	AWSSecretKey            string `json:"AWS_SECRET_KEY"`
+	AWSRegion               string `json:"AWS_REGION"`
 	DigitalOceanAccessToken string `json:"DIGITAL_OCEAN_ACCESS_TOKEN"`
 	SlackWebhook            string `json:"SLACK_WEBHOOK"`
 }
@@ -58,6 +59,7 @@ func updateSettingsHandler(c *gin.Context) {
 	s := map[string]string{
 		types.AWSAccessKey:            json.AWSAccessKey,
 		types.AWSSecretKey:            json.AWSSecretKey,
+		types.AWSRegion:               json.AWSRegion,
 		types.DigitalOceanAccessToken: json.DigitalOceanAccessToken,
 		types.SlackWebhook:            json.SlackWebhook,
 	}
