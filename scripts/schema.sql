@@ -74,8 +74,9 @@ create table settings
             primary key,
     user_id            integer
         constraint settings_users_id_fk
-            references users (id)
-);
+            references users (id),
+    encrypted          boolean default false
+);;
 
 alter table settings
     owner to postgres;
@@ -89,7 +90,9 @@ create table settings_option
 (
     id          serial not null,
     name        varchar(64),
-    description varchar(1024)
+    description varchar(1024),
+    title       varchar(64),
+    secure      boolean default false
 );
 
 alter table settings_option

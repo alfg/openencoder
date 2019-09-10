@@ -29,6 +29,7 @@ func settingsHandler(c *gin.Context) {
 			Title:       v.Title,
 			Name:        v.Name,
 			Description: v.Description,
+			Secure:      v.Secure,
 		}
 		for _, j := range settings {
 			if j.Name == v.Name {

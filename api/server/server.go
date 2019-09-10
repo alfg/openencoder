@@ -40,7 +40,7 @@ func NewServer(serverCfg Config) {
 	enqueuer = work.NewEnqueuer(serverCfg.Namespace, redisPool)
 
 	// Setup server.
-	r := gin.Default()
+	r := gin.New()
 	r.Use(gin.Logger())
 	r.Use(gin.Recovery())
 

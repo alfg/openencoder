@@ -1,8 +1,11 @@
 package data
 
 import (
+	"encoding/hex"
 	"fmt"
 
+	"github.com/alfg/openencoder/api/config"
+	"github.com/alfg/openencoder/api/helpers"
 	"github.com/alfg/openencoder/api/types"
 )
 
@@ -14,10 +17,11 @@ func GetSettingsByUsername(username string) []types.Setting {
         settings_option.id "settings_option.id",
         settings_option.name "settings_option.name",
         settings_option.title "settings_option.title",
-        settings_option.description "settings_option.description"
+        settings_option.description "settings_option.description",
+        settings_option.secure "settings_option.secure"
 	  FROM settings
       JOIN settings_option ON settings.settings_option_id = settings_option.id
-	  ORDER BY id DESC`
+      ORDER BY id DESC`
 
 	db, _ := ConnectDB()
 	settings := []types.Setting{}
@@ -26,6 +30,15 @@ func GetSettingsByUsername(username string) []types.Setting {
 		fmt.Println(err)
 	}
 	db.Close()
+
+	for i := range settings {
+		if settings[i].Secure {
+			enc, _ := hex.DecodeString(settings[i].Value)
+			plaintext, _ := helpers.Decrypt(enc, config.Keyseed())
+			settings[i].Value = string(plaintext)
+		}
+	}
+
 	return settings
 }
 
@@ -57,13 +70,22 @@ func UpdateSettingsByUserID(id int64, s map[string]string) error {
 func CreateOrUpdateUserSetting(id int64, key, value string) {
 	availableSettings := GetSettingsOptions()
 	k := getOptionKeyID(availableSettings, key)
+	isSecure := isSecure(availableSettings)
 	exists := SettingExists(id, k)
 
 	s := types.Setting{
 		SettingsOptionID: k,
 		Value:            value,
 		UserID:           id,
+		Encrypted:        false,
 	}
+
+	if isSecure {
+		ciphertext, _ := helpers.Encrypt([]byte(value), config.Keyseed())
+		s.Value = fmt.Sprintf("%x", ciphertext)
+		s.Encrypted = true
+	}
+
 	if exists {
 		UpdateSetting(s)
 	} else {
@@ -75,7 +97,7 @@ func CreateOrUpdateUserSetting(id int64, key, value string) {
 func UpdateSetting(s types.Setting) *types.Setting {
 	const query = `
         UPDATE settings
-        SET value = :value
+        SET value = :value, encrypted = :encrypted
         WHERE user_id = :user_id
         AND settings_option_id = :settings_option_id`
 
@@ -95,8 +117,8 @@ func UpdateSetting(s types.Setting) *types.Setting {
 func CreateSetting(s types.Setting) *types.Setting {
 	const query = `
       INSERT INTO
-        settings (settings_option_id,value,user_id)
-      VALUES (:settings_option_id,:value,:user_id)
+        settings (settings_option_id,value,user_id,encrypted)
+      VALUES (:settings_option_id,:value,:user_id,:encrypted)
       RETURNING id`
 
 	db, _ := ConnectDB()
@@ -134,6 +156,7 @@ func SettingExists(userID, optionID int64) bool {
 	if err != nil {
 		fmt.Println(err)
 	}
+	db.Close()
 	return exists
 }
 
@@ -144,4 +167,13 @@ func getOptionKeyID(s []types.SettingsOption, key string) int64 {
 		}
 	}
 	return -1
+}
+
+func isSecure(s []types.SettingsOption) bool {
+	for _, a := range s {
+		if a.Secure {
+			return true
+		}
+	}
+	return false
 }

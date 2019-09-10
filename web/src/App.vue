@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <b-navbar class="mb-4" toggleable="lg" type="dark" variant="dark">
-      <b-navbar-brand href="#">Open Encoder <sup class="beta">BETA</sup></b-navbar-brand>
+      <b-navbar-brand href="#">Open Encoder <sup class="alpha">Alpha</sup></b-navbar-brand>
       <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
       <b-navbar-nav class="ml-auto">
       <b-nav-item-dropdown right>
@@ -67,7 +67,8 @@ export default {
   border-color: #dee2e6 #dee2e6 #fff;
 }
 
-.beta {
+.alpha {
   font-size: 12px;
+  text-transform: uppercase;
 }
 </style>

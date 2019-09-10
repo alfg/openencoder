@@ -24,7 +24,8 @@ type Setting struct {
 	SettingsOptionID int64 `db:"settings_option_id" json:"-"`
 	SettingsOption   `db:"settings_option"`
 
-	Value string `db:"value" json:"value"`
+	Value     string `db:"value" json:"value"`
+	Encrypted bool   `db:"encrypted" json:"encrypted"`
 }
 
 // SettingsOption defines a setting option.
@@ -33,6 +34,7 @@ type SettingsOption struct {
 	Name        string `db:"name" json:"name"`
 	Title       string `db:"title" json:"title"`
 	Description string `db:"description" json:"description"`
+	Secure      bool   `db:"secure" json:"secure"`
 }
 
 type SettingsForm struct {
@@ -40,5 +42,5 @@ type SettingsForm struct {
 	Title       string `json:"title"`
 	Value       string `json:"value"`
 	Description string `json:"description"`
-	Type        string `json:"type"`
+	Secure      bool   `json:"secure"`
 }

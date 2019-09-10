@@ -1,6 +1,7 @@
 package config
 
 import (
+	"encoding/hex"
 	"errors"
 	"fmt"
 
@@ -14,6 +15,7 @@ var C Config
 type Config struct {
 	Port                    string `mapstructure:"server_port"`
 	JWTKey                  string `mapstructure:"jwt_key"`
+	Keyseed                 string `mapstructure:"keyseed"`
 	RedisHost               string `mapstructure:"redis_host"`
 	RedisPort               int    `mapstructure:"redis_port"`
 	DatabaseHost            string `mapstructure:"database_host"`
@@ -81,4 +83,10 @@ func GetFFmpegProfile(profile string) (t *profile, err error) {
 // Get gets the current config.
 func Get() *Config {
 	return &C
+}
+
+// Keyseed gets the keyseed in a byte array.
+func Keyseed() []byte {
+	ks, _ := hex.DecodeString(Get().Keyseed)
+	return ks
 }

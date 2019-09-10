@@ -2,7 +2,7 @@
   <div id="settings-form">
     <h4>Settings</h4>
 
-    <b-form @submit="onSubmit">
+    <b-form class="mb-3" @submit="onSubmit">
       <div
         v-for="(o, i) in settings"
         v-bind:key="i"
@@ -18,6 +18,8 @@
           <b-form-input
             id="input-horizontal"
             v-model="form[o.name]"
+            autocomplete="off"
+            :type="o.secure && hide ? 'password' : 'text'"
           ></b-form-input>
         </b-form-group>
       </div>
@@ -25,8 +27,20 @@
       <b-button type="submit" variant="primary">Save</b-button>
       <b-button
         class="ml-2"
-        type="submit" variant="primary">Show</b-button>
+        variant="primary"
+        @click="onClickShow">{{this.hide ? 'Show' : 'Hide'}}</b-button>
     </b-form>
+
+    <b-alert
+      :show="dismissCountDown"
+      dismissible
+      fade
+      variant="success"
+      @dismissed="dismissCountDown=0"
+      @dismiss-count-down="countDownChanged"
+    >
+      Updated settings!
+    </b-alert>
   </div>
 </template>
 
@@ -38,10 +52,11 @@ export default {
     return {
       form: {},
       settings: {},
+      hide: true,
+      dismissSecs: 5,
+      dismissCountDown: 0,
+      showDismissibleAlert: false,
     };
-  },
-
-  computed: {
   },
 
   mounted() {
@@ -49,6 +64,10 @@ export default {
   },
 
   methods: {
+    countDownChanged(dismissCountDown) {
+      this.dismissCountDown = dismissCountDown;
+    },
+
     getSettings() {
       const url = '/api/settings';
 
@@ -81,15 +100,18 @@ export default {
       }).then(response => (
         response.json()
       )).then((json) => {
-        console.log('Updated settings: ', json);
-        // this.dismissCountDown = this.dismissSecs;
+        this.dismissCountDown = this.dismissSecs;
       });
     },
 
     onSubmit(evt) {
       evt.preventDefault();
-      console.log(JSON.stringify(this.form));
       this.updateSettings(this.form);
+    },
+
+    onClickShow() {
+      console.log('show');
+      this.hide = !this.hide;
     },
   },
 };

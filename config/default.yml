@@ -1,5 +1,6 @@
 server_port: 8080
 jwt_key: secretkey
+keyseed: deadbeefdeadbeefdeadbeefdeadbeef
 redis_host: localhost
 redis_port: 6379
 database_host: localhost
