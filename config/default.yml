@@ -1,5 +1,6 @@
 server_port: 8080
 jwt_key: secretkey
+keyseed: deadbeefdeadbeefdeadbeefdeadbeef
 redis_host: localhost
 redis_port: 6379
 database_host: localhost
@@ -10,16 +11,11 @@ database_name: enc
 worker_namespace: enc
 worker_job_name: encode
 worker_concurrency: 1
-aws_region:
-aws_access_key:
-aws_secret_key:
 s3_inbound_bucket: enc-inbound
 s3_inbound_region: us-west-1
 s3_outbound_bucket: enc-outbound
 s3_outbound_region: us-west-1
 work_dir: /tmp
-slack_webhook:
-digitalocean_access_token:
 cloudinit_redis_host: dev.openencode.com
 cloudinit_redis_port: 6379
 cloudinit_database_host: dev.openencode.com

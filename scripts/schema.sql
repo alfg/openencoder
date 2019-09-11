@@ -62,4 +62,42 @@ create unique index user_username_uindex
   on users (username);
 
 
+-- auto-generated definition
+create table settings
+(
+    settings_option_id integer not null
+        constraint settings_settings_option_id_fk
+            references settings_option (id),
+    value              varchar(256),
+    id                 serial  not null
+        constraint settings_pk
+            primary key,
+    user_id            integer
+        constraint settings_users_id_fk
+            references users (id),
+    encrypted          boolean default false
+);;
+
+alter table settings
+    owner to postgres;
+
+create unique index settings_id_uindex
+    on settings (id);
+
+
+-- auto-generated definition
+create table settings_option
+(
+    id          serial not null,
+    name        varchar(64),
+    description varchar(1024),
+    title       varchar(64),
+    secure      boolean default false
+);
+
+alter table settings_option
+    owner to postgres;
+
+create unique index settings_option_id_uindex
+    on settings_option (id);
 
