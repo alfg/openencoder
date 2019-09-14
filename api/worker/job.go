@@ -28,10 +28,11 @@ func download(job types.Job) error {
 	log.Info("running download task")
 
 	// Update status.
-	data.UpdateJobStatus(job.GUID, types.JobDownloading)
+	db := data.New()
+	db.Jobs.UpdateJobStatus(job.GUID, types.JobDownloading)
 
 	// Get job data.
-	j, _ := data.GetJobByGUID(job.GUID)
+	j, _ := db.Jobs.GetJobByGUID(job.GUID)
 	encodeID := j.EncodeDataID
 
 	// Get downloader type.
@@ -48,7 +49,7 @@ func download(job types.Job) error {
 	close(progressCh)
 
 	// Set progress to 100.
-	data.UpdateEncodeProgressByID(encodeID, 100)
+	db.Jobs.UpdateEncodeProgressByID(encodeID, 100)
 	return err
 }
 
@@ -56,7 +57,8 @@ func probe(job types.Job) (*encoder.FFProbeResponse, error) {
 	log.Info("running probe task")
 
 	// Update status.
-	data.UpdateJobStatus(job.GUID, types.JobProbing)
+	db := data.New()
+	db.Jobs.UpdateJobStatus(job.GUID, types.JobProbing)
 
 	// Run FFProbe.
 	f := encoder.FFProbe{}
@@ -67,8 +69,8 @@ func probe(job types.Job) (*encoder.FFProbeResponse, error) {
 	if err != nil {
 		log.Error(err)
 	}
-	j, _ := data.GetJobByGUID(job.GUID)
-	data.UpdateEncodeDataByID(j.EncodeDataID, string(b))
+	j, _ := db.Jobs.GetJobByGUID(job.GUID)
+	db.Jobs.UpdateEncodeDataByID(j.EncodeDataID, string(b))
 
 	return probeData, nil
 }
@@ -77,7 +79,8 @@ func encode(job types.Job, probeData *encoder.FFProbeResponse) error {
 	log.Info("running encode task")
 
 	// Update status.
-	data.UpdateJobStatus(job.GUID, types.JobEncoding)
+	db := data.New()
+	db.Jobs.UpdateJobStatus(job.GUID, types.JobEncoding)
 
 	p, err := config.GetFFmpegProfile(job.Profile)
 	if err != nil {
@@ -86,7 +89,7 @@ func encode(job types.Job, probeData *encoder.FFProbeResponse) error {
 	dest := path.Dir(job.LocalSource) + "/dst/" + p.Output
 
 	// Get job data.
-	j, _ := data.GetJobByGUID(job.GUID)
+	j, _ := db.Jobs.GetJobByGUID(job.GUID)
 	encodeID := j.EncodeDataID
 
 	// Run FFmpeg.
@@ -96,7 +99,7 @@ func encode(job types.Job, probeData *encoder.FFProbeResponse) error {
 	close(progressCh)
 
 	// Set encode progress to 100.
-	data.UpdateEncodeProgressByID(encodeID, 100)
+	db.Jobs.UpdateEncodeProgressByID(encodeID, 100)
 	return err
 }
 
@@ -104,10 +107,11 @@ func upload(job types.Job) error {
 	log.Info("running upload task")
 
 	// Update status.
-	data.UpdateJobStatus(job.GUID, types.JobUploading)
+	db := data.New()
+	db.Jobs.UpdateJobStatus(job.GUID, types.JobUploading)
 
 	// Get job data.
-	j, _ := data.GetJobByGUID(job.GUID)
+	j, _ := db.Jobs.GetJobByGUID(job.GUID)
 	encodeID := j.EncodeDataID
 
 	d := net.GetUploader()
@@ -123,7 +127,7 @@ func upload(job types.Job) error {
 	close(progressCh)
 
 	// Set progress to 100.
-	data.UpdateEncodeProgressByID(encodeID, 100)
+	db.Jobs.UpdateEncodeProgressByID(encodeID, 100)
 	return err
 }
 
@@ -142,14 +146,16 @@ func completed(job types.Job) error {
 	log.Info("job completed")
 
 	// Update status.
-	data.UpdateJobStatus(job.GUID, types.JobCompleted)
+	db := data.New()
+	db.Jobs.UpdateJobStatus(job.GUID, types.JobCompleted)
 	return nil
 }
 
 func sendAlert(job types.Job) error {
 	log.Info("sending alert")
 
-	webhook := data.GetSetting(slackWebhookKey).Value
+	db := data.New()
+	webhook := db.Settings.GetSetting(slackWebhookKey).Value
 	message := fmt.Sprintf(
 		"*Encode Successful!* :tada:\n"+
 			"*Job ID*: %s:\n"+
@@ -169,11 +175,13 @@ func runEncodeJob(job types.Job) {
 	job.LocalSource = helpers.CreateLocalSourcePath(
 		config.Get().WorkDirectory, job.Source, job.GUID)
 
+	db := data.New()
+
 	// 1. Download.
 	err := download(job)
 	if err != nil {
 		log.Error(err)
-		data.UpdateJobStatus(job.GUID, types.JobError)
+		db.Jobs.UpdateJobStatus(job.GUID, types.JobError)
 		return
 	}
 
@@ -181,7 +189,7 @@ func runEncodeJob(job types.Job) {
 	probeData, err := probe(job)
 	if err != nil {
 		log.Error(err)
-		data.UpdateJobStatus(job.GUID, types.JobError)
+		db.Jobs.UpdateJobStatus(job.GUID, types.JobError)
 		return
 	}
 
@@ -189,7 +197,7 @@ func runEncodeJob(job types.Job) {
 	err = encode(job, probeData)
 	if err != nil {
 		log.Error(err)
-		data.UpdateJobStatus(job.GUID, types.JobError)
+		db.Jobs.UpdateJobStatus(job.GUID, types.JobError)
 		return
 	}
 
@@ -197,7 +205,7 @@ func runEncodeJob(job types.Job) {
 	err = upload(job)
 	if err != nil {
 		log.Error(err)
-		data.UpdateJobStatus(job.GUID, types.JobError)
+		db.Jobs.UpdateJobStatus(job.GUID, types.JobError)
 		return
 	}
 
@@ -205,7 +213,7 @@ func runEncodeJob(job types.Job) {
 	err = cleanup(job)
 	if err != nil {
 		log.Error(err)
-		data.UpdateJobStatus(job.GUID, types.JobError)
+		db.Jobs.UpdateJobStatus(job.GUID, types.JobError)
 		return
 	}
 
@@ -223,6 +231,7 @@ func runEncodeJob(job types.Job) {
 }
 
 func trackEncodeProgress(encodeID int64, p *encoder.FFProbeResponse, f *encoder.FFmpeg) {
+	db := data.New()
 	progressCh = make(chan struct{})
 	ticker := time.NewTicker(progressInterval)
 
@@ -240,12 +249,13 @@ func trackEncodeProgress(encodeID int64, p *encoder.FFProbeResponse, f *encoder.
 			// Update DB with progress.
 			pct = math.Round(pct*100) / 100
 			fmt.Printf("progress: %d / %d - %0.2f%%\r", currentFrame, totalFrames, pct)
-			data.UpdateEncodeProgressByID(encodeID, pct)
+			db.Jobs.UpdateEncodeProgressByID(encodeID, pct)
 		}
 	}
 }
 
 func trackTransferProgress(encodeID int64, d *net.S3) {
+	db := data.New()
 	progressCh = make(chan struct{})
 	ticker := time.NewTicker(progressInterval)
 
@@ -256,7 +266,7 @@ func trackTransferProgress(encodeID int64, d *net.S3) {
 			return
 		case <-ticker.C:
 			fmt.Println("transfer progress: ", d.Progress.Progress)
-			data.UpdateEncodeProgressByID(encodeID, float64(d.Progress.Progress))
+			db.Jobs.UpdateEncodeProgressByID(encodeID, float64(d.Progress.Progress))
 		}
 	}
 }

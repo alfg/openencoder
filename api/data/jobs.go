@@ -6,8 +6,30 @@ import (
 	"github.com/alfg/openencoder/api/types"
 )
 
+// Jobs represents the Jobs database operations.
+type Jobs interface {
+	GetJobs(offset, count int) *[]types.Job
+	GetJobByID(id int) (*types.Job, error)
+	GetJobByGUID(id string) (*types.Job, error)
+	GetJobsCount() int
+	GetJobsStats() (*[]Stats, error)
+	CreateJob(job types.Job) *types.Job
+	CreateEncodeData(ed types.EncodeData) *types.EncodeData
+	UpdateEncodeDataByID(id int64, jsonString string) error
+	UpdateEncodeProgressByID(id int64, progress float64) error
+	UpdateJobByID(id int, job types.Job) *types.Job
+	UpdateJobStatus(guid string, status string) error
+}
+
+// JobsOp represents a job operation.
+type JobsOp struct {
+	j *Jobs
+}
+
+var _ Jobs = &JobsOp{}
+
 // GetJobs Gets all jobs.
-func GetJobs(offset, count int) *[]types.Job {
+func (j JobsOp) GetJobs(offset, count int) *[]types.Job {
 	const query = `
 	  SELECT
         jobs.*,
@@ -30,7 +52,7 @@ func GetJobs(offset, count int) *[]types.Job {
 }
 
 // GetJobByID Gets a job by ID.
-func GetJobByID(id int) (*types.Job, error) {
+func (j JobsOp) GetJobByID(id int) (*types.Job, error) {
 	const query = `
       SELECT
         jobs.*,
@@ -53,7 +75,7 @@ func GetJobByID(id int) (*types.Job, error) {
 }
 
 // GetJobByGUID Gets a job by GUID.
-func GetJobByGUID(id string) (*types.Job, error) {
+func (j JobsOp) GetJobByGUID(id string) (*types.Job, error) {
 	const query = `
       SELECT
         jobs.*,
@@ -76,7 +98,7 @@ func GetJobByGUID(id string) (*types.Job, error) {
 }
 
 // GetJobsCount Gets a count of all jobs.
-func GetJobsCount() int {
+func (j JobsOp) GetJobsCount() int {
 	var count int
 	const query = `SELECT COUNT(*) FROM jobs`
 
@@ -96,7 +118,7 @@ type Stats struct {
 }
 
 // GetJobsStats Gets a count of each status.
-func GetJobsStats() (*[]Stats, error) {
+func (j JobsOp) GetJobsStats() (*[]Stats, error) {
 	const query = `SELECT status, count(status) FROM jobs GROUP BY status, status;`
 
 	s := []Stats{}
@@ -126,7 +148,7 @@ func GetJobsStats() (*[]Stats, error) {
 }
 
 // CreateJob creates a job in database.
-func CreateJob(job types.Job) *types.Job {
+func (j JobsOp) CreateJob(job types.Job) *types.Job {
 	const query = `
       INSERT INTO
         jobs (guid,profile,status)
@@ -155,7 +177,7 @@ func CreateJob(job types.Job) *types.Job {
 }
 
 // CreateEncodeData creates encode in database.
-func CreateEncodeData(ed types.EncodeData) *types.EncodeData {
+func (j JobsOp) CreateEncodeData(ed types.EncodeData) *types.EncodeData {
 	const query = `
       INSERT INTO
         encode (data,progress,job_id)
@@ -184,7 +206,7 @@ func CreateEncodeData(ed types.EncodeData) *types.EncodeData {
 }
 
 // UpdateEncodeDataByID Update encode by ID.
-func UpdateEncodeDataByID(id int64, jsonString string) error {
+func (j JobsOp) UpdateEncodeDataByID(id int64, jsonString string) error {
 	const query = `UPDATE encode SET data = $1 WHERE id = $2`
 
 	db, _ := ConnectDB()
@@ -201,7 +223,7 @@ func UpdateEncodeDataByID(id int64, jsonString string) error {
 }
 
 // UpdateEncodeProgressByID Update progress by ID.
-func UpdateEncodeProgressByID(id int64, progress float64) error {
+func (j JobsOp) UpdateEncodeProgressByID(id int64, progress float64) error {
 	const query = `UPDATE encode SET progress = $1 WHERE id = $2`
 
 	db, _ := ConnectDB()
@@ -218,7 +240,7 @@ func UpdateEncodeProgressByID(id int64, progress float64) error {
 }
 
 // UpdateJobByID Update job by ID.
-func UpdateJobByID(id int, job types.Job) *types.Job {
+func (j JobsOp) UpdateJobByID(id int, job types.Job) *types.Job {
 	const query = `UPDATE jobs SET status = :status WHERE id = :id`
 
 	db, _ := ConnectDB()
@@ -234,7 +256,7 @@ func UpdateJobByID(id int, job types.Job) *types.Job {
 }
 
 // UpdateJobStatus Update job status by ID.
-func UpdateJobStatus(guid string, status string) error {
+func (j JobsOp) UpdateJobStatus(guid string, status string) error {
 	const query = `UPDATE jobs SET status = $1 WHERE guid = $2`
 
 	db, _ := ConnectDB()

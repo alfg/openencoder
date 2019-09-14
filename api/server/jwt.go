@@ -73,7 +73,8 @@ func jwtMiddleware() *jwt.GinJWTMiddleware {
 			userID := loginVals.Username
 			password := loginVals.Password
 
-			user, err := data.GetUserByUsername(userID)
+			db := data.New()
+			user, err := db.Users.GetUserByUsername(userID)
 			if err != nil {
 				fmt.Println(err)
 				return nil, jwt.ErrFailedAuthentication

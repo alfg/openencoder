@@ -6,8 +6,22 @@ import (
 	"github.com/alfg/openencoder/api/types"
 )
 
+// Users represents the Users database operations.
+type Users interface {
+	CreateUser(user types.User) (*types.User, error)
+	GetUserByUsername(username string) (*types.User, error)
+	GetUserID(username string) int64
+}
+
+// UsersOp represents the users operations.
+type UsersOp struct {
+	u *Users
+}
+
+var _ Users = &UsersOp{}
+
 // CreateUser creates a user.
-func CreateUser(user types.User) (*types.User, error) {
+func (u UsersOp) CreateUser(user types.User) (*types.User, error) {
 	const query = `
 	  INSERT INTO
 	    users (username,password,role)
@@ -35,7 +49,7 @@ func CreateUser(user types.User) (*types.User, error) {
 }
 
 // GetUserByUsername Gets a user by username.
-func GetUserByUsername(username string) (*types.User, error) {
+func (u UsersOp) GetUserByUsername(username string) (*types.User, error) {
 	const query = `
       SELECT
         users.*
@@ -54,7 +68,7 @@ func GetUserByUsername(username string) (*types.User, error) {
 }
 
 // GetUserID Gets a user ID by username.
-func GetUserID(username string) int64 {
+func (u UsersOp) GetUserID(username string) int64 {
 	const query = "SELECT id FROM users WHERE username = $1"
 
 	var id int64

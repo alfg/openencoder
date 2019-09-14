@@ -59,7 +59,8 @@ func createJobHandler(c *gin.Context) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	created := data.CreateJob(job)
+	db := data.New()
+	created := db.Jobs.CreateJob(job)
 
 	// Create the encode relationship.
 	ed := types.EncodeData{
@@ -77,7 +78,7 @@ func createJobHandler(c *gin.Context) {
 			},
 		},
 	}
-	edCreated := data.CreateEncodeData(ed)
+	edCreated := db.Jobs.CreateEncodeData(ed)
 	created.EncodeDataID = edCreated.EncodeDataID
 
 	// Create response.
@@ -103,15 +104,16 @@ func getJobsHandler(c *gin.Context) {
 	var jobs *[]types.Job
 	var jobsCount int
 
+	db := data.New()
 	wg.Add(1)
 	go func() {
-		jobs = data.GetJobs((pageInt-1)*countInt, countInt)
+		jobs = db.Jobs.GetJobs((pageInt-1)*countInt, countInt)
 		wg.Done()
 	}()
 
 	wg.Add(1)
 	go func() {
-		jobsCount = data.GetJobsCount()
+		jobsCount = db.Jobs.GetJobsCount()
 		wg.Done()
 	}()
 	wg.Wait()
@@ -126,7 +128,8 @@ func getJobsByIDHandler(c *gin.Context) {
 	id := c.Param("id")
 	jobInt, _ := strconv.Atoi(id)
 
-	job, err := data.GetJobByID(jobInt)
+	db := data.New()
+	job, err := db.Jobs.GetJobByID(jobInt)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{
 			"status":  http.StatusNotFound,
@@ -151,7 +154,8 @@ func updateJobByIDHandler(c *gin.Context) {
 		return
 	}
 
-	job, err := data.GetJobByID(id)
+	db := data.New()
+	job, err := db.Jobs.GetJobByID(id)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{
 			"status":  http.StatusNotFound,
@@ -164,6 +168,6 @@ func updateJobByIDHandler(c *gin.Context) {
 		job.Status = json.Status
 	}
 
-	updatedJob := data.UpdateJobByID(id, *job)
+	updatedJob := db.Jobs.UpdateJobByID(id, *job)
 	c.JSON(http.StatusOK, updatedJob)
 }

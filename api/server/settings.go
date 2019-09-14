@@ -20,8 +20,9 @@ func settingsHandler(c *gin.Context) {
 	user, _ := c.Get(identityKey)
 	username := user.(*types.User).Username
 
-	settings := data.GetSettingsByUsername(username)
-	settingOptions := data.GetSettingsOptions()
+	d := data.New()
+	settings := d.Settings.GetSettingsByUsername(username)
+	settingOptions := d.Settings.GetSettingsOptions()
 
 	// Get all settings for response and set blank defaults.
 	var resp []types.SettingsForm
@@ -64,9 +65,11 @@ func updateSettingsHandler(c *gin.Context) {
 		types.SlackWebhook:            json.SlackWebhook,
 	}
 
-	// userID is 0 for some reason.
-	userID := data.GetUserID(username)
-	err := data.UpdateSettingsByUserID(userID, s)
+	db := data.New()
+	userID := db.Users.GetUserID(username)
+
+	d := data.New()
+	err := d.Settings.UpdateSettingsByUserID(userID, s)
 	if err != nil {
 		c.JSON(400, gin.H{
 			"message": "error updating settings",
