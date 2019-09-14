@@ -9,8 +9,27 @@ import (
 	"github.com/alfg/openencoder/api/types"
 )
 
+// Settings represents the Settings database operations.
+type Settings interface {
+	GetSetting(key string) types.Setting
+	GetSettingsByUsername(username string) []types.Setting
+	GetSettingsOptions() []types.SettingsOption
+	UpdateSettingsByUserID(id int64, setting map[string]string) error
+	CreateOrUpdateUserSetting(id int64, key, value string)
+	UpdateSetting(setting types.Setting) *types.Setting
+	CreateSetting(setting types.Setting) *types.Setting
+	SettingExists(userID, optionID int64) bool
+}
+
+// SettingsOp represents the user settings.
+type SettingsOp struct {
+	s *Settings
+}
+
+var _ Settings = &SettingsOp{}
+
 // GetSetting Gets a setting.
-func GetSetting(key string) types.Setting {
+func (s SettingsOp) GetSetting(key string) types.Setting {
 	const query = `
 	  SELECT
         settings.*,
@@ -41,7 +60,7 @@ func GetSetting(key string) types.Setting {
 }
 
 // GetSettingsByUsername Gets settings by a UserID.
-func GetSettingsByUsername(username string) []types.Setting {
+func (s SettingsOp) GetSettingsByUsername(username string) []types.Setting {
 	const query = `
 	  SELECT
         settings.*,
@@ -74,7 +93,7 @@ func GetSettingsByUsername(username string) []types.Setting {
 }
 
 // GetSettingsOptions Gets all available setting options.
-func GetSettingsOptions() []types.SettingsOption {
+func (s SettingsOp) GetSettingsOptions() []types.SettingsOption {
 	const query = "SELECT * FROM settings_option ORDER BY id ASC"
 
 	db, _ := ConnectDB()
@@ -88,23 +107,23 @@ func GetSettingsOptions() []types.SettingsOption {
 }
 
 // UpdateSettingsByUserID Updates settings by UserID.
-func UpdateSettingsByUserID(id int64, s map[string]string) error {
+func (s SettingsOp) UpdateSettingsByUserID(id int64, setting map[string]string) error {
 
 	// Run insert or update for each setting.
-	for k, v := range s {
-		CreateOrUpdateUserSetting(id, k, v)
+	for k, v := range setting {
+		s.CreateOrUpdateUserSetting(id, k, v)
 	}
 	return nil
 }
 
 // CreateOrUpdateUserSetting Runs an "upsert"-like transaction for a user setting.
-func CreateOrUpdateUserSetting(id int64, key, value string) {
-	availableSettings := GetSettingsOptions()
+func (s SettingsOp) CreateOrUpdateUserSetting(id int64, key, value string) {
+	availableSettings := s.GetSettingsOptions()
 	k := getOptionKeyID(availableSettings, key)
 	isSecure := isSecure(availableSettings, key)
-	exists := SettingExists(id, k)
+	exists := s.SettingExists(id, k)
 
-	s := types.Setting{
+	se := types.Setting{
 		SettingsOptionID: k,
 		Value:            value,
 		UserID:           id,
@@ -113,19 +132,19 @@ func CreateOrUpdateUserSetting(id int64, key, value string) {
 
 	if isSecure {
 		ciphertext, _ := helpers.Encrypt([]byte(value), config.Keyseed())
-		s.Value = fmt.Sprintf("%x", ciphertext)
-		s.Encrypted = true
+		se.Value = fmt.Sprintf("%x", ciphertext)
+		se.Encrypted = true
 	}
 
 	if exists {
-		UpdateSetting(s)
+		s.UpdateSetting(se)
 	} else {
-		CreateSetting(s)
+		s.CreateSetting(se)
 	}
 }
 
 // UpdateSetting updates an existing user setting.
-func UpdateSetting(s types.Setting) *types.Setting {
+func (s SettingsOp) UpdateSetting(setting types.Setting) *types.Setting {
 	const query = `
         UPDATE settings
         SET value = :value, encrypted = :encrypted
@@ -134,18 +153,18 @@ func UpdateSetting(s types.Setting) *types.Setting {
 
 	db, _ := ConnectDB()
 	tx := db.MustBegin()
-	_, err := tx.NamedExec(query, &s)
+	_, err := tx.NamedExec(query, &setting)
 	if err != nil {
 		fmt.Println(err)
 	}
 	tx.Commit()
 
 	db.Close()
-	return &s
+	return &setting
 }
 
 // CreateSetting Creates a user setting.
-func CreateSetting(s types.Setting) *types.Setting {
+func (s SettingsOp) CreateSetting(setting types.Setting) *types.Setting {
 	const query = `
       INSERT INTO
         settings (settings_option_id,value,user_id,encrypted)
@@ -160,21 +179,21 @@ func CreateSetting(s types.Setting) *types.Setting {
 	}
 
 	var id int64 // Returned ID.
-	err = stmt.QueryRowx(&s).Scan(&id)
+	err = stmt.QueryRowx(&setting).Scan(&id)
 	if err != nil {
 		fmt.Println("Error", err.Error())
 	}
 	tx.Commit()
 
 	// Set to Job type response.
-	s.SettingsOptionID = id
+	setting.SettingsOptionID = id
 
 	db.Close()
-	return &s
+	return &setting
 }
 
 // SettingExists Queries a user setting exists.
-func SettingExists(userID, optionID int64) bool {
+func (s SettingsOp) SettingExists(userID, optionID int64) bool {
 	const query = `
         SELECT EXISTS
         (SELECT id

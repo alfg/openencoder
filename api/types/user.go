@@ -1,5 +1,12 @@
 package types
 
+// User roles.
+const (
+	Guest    = 0
+	Admin    = 1
+	Operator = 2
+)
+
 // User contains user models.
 type User struct {
 	ID       int64  `db:"id" json:"id,omitempty"`

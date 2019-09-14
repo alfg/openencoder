@@ -11,9 +11,10 @@ type UploadFunc func(job types.Job) error
 // GetUploader gets the upload function.
 func GetUploader() *S3 {
 	// Get credentials from settings.
-	ak := data.GetSetting("AWS_ACCESS_KEY").Value
-	sk := data.GetSetting("AWS_SECRET_KEY").Value
-	rg := data.GetSetting("AWS_REGION").Value
+	db := data.New()
+	ak := db.Settings.GetSetting("AWS_ACCESS_KEY").Value
+	sk := db.Settings.GetSetting("AWS_SECRET_KEY").Value
+	rg := db.Settings.GetSetting("AWS_REGION").Value
 
 	s3 := NewS3(ak, sk, rg)
 

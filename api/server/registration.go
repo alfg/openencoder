@@ -37,7 +37,8 @@ func registerHandler(c *gin.Context) {
 		Role:     "guest",
 	}
 
-	u, err := data.CreateUser(user)
+	db := data.New()
+	u, err := db.Users.CreateUser(user)
 	if err != nil {
 		c.JSON(400, gin.H{
 			"message": "error creating user",

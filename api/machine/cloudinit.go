@@ -47,10 +47,11 @@ type UserData struct {
 }
 
 func createUserData() string {
-	ak := data.GetSetting("AWS_ACCESS_KEY").Value
-	sk := data.GetSetting("AWS_SECRET_KEY").Value
-	rg := data.GetSetting("AWS_REGION").Value
-	sl := data.GetSetting("SLACK_WEBHOOK").Value
+	db := data.New()
+	ak := db.Settings.GetSetting("AWS_ACCESS_KEY").Value
+	sk := db.Settings.GetSetting("AWS_SECRET_KEY").Value
+	rg := db.Settings.GetSetting("AWS_REGION").Value
+	sl := db.Settings.GetSetting("SLACK_WEBHOOK").Value
 
 	data := &UserData{
 		AWSRegion:    rg,

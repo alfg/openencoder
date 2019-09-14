@@ -19,9 +19,10 @@ type file struct {
 func s3ListHandler(c *gin.Context) {
 	prefix := c.DefaultQuery("prefix", "")
 
-	ak := data.GetSetting("AWS_ACCESS_KEY").Value
-	sk := data.GetSetting("AWS_SECRET_KEY").Value
-	rg := data.GetSetting("AWS_REGION").Value
+	db := data.New()
+	ak := db.Settings.GetSetting("AWS_ACCESS_KEY").Value
+	sk := db.Settings.GetSetting("AWS_SECRET_KEY").Value
+	rg := db.Settings.GetSetting("AWS_REGION").Value
 
 	s3 := net.NewS3(ak, sk, rg)
 

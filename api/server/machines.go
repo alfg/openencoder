@@ -21,7 +21,8 @@ type machineRequest struct {
 }
 
 func machinesHandler(c *gin.Context) {
-	token := data.GetSetting(settingKey).Value
+	d := data.New()
+	token := d.Settings.GetSetting(settingKey).Value
 	client, _ := machine.NewDigitalOceanClient(token)
 	ctx := context.TODO()
 
@@ -44,7 +45,8 @@ func createMachineHandler(c *gin.Context) {
 		return
 	}
 
-	token := data.GetSetting(settingKey).Value
+	d := data.New()
+	token := d.Settings.GetSetting(settingKey).Value
 	client, _ := machine.NewDigitalOceanClient(token)
 	ctx := context.TODO()
 
@@ -63,7 +65,8 @@ func createMachineHandler(c *gin.Context) {
 func deleteMachineHandler(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
 
-	token := data.GetSetting(settingKey).Value
+	d := data.New()
+	token := d.Settings.GetSetting(settingKey).Value
 	client, _ := machine.NewDigitalOceanClient(token)
 	ctx := context.TODO()
 
@@ -80,7 +83,8 @@ func deleteMachineHandler(c *gin.Context) {
 }
 
 func deleteMachineByTagHandler(c *gin.Context) {
-	token := data.GetSetting(settingKey).Value
+	d := data.New()
+	token := d.Settings.GetSetting(settingKey).Value
 	client, _ := machine.NewDigitalOceanClient(token)
 	ctx := context.TODO()
 
@@ -97,7 +101,8 @@ func deleteMachineByTagHandler(c *gin.Context) {
 }
 
 func listMachineRegionsHandler(c *gin.Context) {
-	token := data.GetSetting(settingKey).Value
+	d := data.New()
+	token := d.Settings.GetSetting(settingKey).Value
 	client, _ := machine.NewDigitalOceanClient(token)
 	ctx := context.TODO()
 
@@ -113,7 +118,8 @@ func listMachineRegionsHandler(c *gin.Context) {
 }
 
 func listMachineSizesHandler(c *gin.Context) {
-	token := data.GetSetting(settingKey).Value
+	d := data.New()
+	token := d.Settings.GetSetting(settingKey).Value
 	client, _ := machine.NewDigitalOceanClient(token)
 	ctx := context.TODO()
 

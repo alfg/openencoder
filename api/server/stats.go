@@ -8,7 +8,8 @@ import (
 )
 
 func getStatsHandler(c *gin.Context) {
-	stats, err := data.GetJobsStats()
+	db := data.New()
+	stats, err := db.Jobs.GetJobsStats()
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{
 			"status":  http.StatusNotFound,
