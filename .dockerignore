@@ -3,6 +3,7 @@
 *.exe
 *.exe~
 *.db
+.env
 bin/
 media/
 progress-log.txt

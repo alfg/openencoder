@@ -76,7 +76,7 @@ create table settings
         constraint settings_users_id_fk
             references users (id),
     encrypted          boolean default false
-);;
+);
 
 alter table settings
     owner to postgres;
