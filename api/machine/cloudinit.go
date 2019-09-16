@@ -6,7 +6,6 @@ import (
 	"log"
 
 	"github.com/alfg/openencoder/api/config"
-	"github.com/alfg/openencoder/api/data"
 )
 
 const userDataTmpl = `
@@ -15,10 +14,6 @@ package_upgrade: false
 write_files:
     - path: "/opt/.env"
       content: |
-        AWS_REGION={{.AWSRegion}}
-        AWS_ACCESS_KEY={{.AWSAccessKey}}
-        AWS_SECRET_KEY={{.AWSSecretKey}}
-        SLACK_WEBHOOK={{.SlackWebhook}}
         REDIS_HOST={{.CloudinitRedisHost}}
         REDIS_PORT={{.CloudinitRedisPort}}
         DATABASE_HOST={{.CloudinitDatabaseHost}}
@@ -32,7 +27,6 @@ runcmd:
 
 // UserData defines the userdata used for cloud-init.
 type UserData struct {
-	AWSRegion    string
 	AWSAccessKey string
 	AWSSecretKey string
 	SlackWebhook string
@@ -47,18 +41,7 @@ type UserData struct {
 }
 
 func createUserData() string {
-	db := data.New()
-	ak := db.Settings.GetSetting("AWS_ACCESS_KEY").Value
-	sk := db.Settings.GetSetting("AWS_SECRET_KEY").Value
-	rg := db.Settings.GetSetting("AWS_REGION").Value
-	sl := db.Settings.GetSetting("SLACK_WEBHOOK").Value
-
 	data := &UserData{
-		AWSRegion:    rg,
-		AWSAccessKey: ak,
-		AWSSecretKey: sk,
-		SlackWebhook: sl,
-
 		CloudinitRedisHost:        config.Get().CloudinitRedisHost,
 		CloudinitRedisPort:        config.Get().CloudinitRedisPort,
 		CloudinitDatabaseHost:     config.Get().CloudinitDatabaseHost,

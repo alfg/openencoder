@@ -26,10 +26,6 @@ type Config struct {
 	WorkerNamespace   string `mapstructure:"worker_namespace"`
 	WorkerJobName     string `mapstructure:"worker_job_name"`
 	WorkerConcurrency uint   `mapstructure:"worker_concurrency"`
-	S3InboundBucket   string `mapstructure:"s3_inbound_bucket"`
-	S3InboundRegion   string `mapstructure:"s3_inbound_region"`
-	S3OutboundBucket  string `mapstructure:"s3_outbound_bucket"`
-	S3OutboundRegion  string `mapstructure:"s3_outbound_region"`
 	WorkDirectory     string `mapstructure:"work_dir"`
 
 	CloudinitRedisHost        string `mapstructure:"cloudinit_redis_host"`

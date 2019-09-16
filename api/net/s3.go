@@ -7,7 +7,6 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/alfg/openencoder/api/config"
 	"github.com/alfg/openencoder/api/types"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
@@ -23,9 +22,11 @@ type S3 struct {
 	Writer   *ProgressWriter
 	Reader   *ProgressReader
 
-	AccessKey string
-	SecretKey string
-	Region    string
+	AccessKey      string
+	SecretKey      string
+	Region         string
+	InboundBucket  string
+	OutboundBucket string
 }
 
 type progress struct {
@@ -34,11 +35,13 @@ type progress struct {
 }
 
 // NewS3 creates a new S3 instance.
-func NewS3(accessKey, secretKey, region string) *S3 {
+func NewS3(accessKey, secretKey, region, inboundBucket, outboundBucket string) *S3 {
 	return &S3{
-		AccessKey: accessKey,
-		SecretKey: secretKey,
-		Region:    region,
+		AccessKey:      accessKey,
+		SecretKey:      secretKey,
+		Region:         region,
+		InboundBucket:  inboundBucket,
+		OutboundBucket: outboundBucket,
 	}
 }
 
@@ -66,7 +69,7 @@ func (s *S3) S3Download(job types.Job) error {
 	parsedURL, _ := url.Parse(job.Source)
 	key := parsedURL.Path
 
-	size, err := getFileSize(s3Client, config.Get().S3InboundBucket, key)
+	size, err := getFileSize(s3Client, s.InboundBucket, key)
 	if err != nil {
 		panic(err)
 	}
@@ -75,7 +78,7 @@ func (s *S3) S3Download(job types.Job) error {
 	// Get object input details.
 	s.Writer = &ProgressWriter{writer: file, size: size, written: 0}
 	objInput := s3.GetObjectInput{
-		Bucket: aws.String(config.Get().S3InboundBucket),
+		Bucket: aws.String(s.InboundBucket),
 		Key:    aws.String(key),
 	}
 
@@ -182,7 +185,7 @@ func (s *S3) uploadFile(path string, job types.Job) error {
 
 	_, err = uploader.Upload(&s3manager.UploadInput{
 		Body:   s.Reader,
-		Bucket: aws.String(config.Get().S3OutboundBucket),
+		Bucket: aws.String(s.OutboundBucket),
 		Key:    aws.String(key),
 	})
 	if err != nil {
@@ -202,7 +205,7 @@ func (s *S3) S3ListFiles(prefix string) (*s3.ListObjectsV2Output, error) {
 
 	resp, err := svc.ListObjectsV2(
 		&s3.ListObjectsV2Input{
-			Bucket:    aws.String(config.Get().S3InboundBucket),
+			Bucket:    aws.String(s.InboundBucket),
 			Delimiter: aws.String("/"),
 			Prefix:    aws.String(prefix),
 		},

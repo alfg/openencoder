@@ -14,9 +14,11 @@ func GetUploader() *S3 {
 	db := data.New()
 	ak := db.Settings.GetSetting("AWS_ACCESS_KEY").Value
 	sk := db.Settings.GetSetting("AWS_SECRET_KEY").Value
-	rg := db.Settings.GetSetting("AWS_REGION").Value
+	rg := db.Settings.GetSetting("S3_OUTBOUND_BUCKET_REGION").Value
+	ib := db.Settings.GetSetting("S3_INBOUND_BUCKET").Value
+	ob := db.Settings.GetSetting("S3_OUTBOUND_BUCKET").Value
 
-	s3 := NewS3(ak, sk, rg)
+	s3 := NewS3(ak, sk, rg, ib, ob)
 
 	return s3
 }
