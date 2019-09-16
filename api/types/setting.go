@@ -4,18 +4,24 @@ package types
 const (
 	AWSAccessKey            = "AWS_ACCESS_KEY"
 	AWSSecretKey            = "AWS_SECRET_KEY"
-	AWSRegion               = "AWS_REGION"
 	DigitalOceanAccessToken = "DIGITAL_OCEAN_ACCESS_TOKEN"
 	SlackWebhook            = "SLACK_WEBHOOK"
+	S3InboundBucket         = "S3_INBOUND_BUCKET"
+	S3InboundBucketRegion   = "S3_INBOUND_BUCKET_REGION"
+	S3OutboundBucket        = "S3_OUTBOUND_BUCKET"
+	S3OutboundBucketRegion  = "S3_OUTBOUND_BUCKET_REGION"
 )
 
 // SettingsTypes list of all settings available.
 var SettingsTypes = []string{
 	AWSAccessKey,
 	AWSSecretKey,
-	AWSRegion,
 	DigitalOceanAccessToken,
 	SlackWebhook,
+	S3InboundBucket,
+	S3InboundBucketRegion,
+	S3OutboundBucket,
+	S3OutboundBucketRegion,
 }
 
 // Setting defines a setting for a user.

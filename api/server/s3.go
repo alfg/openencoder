@@ -22,9 +22,11 @@ func s3ListHandler(c *gin.Context) {
 	db := data.New()
 	ak := db.Settings.GetSetting("AWS_ACCESS_KEY").Value
 	sk := db.Settings.GetSetting("AWS_SECRET_KEY").Value
-	rg := db.Settings.GetSetting("AWS_REGION").Value
+	rg := db.Settings.GetSetting("S3_INBOUND_BUCKET_REGION").Value
+	ib := db.Settings.GetSetting("S3_INBOUND_BUCKET").Value
+	ob := db.Settings.GetSetting("S3_OUTBOUND_BUCKET").Value
 
-	s3 := net.NewS3(ak, sk, rg)
+	s3 := net.NewS3(ak, sk, rg, ib, ob)
 
 	resp := s3ListResponse{}
 	files, err := s3.S3ListFiles(prefix)
