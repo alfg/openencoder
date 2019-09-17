@@ -9,6 +9,7 @@ export default {
 
   user: {
     username: null,
+    role: null,
     authenticated: false,
   },
 
@@ -64,6 +65,7 @@ export default {
       store.setTokenAction(jwt);
       this.user.authenticated = true;
       this.user.username = jwtDecode(jwt).id;
+      this.user.role = jwtDecode(jwt).role;
     } else {
       context.$router.push({ name: 'login' });
     }
