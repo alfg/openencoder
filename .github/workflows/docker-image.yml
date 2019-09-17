@@ -14,6 +14,6 @@ jobs:
       run: |
         docker build . --file Dockerfile --tag openencoder:latest
         docker tag openencoder alfg/openencoder:latest
-        docker login docker.pkg.github.com --username alfg --password ${{ secrets.GITHUB_TOKEN }}
+        docker login docker.pkg.github.com --username alfg --password ${{ secrets.TOKEN }}
         docker tag app docker.pkg.github.com/alfg/openencoder/app:latest
         push docker.pkg.github.com/alfg/openencoder/app:latest
