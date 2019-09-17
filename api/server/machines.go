@@ -8,6 +8,7 @@ import (
 
 	"github.com/alfg/openencoder/api/data"
 	"github.com/alfg/openencoder/api/machine"
+	"github.com/alfg/openencoder/api/types"
 	"github.com/gin-gonic/gin"
 )
 
@@ -21,6 +22,16 @@ type machineRequest struct {
 }
 
 func machinesHandler(c *gin.Context) {
+	user, _ := c.Get(identityKey)
+	role := user.(*types.User).Role
+
+	if role != "operator" && role != "admin" {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"message": "unauthorized",
+		})
+		return
+	}
+
 	d := data.New()
 	token := d.Settings.GetSetting(settingKey).Value
 	client, _ := machine.NewDigitalOceanClient(token)
@@ -38,6 +49,16 @@ func machinesHandler(c *gin.Context) {
 }
 
 func createMachineHandler(c *gin.Context) {
+	user, _ := c.Get(identityKey)
+	role := user.(*types.User).Role
+
+	if role != "operator" && role != "admin" {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"message": "unauthorized",
+		})
+		return
+	}
+
 	// Decode json.
 	var json machineRequest
 	if err := c.ShouldBindJSON(&json); err != nil {
@@ -63,6 +84,16 @@ func createMachineHandler(c *gin.Context) {
 }
 
 func deleteMachineHandler(c *gin.Context) {
+	user, _ := c.Get(identityKey)
+	role := user.(*types.User).Role
+
+	if role != "operator" && role != "admin" {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"message": "unauthorized",
+		})
+		return
+	}
+
 	id, _ := strconv.Atoi(c.Param("id"))
 
 	d := data.New()
@@ -83,6 +114,16 @@ func deleteMachineHandler(c *gin.Context) {
 }
 
 func deleteMachineByTagHandler(c *gin.Context) {
+	user, _ := c.Get(identityKey)
+	role := user.(*types.User).Role
+
+	if role != "operator" && role != "admin" {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"message": "unauthorized",
+		})
+		return
+	}
+
 	d := data.New()
 	token := d.Settings.GetSetting(settingKey).Value
 	client, _ := machine.NewDigitalOceanClient(token)
@@ -101,6 +142,16 @@ func deleteMachineByTagHandler(c *gin.Context) {
 }
 
 func listMachineRegionsHandler(c *gin.Context) {
+	user, _ := c.Get(identityKey)
+	role := user.(*types.User).Role
+
+	if role != "operator" && role != "admin" {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"message": "unauthorized",
+		})
+		return
+	}
+
 	d := data.New()
 	token := d.Settings.GetSetting(settingKey).Value
 	client, _ := machine.NewDigitalOceanClient(token)
@@ -118,6 +169,16 @@ func listMachineRegionsHandler(c *gin.Context) {
 }
 
 func listMachineSizesHandler(c *gin.Context) {
+	user, _ := c.Get(identityKey)
+	role := user.(*types.User).Role
+
+	if role != "operator" && role != "admin" {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"message": "unauthorized",
+		})
+		return
+	}
+
 	d := data.New()
 	token := d.Settings.GetSetting(settingKey).Value
 	client, _ := machine.NewDigitalOceanClient(token)

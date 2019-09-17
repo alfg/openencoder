@@ -6,6 +6,7 @@
       <b-navbar-nav class="ml-auto">
       <b-nav-item-dropdown right>
         <template slot="button-content">{{ user.username }}</template>
+        <b-dropdown-item disabled>{{ user.role }}</b-dropdown-item>
         <b-dropdown-item href="#" @click="logout">Sign Out</b-dropdown-item>
       </b-nav-item-dropdown>
       </b-navbar-nav>
@@ -16,16 +17,16 @@
       v-if="!$route.meta.hideNavigation">
       <b-nav tabs>
         <b-nav-item to="/">Dashboard</b-nav-item>
-        <b-nav-item to="/create">Create</b-nav-item>
         <b-nav-item to="/jobs">Jobs</b-nav-item>
-        <b-nav-item to="/queue">Queue</b-nav-item>
-        <b-nav-item to="/workers">Workers</b-nav-item>
-        <b-nav-item to="/machines">Machines</b-nav-item>
-        <b-nav-item to="/settings">Settings</b-nav-item>
+        <b-nav-item v-if="isOperatorAdmin" to="/create">Create</b-nav-item>
+        <b-nav-item v-if="isOperatorAdmin" to="/queue">Queue</b-nav-item>
+        <b-nav-item v-if="isOperatorAdmin" to="/workers">Workers</b-nav-item>
+        <b-nav-item v-if="isAdmin" to="/machines">Machines</b-nav-item>
+        <b-nav-item v-if="isAdmin" to="/settings">Settings</b-nav-item>
       </b-nav>
     </div>
 
-    <router-view/>
+    <router-view />
   </div>
 </template>
 
@@ -36,7 +37,20 @@ export default {
   data() {
     return {
       user: auth.user,
+      role: auth.role,
     };
+  },
+
+  computed: {
+    isOperator() {
+      return 'operator' === this.user.role;
+    },
+    isAdmin() {
+      return 'admin' === this.user.role;
+    },
+    isOperatorAdmin() {
+      return ['operator', 'admin'].includes(this.user.role);
+    },
   },
 
   created() {
@@ -56,12 +70,10 @@ export default {
   font-family: 'Avenir', Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  /* text-align: center; */
   color: #2c3e50;
 }
 
 #app a.router-link-exact-active {
-  /* color: #ffffff; */
   color: #495057;
   background-color: #fff;
   border-color: #dee2e6 #dee2e6 #fff;

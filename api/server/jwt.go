@@ -96,7 +96,8 @@ func jwtMiddleware() *jwt.GinJWTMiddleware {
 
 		Authorizator: func(data interface{}, c *gin.Context) bool {
 			// Only authorize if user is an operator.
-			if v, ok := data.(*types.User); ok && v.Role == "operator" {
+			if v, ok := data.(*types.User); ok &&
+				(v.Role == "guest" || v.Role == "operator" || v.Role == "admin") {
 				return true
 			}
 			return false
