@@ -12,16 +12,16 @@ import (
 // Settings represents the Settings database operations.
 type Settings interface {
 	GetSetting(key string) types.Setting
-	GetSettingsByUsername(username string) []types.Setting
+	GetSettings() []types.Setting
 	GetSettingsOptions() []types.SettingsOption
-	UpdateSettingsByUserID(id int64, setting map[string]string) error
-	CreateOrUpdateUserSetting(id int64, key, value string)
+	UpdateSettings(setting map[string]string) error
+	CreateOrUpdateSetting(key, value string)
 	UpdateSetting(setting types.Setting) *types.Setting
 	CreateSetting(setting types.Setting) *types.Setting
-	SettingExists(userID, optionID int64) bool
+	SettingExists(optionID int64) bool
 }
 
-// SettingsOp represents the user settings.
+// SettingsOp represents the settings.
 type SettingsOp struct {
 	s *Settings
 }
@@ -59,8 +59,8 @@ func (s SettingsOp) GetSetting(key string) types.Setting {
 	return setting
 }
 
-// GetSettingsByUsername Gets settings by a UserID.
-func (s SettingsOp) GetSettingsByUsername(username string) []types.Setting {
+// GetSettings Gets settings.
+func (s SettingsOp) GetSettings() []types.Setting {
 	const query = `
 	  SELECT
         settings.*,
@@ -106,27 +106,26 @@ func (s SettingsOp) GetSettingsOptions() []types.SettingsOption {
 	return options
 }
 
-// UpdateSettingsByUserID Updates settings by UserID.
-func (s SettingsOp) UpdateSettingsByUserID(id int64, setting map[string]string) error {
+// UpdateSettings Updates settings.
+func (s SettingsOp) UpdateSettings(setting map[string]string) error {
 
 	// Run insert or update for each setting.
 	for k, v := range setting {
-		s.CreateOrUpdateUserSetting(id, k, v)
+		s.CreateOrUpdateSetting(k, v)
 	}
 	return nil
 }
 
-// CreateOrUpdateUserSetting Runs an "upsert"-like transaction for a user setting.
-func (s SettingsOp) CreateOrUpdateUserSetting(id int64, key, value string) {
+// CreateOrUpdateSetting Runs an "upsert"-like transaction for a setting.
+func (s SettingsOp) CreateOrUpdateSetting(key, value string) {
 	availableSettings := s.GetSettingsOptions()
 	k := getOptionKeyID(availableSettings, key)
 	isSecure := isSecure(availableSettings, key)
-	exists := s.SettingExists(id, k)
+	exists := s.SettingExists(k)
 
 	se := types.Setting{
 		SettingsOptionID: k,
 		Value:            value,
-		UserID:           id,
 		Encrypted:        false,
 	}
 
@@ -143,13 +142,12 @@ func (s SettingsOp) CreateOrUpdateUserSetting(id int64, key, value string) {
 	}
 }
 
-// UpdateSetting updates an existing user setting.
+// UpdateSetting updates an existing setting.
 func (s SettingsOp) UpdateSetting(setting types.Setting) *types.Setting {
 	const query = `
         UPDATE settings
         SET value = :value, encrypted = :encrypted
-        WHERE user_id = :user_id
-        AND settings_option_id = :settings_option_id`
+        WHERE settings_option_id = :settings_option_id`
 
 	db, _ := ConnectDB()
 	tx := db.MustBegin()
@@ -163,12 +161,12 @@ func (s SettingsOp) UpdateSetting(setting types.Setting) *types.Setting {
 	return &setting
 }
 
-// CreateSetting Creates a user setting.
+// CreateSetting Creates a setting.
 func (s SettingsOp) CreateSetting(setting types.Setting) *types.Setting {
 	const query = `
       INSERT INTO
-        settings (settings_option_id,value,user_id,encrypted)
-      VALUES (:settings_option_id,:value,:user_id,:encrypted)
+        settings (settings_option_id,value,encrypted)
+      VALUES (:settings_option_id,:value,:encrypted)
       RETURNING id`
 
 	db, _ := ConnectDB()
@@ -192,17 +190,17 @@ func (s SettingsOp) CreateSetting(setting types.Setting) *types.Setting {
 	return &setting
 }
 
-// SettingExists Queries a user setting exists.
-func (s SettingsOp) SettingExists(userID, optionID int64) bool {
+// SettingExists Queries a setting exists.
+func (s SettingsOp) SettingExists(optionID int64) bool {
 	const query = `
         SELECT EXISTS
         (SELECT id
         FROM settings
-        WHERE user_id = $1 AND settings_option_id = $2)`
+        WHERE settings_option_id = $1)`
 
 	var exists bool
 	db, _ := ConnectDB()
-	err := db.QueryRow(query, userID, optionID).Scan(&exists)
+	err := db.QueryRow(query, optionID).Scan(&exists)
 	if err != nil {
 		fmt.Println(err)
 	}

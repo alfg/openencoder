@@ -21,10 +21,16 @@ type settingsUpdateRequest struct {
 
 func settingsHandler(c *gin.Context) {
 	user, _ := c.Get(identityKey)
-	username := user.(*types.User).Username
+	role := user.(*types.User).Role
+
+	if role != "admin" {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"message": "unauthorized",
+		})
+	}
 
 	d := data.New()
-	settings := d.Settings.GetSettingsByUsername(username)
+	settings := d.Settings.GetSettings()
 	settingOptions := d.Settings.GetSettingsOptions()
 
 	// Get all settings for response and set blank defaults.
@@ -44,14 +50,20 @@ func settingsHandler(c *gin.Context) {
 		resp = append(resp, s)
 	}
 
-	c.JSON(200, gin.H{
+	c.JSON(http.StatusOK, gin.H{
 		"settings": resp,
 	})
 }
 
 func updateSettingsHandler(c *gin.Context) {
 	user, _ := c.Get(identityKey)
-	username := user.(*types.User).Username
+	role := user.(*types.User).Role
+
+	if role != "admin" {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"message": "unauthorized",
+		})
+	}
 
 	// Decode json.
 	var json settingsUpdateRequest
@@ -72,17 +84,16 @@ func updateSettingsHandler(c *gin.Context) {
 	}
 
 	db := data.New()
-	userID := db.Users.GetUserID(username)
+	// userID := db.Users.GetUserID(username)
 
-	d := data.New()
-	err := d.Settings.UpdateSettingsByUserID(userID, s)
+	err := db.Settings.UpdateSettings(s)
 	if err != nil {
-		c.JSON(400, gin.H{
+		c.JSON(http.StatusBadRequest, gin.H{
 			"message": "error updating settings",
 		})
 	}
 
-	c.JSON(200, gin.H{
+	c.JSON(http.StatusOK, gin.H{
 		"settings": "updated",
 	})
 }

@@ -72,9 +72,6 @@ create table settings
     id                 serial  not null
         constraint settings_pk
             primary key,
-    user_id            integer
-        constraint settings_users_id_fk
-            references users (id),
     encrypted          boolean default false
 );
 
