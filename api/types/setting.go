@@ -10,19 +10,11 @@ const (
 	S3InboundBucketRegion   = "S3_INBOUND_BUCKET_REGION"
 	S3OutboundBucket        = "S3_OUTBOUND_BUCKET"
 	S3OutboundBucketRegion  = "S3_OUTBOUND_BUCKET_REGION"
-)
+	S3Provider              = "S3_PROVIDER"
 
-// SettingsTypes list of all settings available.
-var SettingsTypes = []string{
-	AWSAccessKey,
-	AWSSecretKey,
-	DigitalOceanAccessToken,
-	SlackWebhook,
-	S3InboundBucket,
-	S3InboundBucketRegion,
-	S3OutboundBucket,
-	S3OutboundBucketRegion,
-}
+	DigitalOcean = "DIGITALOCEAN"
+	AWS          = "AWS"
+)
 
 // Setting defines a setting for a user.
 type Setting struct {

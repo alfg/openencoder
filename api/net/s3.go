@@ -5,6 +5,7 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/alfg/openencoder/api/types"
@@ -16,12 +17,25 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+// S3 Provider Endpoints.
+const (
+	EndpointAmazonAWS          = ".amazonaws.com"
+	EndpointDigitalOceanSpaces = ".digitaloceanspaces.com"
+)
+
+// S3 Provider Endpoints with region.
+var (
+	EndpointDigitalOceanSpacesRegion = func(region string) string { return region + EndpointDigitalOceanSpaces }
+	EndpointAmazonAWSRegion          = func(region string) string { return "s3." + region + EndpointDigitalOceanSpaces }
+)
+
 // S3 creates a new S3 instance.
 type S3 struct {
 	Progress progress
 	Writer   *ProgressWriter
 	Reader   *ProgressReader
 
+	Endpoint       string
 	AccessKey      string
 	SecretKey      string
 	Region         string
@@ -35,10 +49,13 @@ type progress struct {
 }
 
 // NewS3 creates a new S3 instance.
-func NewS3(accessKey, secretKey, region, inboundBucket, outboundBucket string) *S3 {
+func NewS3(accessKey, secretKey, provider, region, inboundBucket, outboundBucket string) *S3 {
+	endpoint := getEndpoint(provider, region)
+
 	return &S3{
 		AccessKey:      accessKey,
 		SecretKey:      secretKey,
+		Endpoint:       endpoint,
 		Region:         region,
 		InboundBucket:  inboundBucket,
 		OutboundBucket: outboundBucket,
@@ -198,6 +215,7 @@ func (s *S3) uploadFile(path string, job types.Job) error {
 // S3ListFiles lists s3 objects for a given prefix.
 func (s *S3) S3ListFiles(prefix string) (*s3.ListObjectsV2Output, error) {
 	sess, err := session.NewSession(&aws.Config{
+		Endpoint:    aws.String(s.Endpoint),
 		Region:      aws.String(s.Region),
 		Credentials: credentials.NewStaticCredentials(s.AccessKey, s.SecretKey, ""),
 	})
@@ -226,4 +244,11 @@ func isDirectory(path string) bool {
 		return false
 	}
 	return false
+}
+
+func getEndpoint(provider, region string) string {
+	if strings.ToUpper(provider) == types.DigitalOcean {
+		return EndpointDigitalOceanSpacesRegion(region)
+	}
+	return EndpointAmazonAWSRegion(region)
 }

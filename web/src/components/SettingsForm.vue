@@ -15,12 +15,17 @@
           :label="o.title"
           :description="o.description"
         >
-          <b-form-input
-            id="input-horizontal"
-            v-model="form[o.name]"
-            autocomplete="off"
-            :type="o.secure && hide ? 'password' : 'text'"
-          ></b-form-input>
+          <div v-if="isSelectInput(o.name)">
+            <b-form-select v-model="form[o.name]" :options="providers"></b-form-select>
+          </div>
+          <div v-else>
+            <b-form-input
+              id="input-horizontal"
+              v-model="form[o.name]"
+              autocomplete="off"
+              :type="o.secure && hide ? 'password' : 'text'"
+            ></b-form-input>
+          </div>
         </b-form-group>
       </div>
 
@@ -52,6 +57,11 @@ export default {
     return {
       form: {},
       settings: {},
+      providers: [
+        { value: '', text: 'Select an S3 Provider' },
+        { value: 'digitalocean', text: 'Digital Ocean' },
+        { value: 'aws', text: 'Amazon AWS' },
+      ],
       hide: true,
       dismissSecs: 5,
       dismissCountDown: 0,
@@ -64,6 +74,10 @@ export default {
   },
 
   methods: {
+    isSelectInput(inputName) {
+      return ['S3_PROVIDER'].includes(inputName);
+    },
+
     countDownChanged(dismissCountDown) {
       this.dismissCountDown = dismissCountDown;
     },
