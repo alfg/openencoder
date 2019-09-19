@@ -17,7 +17,7 @@ type settingsUpdateRequest struct {
 	S3InboundBucketRegion   string `json:"S3_INBOUND_BUCKET_REGION"`
 	S3OutboundBucket        string `json:"S3_OUTBOUND_BUCKET"`
 	S3OutboundBucketRegion  string `json:"S3_OUTBOUND_BUCKET_REGION"`
-	S3Provider              string `json:"S3_PROVIDER"`
+	S3Provider              string `json:"S3_PROVIDER" binding:"eq=digitalocean|eq=aws|eq="`
 }
 
 func settingsHandler(c *gin.Context) {

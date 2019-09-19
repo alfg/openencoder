@@ -23,6 +23,12 @@ const (
 	EndpointDigitalOceanSpaces = ".digitaloceanspaces.com"
 )
 
+// S3 Provider Endpoints with region.
+var (
+	EndpointDigitalOceanSpacesRegion = func(region string) string { return region + EndpointDigitalOceanSpaces }
+	EndpointAmazonAWSRegion          = func(region string) string { return "s3." + region + EndpointDigitalOceanSpaces }
+)
+
 // S3 creates a new S3 instance.
 type S3 struct {
 	Progress progress
@@ -242,7 +248,7 @@ func isDirectory(path string) bool {
 
 func getEndpoint(provider, region string) string {
 	if strings.ToUpper(provider) == types.DigitalOcean {
-		return region + EndpointDigitalOceanSpaces
+		return EndpointDigitalOceanSpacesRegion(region)
 	}
-	return "s3." + region + EndpointAmazonAWS
+	return EndpointAmazonAWSRegion(region)
 }
