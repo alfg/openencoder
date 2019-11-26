@@ -96,7 +96,7 @@ export default {
             this.settings = json.settings;
 
             // Populate form items if availble.
-            this.settings.forEach(item => {
+            this.settings.forEach((item) => {
               this.form[item.name] = item.value;
             });
           }
@@ -113,7 +113,7 @@ export default {
         headers: auth.getAuthHeader(),
       }).then(response => (
         response.json()
-      )).then((json) => {
+      )).then(() => {
         this.dismissCountDown = this.dismissSecs;
       });
     },

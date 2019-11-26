@@ -2,16 +2,20 @@
   <div id="presets-table">
     <b-table
       striped hover dark
+      selectable
+      select-mode="single"
       :fields="fields"
-      :items="items">
-      <template slot="progress" slot-scope="data">
-        <b-progress
-          :value="data.item.progress"
-          :animated="data.value !== 100"
-          :variant="data.value === 100 ? 'success' : 'primary'"
-          show-progress></b-progress>
-      </template>
+      :items="items"
+      @row-selected="onRowSelected">
     </b-table>
+
+    <div class="mb-4" v-show="data">
+      <div ref="editor"></div>
+      <div class="mt-2 text-right">
+        <b-button>Save</b-button>
+      </div>
+    </div>
+
     <h2 class="text-center" v-if="items.length === 0">No Presets Found</h2>
 
     <b-pagination-nav
@@ -23,6 +27,8 @@
 </template>
 
 <script>
+import JSONEditor from 'jsoneditor';
+import 'jsoneditor/dist/jsoneditor.min.css';
 import auth from '../auth';
 
 export default {
@@ -31,6 +37,8 @@ export default {
       fields: ['id', 'name', 'description', 'active'],
       items: [],
       count: 0,
+      editor: null,
+      data: null,
     };
   },
 
@@ -42,12 +50,19 @@ export default {
 
   mounted() {
     const page = this.$route.query.page || 0;
-
     this.getPresets(page);
+
+    // Load JSONEditor.
+    const container = this.$refs.editor;
+    const options = {
+      mode: 'tree',
+      modes: ['code', 'text', 'tree', 'preview'],
+    };
+    this.editor = new JSONEditor(container, options);
   },
 
   destroyed() {
-    clearInterval(intervalId);
+    this.editor = null;
   },
 
   methods: {
@@ -72,6 +87,12 @@ export default {
           this.items = json && json.items;
           this.count = json && json.count;
         });
+    },
+
+    onRowSelected(items) {
+      console.log('row selected', items[0].options);
+      this.data = items[0].options || {};
+      this.editor.set(JSON.parse(this.data));
     },
   },
 };

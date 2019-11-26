@@ -115,7 +115,7 @@ export default {
           response.json()
         ))
         .then((json) => {
-          this.regionsData = json && json.regions || [];
+          this.regionsData = (json && json.regions) || [];
         });
     },
 
@@ -129,7 +129,7 @@ export default {
           response.json()
         ))
         .then((json) => {
-          this.sizesData = json && json.sizes || [];
+          this.sizesData = (json && json.sizes) || [];
         });
     },
 

@@ -44,10 +44,10 @@ export default {
 
   computed: {
     isOperator() {
-      return 'operator' === this.user.role;
+      return this.user.role === 'operator';
     },
     isAdmin() {
-      return 'admin' === this.user.role;
+      return this.user.role === 'admin';
     },
     isOperatorAdmin() {
       return ['operator', 'admin'].includes(this.user.role);
