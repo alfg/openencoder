@@ -22,6 +22,7 @@
         <b-nav-item v-if="isOperatorAdmin" to="/queue">Queue</b-nav-item>
         <b-nav-item v-if="isOperatorAdmin" to="/workers">Workers</b-nav-item>
         <b-nav-item v-if="isAdmin" to="/machines">Machines</b-nav-item>
+        <b-nav-item v-if="isAdmin" to="/presets">Presets</b-nav-item>
         <b-nav-item v-if="isAdmin" to="/settings">Settings</b-nav-item>
       </b-nav>
     </div>

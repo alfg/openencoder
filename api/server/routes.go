@@ -20,8 +20,9 @@ func registerRoutes(r *gin.Engine) {
 		// S3.
 		api.GET("/s3/list", s3ListHandler)
 
-		// Profiles.
+		// Presets.
 		api.GET("/profiles", profilesHandler)
+		api.GET("/presets", getPresetsHandler)
 
 		// Jobs.
 		api.POST("/jobs", createJobHandler)
