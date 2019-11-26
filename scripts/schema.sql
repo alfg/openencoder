@@ -98,3 +98,22 @@ alter table settings_option
 create unique index settings_option_id_uindex
     on settings_option (id);
 
+
+-- auto-generated definition
+create table presets
+(
+    id          serial not null
+        constraint presets_pk
+            primary key,
+    name        varchar(128),
+    description varchar,
+    data        varchar,
+    active      boolean default false
+);
+
+alter table presets
+    owner to postgres;
+
+create unique index presets_id_uindex
+    on presets (id);
+
