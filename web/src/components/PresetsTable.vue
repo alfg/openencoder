@@ -91,7 +91,7 @@ export default {
 
     onRowSelected(items) {
       console.log('row selected', items[0].options);
-      this.data = items[0].options || {};
+      this.data = items[0].data || {};
       this.editor.set(JSON.parse(this.data));
     },
   },
