@@ -9,8 +9,11 @@ import (
 // Presets represents the Presets database operations.
 type Presets interface {
 	GetPresets(offset, count int) *[]types.Preset
+	GetPresetByID(id int) (*types.Preset, error)
 	GetPresetsCount() int
 	CreatePreset(user types.Preset) (*types.Preset, error)
+	UpdatePresetByID(id int, preset types.Preset) *types.Preset
+	UpdatePresetStatusByID(id int, active bool) error
 }
 
 // PresetsOp represents the users operations.
@@ -37,6 +40,24 @@ func (p PresetsOp) GetPresets(offset, count int) *[]types.Preset {
 	return &presets
 }
 
+// GetPresetByID Gets a preset by ID.
+func (p PresetsOp) GetPresetByID(id int) (*types.Preset, error) {
+	const query = `
+      SELECT *
+      FROM presets
+      WHERE id = $1`
+
+	db, _ := ConnectDB()
+	preset := types.Preset{}
+	err := db.Get(&preset, query, id)
+	if err != nil {
+		fmt.Println(err)
+		return &preset, err
+	}
+	db.Close()
+	return &preset, nil
+}
+
 // GetPresetsCount Gets a count of all presets.
 func (p PresetsOp) GetPresetsCount() int {
 	var count int
@@ -55,8 +76,8 @@ func (p PresetsOp) GetPresetsCount() int {
 func (p PresetsOp) CreatePreset(preset types.Preset) (*types.Preset, error) {
 	const query = `
 	  INSERT INTO
-	    presets (name)
-	  VALUES (:name)
+	    presets (name,description,data,active)
+	  VALUES (:name,:description,:data,:active)
 	  RETURNING id`
 
 	db, _ := ConnectDB()
@@ -77,4 +98,40 @@ func (p PresetsOp) CreatePreset(preset types.Preset) (*types.Preset, error) {
 
 	db.Close()
 	return &preset, nil
+}
+
+// UpdatePresetByID Update job by ID.
+func (p PresetsOp) UpdatePresetByID(id int, preset types.Preset) *types.Preset {
+	const query = `
+        UPDATE presets
+        SET name = :name, description = :description, data = :data, active = :active
+        WHERE id = :id`
+
+	db, _ := ConnectDB()
+	tx := db.MustBegin()
+	_, err := tx.NamedExec(query, &preset)
+	if err != nil {
+		fmt.Println(err)
+	}
+	tx.Commit()
+
+	db.Close()
+	return &preset
+}
+
+// UpdatePresetStatusByID Update preset status by ID.
+func (p PresetsOp) UpdatePresetStatusByID(id int, status bool) error {
+	const query = `UPDATE jobs SET status = $2 WHERE id = $1`
+
+	db, _ := ConnectDB()
+	tx := db.MustBegin()
+	_, err := tx.Exec(query, status, id)
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+	tx.Commit()
+
+	db.Close()
+	return nil
 }

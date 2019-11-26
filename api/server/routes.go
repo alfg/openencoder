@@ -23,6 +23,8 @@ func registerRoutes(r *gin.Engine) {
 		// Presets.
 		api.GET("/profiles", profilesHandler)
 		api.GET("/presets", getPresetsHandler)
+		api.GET("/presets/:id", getPresetByIDHandler)
+		api.PUT("/presets/:id", updatePresetByIDHandler)
 
 		// Jobs.
 		api.POST("/jobs", createJobHandler)
