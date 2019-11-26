@@ -4,7 +4,7 @@
       striped hover dark
       :fields="fields"
       :items="items">
-      <template slot="progress" slot-scope="data">
+      <template v-slot:cell(progress)="data">
         <b-progress
           :value="data.item.progress"
           :animated="data.value !== 100"
