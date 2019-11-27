@@ -2,7 +2,7 @@
     <h1><code>openencoder</code></h1>
     <p><strong>Open Source Cloud Encoder for FFmpeg</strong></p>
     <p>The goal of this project is to create a distributed and scalable video encoding pipeline to be used
-    as an API or web interface using your own hosted infrastructure and FFmpeg encoding profiles!</p>
+    as an API or web interface using your own hosted infrastructure and FFmpeg encoding presets!</p>
     <p>⚠️ Currently a work-in-progress! Check back for updates!</p>
     <p>
         <a href="https://travis-ci.org/alfg/openencoder">
@@ -77,7 +77,7 @@ curl -X POST \
   http://localhost:8080/api/jobs \
   -H 'Content-Type: application/json' \
   -d '{
-	"profile": "h264_baseline_360p_600",
+	"preset": "h264_baseline_360p_600",
 	"source": "s3:///src/ToS-1080p.mp4",
 	"dest": "s3:///dst/tears-of-steel/"
   }'

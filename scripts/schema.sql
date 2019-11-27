@@ -5,7 +5,7 @@ create table jobs
   guid         varchar(128) not null
     constraint jobs_pk
     primary key,
-  profile      varchar(128) not null,
+  preset        varchar(128) not null,
   created_date timestamp default CURRENT_TIMESTAMP,
   status       varchar(64)
 );
@@ -108,7 +108,8 @@ create table presets
     name        varchar(128),
     description varchar,
     data        varchar,
-    active      boolean default false
+    active      boolean default false,
+    output      varchar(128)
 );
 
 alter table presets
