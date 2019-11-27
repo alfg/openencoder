@@ -1,11 +1,11 @@
 <template>
   <div id="job-form">
     <b-form class="mb-3" @submit="onSubmit" @reset="onReset" v-if="show">
-      <b-form-group id="input-group-1" label="Select Encoding Profile:" label-for="input-1">
+      <b-form-group id="input-group-1" label="Select Encoding Preset:" label-for="input-1">
         <b-form-select
           id="input-1"
-          v-model="form.profile"
-          :options="profiles"
+          v-model="form.preset"
+          :options="presets"
           required
         ></b-form-select>
       </b-form-group>
@@ -59,11 +59,11 @@ export default {
   data() {
     return {
       form: {
-        profile: null,
+        preset: null,
         source: null,
         dest: null,
       },
-      profileData: [],
+      presetsData: [],
       show: true,
       showFileBrowser: false,
       dismissSecs: 5,
@@ -73,13 +73,13 @@ export default {
   },
 
   computed: {
-    profiles() {
-      return this.profileData.map(x => x.profile);
+    presets() {
+      return this.presetsData.map(x => x.name);
     },
   },
 
   mounted() {
-    this.getProfiles();
+    this.getPresets();
   },
 
   methods: {
@@ -87,8 +87,8 @@ export default {
       this.dismissCountDown = dismissCountDown;
     },
 
-    getProfiles() {
-      const url = '/api/profiles';
+    getPresets() {
+      const url = '/api/presets';
 
       this.$http.get(url, {
         headers: auth.getAuthHeader(),
@@ -97,7 +97,7 @@ export default {
           response.json()
         ))
         .then((json) => {
-          this.profileData = json.profiles;
+          this.presetsData = json.presets;
         });
     },
 
@@ -134,7 +134,7 @@ export default {
       evt.preventDefault();
 
       // Reset our form values
-      this.form.profile = null;
+      this.form.preset = null;
 
       // Trick to reset/clear native browser form validation state
       this.show = false;

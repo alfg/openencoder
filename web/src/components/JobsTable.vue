@@ -31,7 +31,7 @@ let intervalId;
 export default {
   data() {
     return {
-      fields: ['id', 'guid', 'profile', 'created_date', 'status', 'progress'],
+      fields: ['id', 'guid', 'preset', 'created_date', 'status', 'progress'],
       items: [],
       count: 0,
     };

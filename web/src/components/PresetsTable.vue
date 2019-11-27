@@ -1,5 +1,7 @@
 <template>
   <div id="presets-table">
+    <PresetForm />
+
     <b-table
       striped hover dark
       selectable
@@ -28,10 +30,14 @@
 
 <script>
 import JSONEditor from 'jsoneditor';
+import PresetForm from './PresetForm.vue';
 import 'jsoneditor/dist/jsoneditor.min.css';
 import auth from '../auth';
 
 export default {
+  components: {
+    PresetForm,
+  },
   data() {
     return {
       fields: ['id', 'name', 'description', 'active'],
@@ -84,13 +90,12 @@ export default {
           response.json()
         ))
         .then((json) => {
-          this.items = json && json.items;
+          this.items = json && json.presets;
           this.count = json && json.count;
         });
     },
 
     onRowSelected(items) {
-      console.log('row selected', items[0].options);
       this.data = items[0].data || {};
       this.editor.set(JSON.parse(this.data));
     },
