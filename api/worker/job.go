@@ -82,7 +82,7 @@ func encode(job types.Job, probeData *encoder.FFProbeResponse) error {
 	db := data.New()
 	db.Jobs.UpdateJobStatus(job.GUID, types.JobEncoding)
 
-	p, err := config.GetFFmpegProfile(job.Profile)
+	p, err := db.Presets.GetPresetByName(job.Preset)
 	if err != nil {
 		return err
 	}
@@ -95,7 +95,7 @@ func encode(job types.Job, probeData *encoder.FFProbeResponse) error {
 	// Run FFmpeg.
 	f := &encoder.FFmpeg{}
 	go trackEncodeProgress(encodeID, probeData, f)
-	f.Run(job.LocalSource, dest, p.Options)
+	f.Run(job.LocalSource, dest, p.Data)
 	close(progressCh)
 
 	// Set encode progress to 100.
@@ -159,10 +159,10 @@ func sendAlert(job types.Job) error {
 	message := fmt.Sprintf(
 		"*Encode Successful!* :tada:\n"+
 			"*Job ID*: %s:\n"+
-			"*Profile*: %s\n"+
+			"*Preset*: %s\n"+
 			"*Source*: %s\n"+
 			"*Destination*: %s\n\n",
-		job.GUID, job.Profile, job.Source, job.Destination)
+		job.GUID, job.Preset, job.Source, job.Destination)
 	err := notify.SendSlackMessage(webhook, message)
 	if err != nil {
 		return err

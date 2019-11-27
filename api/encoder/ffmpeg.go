@@ -2,6 +2,7 @@ package encoder
 
 import (
 	"bufio"
+	"encoding/json"
 	"io"
 	"os/exec"
 	"strconv"
@@ -35,8 +36,13 @@ type progress struct {
 	Progress   string
 }
 
+// ffmpegOptions struct passed into Ffmpeg.Run.
+type ffmpegOptions struct {
+	Options []string `json:"options"`
+}
+
 // Run runs the ffmpeg encoder with options.
-func (f *FFmpeg) Run(input string, output string, options []string) {
+func (f *FFmpeg) Run(input string, output string, data string) {
 	args := []string{
 		"-hide_banner",
 		"-v", "0",
@@ -44,8 +50,14 @@ func (f *FFmpeg) Run(input string, output string, options []string) {
 		"-i", input,
 	}
 
-	// Add the list of options from ffmpeg profile.
-	for _, v := range options {
+	// Decode JSON get options list from data.
+	dat := &ffmpegOptions{}
+	if err := json.Unmarshal([]byte(data), &dat); err != nil {
+		panic(err)
+	}
+
+	// Add the list of options from ffmpeg presets.
+	for _, v := range dat.Options {
 		args = append(args, strings.Split(v, " ")...)
 	}
 	args = append(args, output)

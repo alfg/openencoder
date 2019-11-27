@@ -15,7 +15,7 @@ import (
 // Context defines the job context to be passed to the worker.
 type Context struct {
 	GUID        string
-	Profile     string
+	Preset      string
 	Source      string
 	Destination string
 }
@@ -34,8 +34,8 @@ func (c *Context) FindJob(job *work.Job, next work.NextMiddlewareFunc) error {
 			return err
 		}
 	}
-	if _, ok := job.Args["profile"]; ok {
-		c.Profile = job.ArgString("profile")
+	if _, ok := job.Args["preset"]; ok {
+		c.Preset = job.ArgString("preset")
 		if err := job.ArgError(); err != nil {
 			return err
 		}
@@ -58,28 +58,28 @@ func (c *Context) FindJob(job *work.Job, next work.NextMiddlewareFunc) error {
 // SendJob worker handler for running job.
 func (c *Context) SendJob(job *work.Job) error {
 	guid := job.ArgString("guid")
-	profile := job.ArgString("profile")
+	preset := job.ArgString("preset")
 	source := job.ArgString("source")
 	destination := job.ArgString("destination")
 
 	j := types.Job{
 		GUID:        guid,
-		Profile:     profile,
+		Preset:      preset,
 		Source:      source,
 		Destination: destination,
 	}
 
 	// Start job.
 	runEncodeJob(j)
-	log.Infof("worker: completed %s!\n", j.Profile)
+	log.Infof("worker: completed %s!\n", j.Preset)
 	return nil
 }
 
 func startJob(id int, j types.Job) {
-	log.Infof("worker: started %s\n", j.Profile)
+	log.Infof("worker: started %s\n", j.Preset)
 
 	// runWorkflow(j)
-	log.Infof("worker: completed %s!\n", j.Profile)
+	log.Infof("worker: completed %s!\n", j.Preset)
 }
 
 // func (c *Context) Export(job *work.Job) error {

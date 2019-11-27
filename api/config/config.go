@@ -2,7 +2,6 @@ package config
 
 import (
 	"encoding/hex"
-	"errors"
 	"fmt"
 
 	"github.com/spf13/viper"
@@ -35,15 +34,6 @@ type Config struct {
 	CloudinitDatabaseUser     string `mapstructure:"cloudinit_database_user"`
 	CloudinitDatabasePassword string `mapstructure:"cloudinit_database_password"`
 	CloudinitDatabaseName     string `mapstructure:"cloudinit_database_name"`
-
-	Profiles []profile
-}
-
-type profile struct {
-	Profile string   `json:"profile"`
-	Output  string   `json:"output"`
-	Publish bool     `json:"publish"`
-	Options []string `json:"options"`
 }
 
 // LoadConfig loads up the configuration struct.
@@ -59,16 +49,6 @@ func LoadConfig(file string) {
 	if err != nil {
 		panic(fmt.Errorf("fatal error config file: %s", err))
 	}
-}
-
-// GetFFmpegProfile finds an encoding profile by profile name.
-func GetFFmpegProfile(profile string) (t *profile, err error) {
-	for _, v := range C.Profiles {
-		if v.Profile == profile {
-			return &v, nil
-		}
-	}
-	return nil, errors.New("No task")
 }
 
 // Get gets the current config.

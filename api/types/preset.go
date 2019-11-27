@@ -6,5 +6,6 @@ type Preset struct {
 	Name        string `db:"name" json:"name"`
 	Description string `db:"description" json:"description"`
 	Data        string `db:"data" json:"data"`
+	Output      string `db:"output" json:"output"`
 	Active      *bool  `db:"active" json:"active"`
 }

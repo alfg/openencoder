@@ -10,6 +10,7 @@ import (
 type Presets interface {
 	GetPresets(offset, count int) *[]types.Preset
 	GetPresetByID(id int) (*types.Preset, error)
+	GetPresetByName(name string) (*types.Preset, error)
 	GetPresetsCount() int
 	CreatePreset(user types.Preset) (*types.Preset, error)
 	UpdatePresetByID(id int, preset types.Preset) *types.Preset
@@ -50,6 +51,24 @@ func (p PresetsOp) GetPresetByID(id int) (*types.Preset, error) {
 	db, _ := ConnectDB()
 	preset := types.Preset{}
 	err := db.Get(&preset, query, id)
+	if err != nil {
+		fmt.Println(err)
+		return &preset, err
+	}
+	db.Close()
+	return &preset, nil
+}
+
+// GetPresetByName Gets a preset by name.
+func (p PresetsOp) GetPresetByName(name string) (*types.Preset, error) {
+	const query = `
+      SELECT *
+      FROM presets
+      WHERE name = $1`
+
+	db, _ := ConnectDB()
+	preset := types.Preset{}
+	err := db.Get(&preset, query, name)
 	if err != nil {
 		fmt.Println(err)
 		return &preset, err

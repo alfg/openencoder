@@ -5,7 +5,6 @@ import (
 	"strconv"
 	"sync"
 
-	"github.com/alfg/openencoder/api/config"
 	"github.com/alfg/openencoder/api/data"
 	"github.com/alfg/openencoder/api/types"
 	"github.com/gin-gonic/gin"
@@ -16,14 +15,6 @@ type presetUpdateRequest struct {
 	Description string `json:"description" binding:"required"`
 	Data        string `json:"data" binding:"required"`
 	Active      *bool  `json:"active" binding:"exists"`
-}
-
-func profilesHandler(c *gin.Context) {
-	profiles := config.Get().Profiles
-
-	c.JSON(200, gin.H{
-		"profiles": profiles,
-	})
 }
 
 func getPresetsHandler(c *gin.Context) {
@@ -55,8 +46,8 @@ func getPresetsHandler(c *gin.Context) {
 	wg.Wait()
 
 	c.JSON(http.StatusOK, gin.H{
-		"count": presetsCount,
-		"items": presets,
+		"count":   presetsCount,
+		"presets": presets,
 	})
 }
 

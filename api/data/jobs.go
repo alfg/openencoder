@@ -151,8 +151,8 @@ func (j JobsOp) GetJobsStats() (*[]Stats, error) {
 func (j JobsOp) CreateJob(job types.Job) *types.Job {
 	const query = `
       INSERT INTO
-        jobs (guid,profile,status)
-      VALUES (:guid,:profile,:status)
+        jobs (guid,preset,status)
+      VALUES (:guid,:preset,:status)
       RETURNING id`
 
 	db, _ := ConnectDB()

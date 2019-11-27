@@ -31,7 +31,7 @@ var JobStatuses = []string{
 type Job struct {
 	ID          int64  `db:"id" json:"id"`
 	GUID        string `db:"guid" json:"guid"`
-	Profile     string `db:"profile" json:"profile"`
+	Preset      string `db:"preset" json:"preset"`
 	CreatedDate string `db:"created_date" json:"created_date"`
 	Status      string `db:"status" json:"status"`
 
