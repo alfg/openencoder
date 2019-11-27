@@ -95,8 +95,8 @@ func (p PresetsOp) GetPresetsCount() int {
 func (p PresetsOp) CreatePreset(preset types.Preset) (*types.Preset, error) {
 	const query = `
 	  INSERT INTO
-	    presets (name,description,data,active)
-	  VALUES (:name,:description,:data,:active)
+	    presets (name,description,data,active,output)
+	  VALUES (:name,:description,:data,:active,:output)
 	  RETURNING id`
 
 	db, _ := ConnectDB()
@@ -139,12 +139,12 @@ func (p PresetsOp) UpdatePresetByID(id int, preset types.Preset) *types.Preset {
 }
 
 // UpdatePresetStatusByID Update preset status by ID.
-func (p PresetsOp) UpdatePresetStatusByID(id int, status bool) error {
-	const query = `UPDATE jobs SET status = $2 WHERE id = $1`
+func (p PresetsOp) UpdatePresetStatusByID(id int, active bool) error {
+	const query = `UPDATE presets SET active = $2 WHERE id = $1`
 
 	db, _ := ConnectDB()
 	tx := db.MustBegin()
-	_, err := tx.Exec(query, status, id)
+	_, err := tx.Exec(query, active, id)
 	if err != nil {
 		fmt.Println(err)
 		return err

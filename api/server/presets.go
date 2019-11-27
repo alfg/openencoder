@@ -1,6 +1,7 @@
 package server
 
 import (
+	"log"
 	"net/http"
 	"strconv"
 	"sync"
@@ -10,11 +11,59 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+type createPresetRequest struct {
+	Name        string `json:"name" binding:"required"`
+	Description string `json:"description" binding:"required"`
+	Output      string `json:"output" binding:"required"`
+	Data        string `json:"data" binding:"required"`
+	Active      *bool  `json:"active" binding:"exists"`
+}
+
+type createPresetResponse struct {
+	Message string        `json:"message"`
+	Status  int           `json:"status"`
+	Preset  *types.Preset `json:"preset"`
+}
+
 type presetUpdateRequest struct {
 	Name        string `json:"name" binding:"required"`
 	Description string `json:"description" binding:"required"`
+	Output      string `json:"output" binding:"required"`
 	Data        string `json:"data" binding:"required"`
 	Active      *bool  `json:"active" binding:"exists"`
+}
+
+func createPresetHandler(c *gin.Context) {
+
+	// Decode json.
+	var json createPresetRequest
+	if err := c.ShouldBindJSON(&json); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Create Preset.
+	preset := types.Preset{
+		Name:        json.Name,
+		Description: json.Description,
+		Output:      json.Output,
+		Data:        json.Data,
+		Active:      json.Active,
+	}
+
+	db := data.New()
+	created, err := db.Presets.CreatePreset(preset)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Create response.
+	resp := createPresetResponse{
+		Message: "Preset created",
+		Status:  200,
+		Preset:  created,
+	}
+	c.JSON(http.StatusCreated, resp)
 }
 
 func getPresetsHandler(c *gin.Context) {
