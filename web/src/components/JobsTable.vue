@@ -4,7 +4,7 @@
       striped hover dark
       :fields="fields"
       :items="items">
-      <template slot="progress" slot-scope="data">
+      <template v-slot:cell(progress)="data">
         <b-progress
           :value="data.item.progress"
           :animated="data.value !== 100"
@@ -31,7 +31,7 @@ let intervalId;
 export default {
   data() {
     return {
-      fields: ['id', 'guid', 'profile', 'created_date', 'status', 'progress'],
+      fields: ['id', 'guid', 'preset', 'created_date', 'status', 'progress'],
       items: [],
       count: 0,
     };

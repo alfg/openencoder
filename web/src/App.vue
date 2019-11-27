@@ -22,6 +22,7 @@
         <b-nav-item v-if="isOperatorAdmin" to="/queue">Queue</b-nav-item>
         <b-nav-item v-if="isOperatorAdmin" to="/workers">Workers</b-nav-item>
         <b-nav-item v-if="isAdmin" to="/machines">Machines</b-nav-item>
+        <b-nav-item v-if="isAdmin" to="/presets">Presets</b-nav-item>
         <b-nav-item v-if="isAdmin" to="/settings">Settings</b-nav-item>
       </b-nav>
     </div>
@@ -43,10 +44,10 @@ export default {
 
   computed: {
     isOperator() {
-      return 'operator' === this.user.role;
+      return this.user.role === 'operator';
     },
     isAdmin() {
-      return 'admin' === this.user.role;
+      return this.user.role === 'admin';
     },
     isOperatorAdmin() {
       return ['operator', 'admin'].includes(this.user.role);

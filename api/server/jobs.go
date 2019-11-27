@@ -16,7 +16,7 @@ import (
 )
 
 type request struct {
-	Profile     string `json:"profile" binding:"required"`
+	Preset      string `json:"preset" binding:"required"`
 	Source      string `json:"source" binding:"required"`
 	Destination string `json:"dest" binding:"required"`
 }
@@ -43,7 +43,7 @@ func createJobHandler(c *gin.Context) {
 	// Create Job and push the work to work queue.
 	job := types.Job{
 		GUID:        xid.New().String(),
-		Profile:     json.Profile,
+		Preset:      json.Preset,
 		Source:      json.Source,
 		Destination: json.Destination,
 		Status:      types.JobQueued, // Status queued.
@@ -52,7 +52,7 @@ func createJobHandler(c *gin.Context) {
 	// Send to work queue.
 	_, err := enqueuer.Enqueue(config.Get().WorkerJobName, work.Q{
 		"guid":        job.GUID,
-		"profile":     job.Profile,
+		"preset":      job.Preset,
 		"source":      job.Source,
 		"destination": job.Destination,
 	})

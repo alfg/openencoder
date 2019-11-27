@@ -8,6 +8,8 @@ import Jobs from './views/Jobs.vue';
 import Queue from './views/Queue.vue';
 import Workers from './views/Workers.vue';
 import Machines from './views/Machines.vue';
+import Presets from './views/Presets.vue';
+import PresetsCreate from './views/PresetsCreate.vue';
 import Settings from './views/Settings.vue';
 import Login from './views/Login.vue';
 import Register from './views/Register.vue';
@@ -56,6 +58,16 @@ export default new Router({
       path: '/machines',
       name: 'machines',
       component: Machines,
+    },
+    {
+      path: '/presets',
+      name: 'presets',
+      component: Presets,
+    },
+    {
+      path: '/presets/create',
+      name: 'presets-create',
+      component: PresetsCreate,
     },
     {
       path: '/settings',

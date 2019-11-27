@@ -1,6 +1,7 @@
 package net
 
 import (
+	"fmt"
 	"net/url"
 	"os"
 	"path"
@@ -52,6 +53,8 @@ type progress struct {
 func NewS3(accessKey, secretKey, provider, region, inboundBucket, outboundBucket string) *S3 {
 	endpoint := getEndpoint(provider, region)
 
+	fmt.Println(endpoint, provider, region)
+
 	return &S3{
 		AccessKey:      accessKey,
 		SecretKey:      secretKey,
@@ -74,6 +77,7 @@ func (s *S3) S3Download(job types.Job) error {
 
 	// Create session and client.
 	sess, err := session.NewSession(&aws.Config{
+		Endpoint:    aws.String(s.Endpoint),
 		Region:      aws.String(s.Region),
 		Credentials: credentials.NewStaticCredentials(s.AccessKey, s.SecretKey, ""),
 	})
@@ -192,6 +196,7 @@ func (s *S3) uploadFile(path string, job types.Job) error {
 	go s.trackProgress("upload")
 
 	sess, err := session.NewSession(&aws.Config{
+		Endpoint:    aws.String(s.Endpoint),
 		Region:      aws.String(s.Region),
 		Credentials: credentials.NewStaticCredentials(s.AccessKey, s.SecretKey, ""),
 	})
