@@ -23,6 +23,7 @@ export default {
 
       if (redirect) {
         context.$router.push({ name: redirect });
+        context.$router.go();
       }
     }, (err) => {
       console.log(err);
@@ -50,6 +51,7 @@ export default {
     cookie.remove('token');
     this.user.authenticated = false;
     context.$router.push({ name: 'login' });
+    context.$router.go();
   },
 
   checkAuth(context) {

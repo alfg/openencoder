@@ -4,7 +4,7 @@
       striped hover dark
       :fields="fields"
       :items="items">
-      <template slot="action" slot-scope="data">
+      <template v-slot:cell(action)="data">
         <b-button variant="light" @click="onClickDelete(data.item.id)">❌</b-button>
       </template>
       </b-table>

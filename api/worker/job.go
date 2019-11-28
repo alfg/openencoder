@@ -95,7 +95,11 @@ func encode(job types.Job, probeData *encoder.FFProbeResponse) error {
 	// Run FFmpeg.
 	f := &encoder.FFmpeg{}
 	go trackEncodeProgress(encodeID, probeData, f)
-	f.Run(job.LocalSource, dest, p.Data)
+	err = f.Run(job.LocalSource, dest, p.Data)
+	if err != nil {
+		close(progressCh)
+		return err
+	}
 	close(progressCh)
 
 	// Set encode progress to 100.

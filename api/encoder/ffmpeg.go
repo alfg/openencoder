@@ -2,7 +2,9 @@ package encoder
 
 import (
 	"bufio"
+	"bytes"
 	"encoding/json"
+	"fmt"
 	"io"
 	"os/exec"
 	"strconv"
@@ -42,10 +44,10 @@ type ffmpegOptions struct {
 }
 
 // Run runs the ffmpeg encoder with options.
-func (f *FFmpeg) Run(input string, output string, data string) {
+func (f *FFmpeg) Run(input string, output string, data string) error {
 	args := []string{
 		"-hide_banner",
-		"-v", "0",
+		"-loglevel", "error", // Set loglevel to fail job on errors.
 		"-progress", "pipe:1",
 		"-i", input,
 	}
@@ -66,6 +68,10 @@ func (f *FFmpeg) Run(input string, output string, data string) {
 	log.Info("running FFmpeg with options: ", args)
 	cmd := exec.Command(ffmpegCmd, args...)
 	stdout, _ := cmd.StdoutPipe()
+
+	// Capture stderr (if any).
+	var stderr bytes.Buffer
+	cmd.Stderr = &stderr
 	cmd.Start()
 
 	// Send progress updates.
@@ -74,8 +80,14 @@ func (f *FFmpeg) Run(input string, output string, data string) {
 	// Update progress struct.
 	f.updateProgress(stdout)
 
-	cmd.Wait()
+	err := cmd.Wait()
+	if err != nil {
+		fmt.Println(stderr.String())
+		f.finish()
+		return err
+	}
 	f.finish()
+	return nil
 }
 
 func (f *FFmpeg) updateProgress(stdout io.ReadCloser) {
