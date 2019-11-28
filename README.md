@@ -26,9 +26,10 @@
 ## Features
 * HTTP API for submitting jobs to an FFmpeg worker
 * Redis-backed worker
-* S3-based storage
+* S3-based storage (AWS and Digital Ocean)
 * Web Dashboard UI for managing encode jobs
-* UI/API for scaling worker instances
+* Machines UI/API for scaling worker instances
+* Database stored FFmpeg encoding presets
     
 
 ## Develop
@@ -51,8 +52,6 @@ docker-compose up -d db
 * Create DB and run `scripts/schema.sql` to set up schema.
 
 * Set environment variables in `docker-compose.yml`:
-```
-```
 
 *Environment variables will override defaults set in `config/default.yml`.*
 
@@ -71,7 +70,7 @@ go build -v && openencoder.exe worker
 cd static && npm run serve
 ```
 
-## Usage
+## Example Usage
 ```bash
 curl -X POST \
   http://localhost:8080/api/jobs \
@@ -83,6 +82,8 @@ curl -X POST \
   }'
 ```
 
+See [API.md](/API.md) for full jobs API documentation.
+
 ## API
 See: [API.md](/API.md)
 
@@ -91,13 +92,11 @@ You can scale workers by adding more machines via the Web UI or API.
 
 Currently only `Digital Ocean` is supported. More providers are planned.
 
-See: [API.md](/API.md) for Machines API.
+See: [API.md](/API.md) for Machines API documentation.
 
 ## TODO
 * Distributed chunked encoding
-* Encoding presets API/DB
 * More health-checks
-* Digital Ocean S3-Compatibility
 
 ## License
 MIT
