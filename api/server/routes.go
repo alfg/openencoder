@@ -21,8 +21,8 @@ func registerRoutes(r *gin.Engine) {
 		api.GET("/s3/list", s3ListHandler)
 
 		// Presets.
-		api.GET("/presets", getPresetsHandler)
 		api.POST("/presets", createPresetHandler)
+		api.GET("/presets", getPresetsHandler)
 		api.GET("/presets/:id", getPresetByIDHandler)
 		api.PUT("/presets/:id", updatePresetByIDHandler)
 
