@@ -3,7 +3,7 @@
     <div class="text-right mb-2">
       <b-button
         @click="toggleAutoUpdate"
-      >{{ autoUpdate ? '⟳ Auto Update' : '&#10074;&#10074; Paused' }}</b-button>
+      >{{ autoUpdate ? '&#10227; Auto Update' : '&#10074;&#10074; Paused' }}</b-button>
     </div>
 
     <b-table
