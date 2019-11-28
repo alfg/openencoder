@@ -153,6 +153,7 @@ export default {
     onSubmit(evt) {
       evt.preventDefault();
       console.log(JSON.stringify(this.form));
+      this.form.data = JSON.stringify(this.editor.get());
       this.updatePreset(this.form);
     },
 

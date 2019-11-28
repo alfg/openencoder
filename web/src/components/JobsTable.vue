@@ -11,8 +11,15 @@
       :fields="fields"
       :items="items">
 
+      <template v-slot:cell(status)="data">
+        <b-badge
+          :variant="data.item.status === 'error' ? 'danger' : 'primary'"
+        >{{ data.item.status }}</b-badge>
+      </template>
+
       <template v-slot:cell(progress)="data">
         <b-progress
+          v-if="data.item.status !== 'error'"
           :value="data.item.progress"
           :animated="data.value !== 100"
           :variant="data.value === 100 ? 'success' : 'primary'"
@@ -114,7 +121,7 @@ export default {
 };
 </script>
 
-<style scoped>
+<style>
 .code {
   background-color: #f4f4f4;
   border: 1px solid #aaa;
@@ -122,5 +129,8 @@ export default {
   font-family: monospace;
   margin-top: 10px;
   padding: 5px;
+}
+#jobs-table .table td {
+  vertical-align: middle;
 }
 </style>
