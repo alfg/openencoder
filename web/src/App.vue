@@ -18,7 +18,7 @@
       <b-nav tabs>
         <b-nav-item to="/">Dashboard</b-nav-item>
         <b-nav-item to="/jobs">Jobs</b-nav-item>
-        <b-nav-item v-if="isOperatorAdmin" to="/create">Create</b-nav-item>
+        <b-nav-item v-if="isOperatorAdmin" to="/encode">Encode</b-nav-item>
         <b-nav-item v-if="isOperatorAdmin" to="/queue">Queue</b-nav-item>
         <b-nav-item v-if="isOperatorAdmin" to="/workers">Workers</b-nav-item>
         <b-nav-item v-if="isAdmin" to="/machines">Machines</b-nav-item>

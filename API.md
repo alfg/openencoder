@@ -1,3 +1,17 @@
+## Open Encoder API v1
+
+### Overview
+Early draft of the Open Encoder API. This is in early development and subject to change without notice.
+
+### Resources
+
+* [Authentication](#authentication)
+* [Jobs](#jobs)
+* [Machines](#machines)
+* [Presets](#presets)
+
+---
+
 #### Authentication
 Authentication API resource.
 
@@ -39,7 +53,7 @@ Content-Type: application/json
 
 #### Login
 ```
-POST /api/register
+POST /api/login
 ```
 
 ##### Parameters
@@ -65,7 +79,7 @@ Content-Type: application/json
 }
 ```
 
-#### Jobs API
+#### Jobs
 Jobs API resource.
 
 | Method | Endpoint | Description |
@@ -141,7 +155,7 @@ Content-Type: application/json
 
 #### Get Job
 ```
-GET /jobs/:job_id
+GET /api/jobs/:job_id
 ```
 
 ##### Response
@@ -157,7 +171,7 @@ Content-Type: application/json
 }
 ```
 
-#### Machines API
+#### Machines
 Machines API resource.
 
 | Method | Endpoint | Description |
@@ -173,7 +187,7 @@ Machines API resource.
 
 #### Create Machine
 ```
-POST /api/machine
+POST /api/machines
 ```
 
 ##### Parameters
@@ -240,7 +254,7 @@ Content-Type: application/json
 
 #### Delete Machine
 ```
-DELETE /api/machine/:id
+DELETE /api/machines/:id
 ```
 
 ##### Parameters
@@ -345,3 +359,143 @@ Content-Type: application/json
 ```
 
 ---
+
+#### Presets
+Presets API resource.
+
+| Method | Endpoint | Description |
+| :----: | ---- | --------------- |
+| **POST** | [/api/presets](#create-preset) | Create preset. |
+| **GET** | [/api/presets](#list-presets) | Get presets list. |
+| **GET** | [/api/presets/:preset_id](#get-preset) | Get preset details. |
+| **PUT** | [/api/presets/:preset_id](#update-preset) | Update preset. |
+
+---
+
+#### Create Preset
+```
+POST /api/presets
+```
+
+##### Parameters
+```
+Content-Type: application/json
+```
+
+```json
+{
+    "name": "preset name",
+    "description": "preset description",
+    "data": "<json string of ffmpeg preset data>",
+    "active": true
+}
+```
+
+##### Response
+```
+Content-Type: application/json
+```
+
+```json
+{
+  "id": 1,
+  "name": "preset name",
+  "description": "preset description",
+  "data": "<json string of ffmpeg preset data>",
+  "active": true
+}
+```
+
+---
+
+#### List Presets
+```
+GET /api/presets
+```
+
+##### Response
+```
+Content-Type: application/json
+```
+```json
+{
+  "count": 2,
+  "items": [
+    {
+      "id": 4,
+      "name": "h264_main_1080p_6000",
+      "description": "h264_main_1080p_6000",
+      "data": "<json data>",
+      "active": true
+    },
+    {
+      "id": 3,
+      "name": "h264_main_720p_3000",
+      "description": "h264_main_720p_3000",
+      "data": "<json data>",
+      "active": true
+    },
+  ]
+}
+```
+
+---
+
+#### Get Preset
+```
+GET /api/presets/:preset_id
+```
+
+##### Response
+```
+Content-Type: application/json
+```
+```json
+{
+  "preset": {
+    "id": 1,
+    "name": "h264_baseline_360p_600",
+    "description": "h264_baseline_360p_600",
+    "data": "<json data>",
+    "output": "h264_baseline_360p_600.mp4",
+    "active": true
+  },
+  "status": 200
+}
+```
+
+---
+
+####  Update Preset
+```
+POST /api/preset/:preset_id
+```
+
+##### Parameters
+```
+Content-Type: application/json
+```
+
+```json
+{
+    "name": "preset name",
+    "description": "preset description",
+    "data": "<json string of ffmpeg preset data>",
+    "active": true
+}
+```
+
+##### Response
+```
+Content-Type: application/json
+```
+
+```json
+{
+  "id": 1,
+  "name": "preset name",
+  "description": "preset description",
+  "data": "<json string of ffmpeg preset data>",
+  "active": true
+}
+```

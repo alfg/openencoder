@@ -74,7 +74,7 @@ export default {
 
   computed: {
     presets() {
-      return this.presetsData.map(x => x.name);
+      return this.presetsData.filter(x => x.active).map(x => x.name);
     },
   },
 

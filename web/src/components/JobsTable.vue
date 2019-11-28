@@ -1,9 +1,16 @@
 <template>
   <div id="jobs-table">
+    <div class="text-right mb-2">
+      <b-button
+        @click="toggleAutoUpdate"
+      >{{ autoUpdate ? '&#10227; Auto Update' : '&#10074;&#10074; Paused' }}</b-button>
+    </div>
+
     <b-table
       striped hover dark
       :fields="fields"
       :items="items">
+
       <template v-slot:cell(progress)="data">
         <b-progress
           :value="data.item.progress"
@@ -11,6 +18,23 @@
           :variant="data.value === 100 ? 'success' : 'primary'"
           show-progress></b-progress>
       </template>
+
+      <template v-slot:cell(show_details)="row">
+        <b-button size="sm" @click="row.toggleDetails" class="mr-2">
+          {{ row.detailsShowing ? 'Hide' : 'Show'}} Details
+        </b-button>
+      </template>
+
+      <template v-slot:row-details="row">
+        <div class="code">
+          <b-form-textarea
+            rows="3"
+            max-rows="6"
+            :value="row.item.encode"
+          ></b-form-textarea>
+        </div>
+      </template>
+
     </b-table>
     <h2 class="text-center" v-if="items.length === 0">No Jobs Found</h2>
 
@@ -31,9 +55,10 @@ let intervalId;
 export default {
   data() {
     return {
-      fields: ['id', 'guid', 'preset', 'created_date', 'status', 'progress'],
+      fields: ['id', 'guid', 'preset', 'created_date', 'status', 'progress', 'show_details'],
       items: [],
       count: 0,
+      autoUpdate: true,
     };
   },
 
@@ -47,7 +72,11 @@ export default {
     const page = this.$route.query.page || 0;
 
     this.getJobs(page);
-    intervalId = setInterval(() => { this.getJobs(page); }, UPDATE_INTERVAL);
+    intervalId = setInterval(() => {
+      if (this.autoUpdate) {
+        this.getJobs(page);
+      }
+    }, UPDATE_INTERVAL);
   },
 
   destroyed() {
@@ -57,6 +86,10 @@ export default {
   methods: {
     linkGen(pageNum) {
       return pageNum === 1 ? '?' : `?page=${pageNum}`;
+    },
+
+    toggleAutoUpdate() {
+      this.autoUpdate = !this.autoUpdate;
     },
 
     onChangePage(event) {
@@ -80,3 +113,14 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+.code {
+  background-color: #f4f4f4;
+  border: 1px solid #aaa;
+  color: #000;
+  font-family: monospace;
+  margin-top: 10px;
+  padding: 5px;
+}
+</style>

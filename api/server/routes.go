@@ -20,12 +20,6 @@ func registerRoutes(r *gin.Engine) {
 		// S3.
 		api.GET("/s3/list", s3ListHandler)
 
-		// Presets.
-		api.GET("/presets", getPresetsHandler)
-		api.POST("/presets", createPresetHandler)
-		api.GET("/presets/:id", getPresetByIDHandler)
-		api.PUT("/presets/:id", updatePresetByIDHandler)
-
 		// Jobs.
 		api.POST("/jobs", createJobHandler)
 		api.GET("/jobs", getJobsHandler)
@@ -47,6 +41,12 @@ func registerRoutes(r *gin.Engine) {
 		api.DELETE("/machines/:id", deleteMachineHandler)
 		api.GET("/machines/regions", listMachineRegionsHandler)
 		api.GET("/machines/sizes", listMachineSizesHandler)
+
+		// Presets.
+		api.POST("/presets", createPresetHandler)
+		api.GET("/presets", getPresetsHandler)
+		api.GET("/presets/:id", getPresetByIDHandler)
+		api.PUT("/presets/:id", updatePresetByIDHandler)
 
 		// Settings.
 		api.GET("/settings", settingsHandler)

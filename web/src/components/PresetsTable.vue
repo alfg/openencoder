@@ -1,7 +1,7 @@
 <template>
   <div id="presets-table">
     <div class="mb-2 text-right">
-      <b-button to="presets/create">Create</b-button>
+      <b-button to="presets/create">Create Preset</b-button>
     </div>
 
     <b-table
@@ -13,12 +13,55 @@
       @row-selected="onRowSelected">
     </b-table>
 
-    <div class="mb-4" v-show="data">
-      <div ref="editor"></div>
-      <div class="mt-2 text-right">
-        <b-button>Save</b-button>
+    <b-form class="mb-3" @submit="onSubmit" v-show="data">
+      <b-form-group id="input-group-name" label="Name:" label-for="input-name">
+          <b-form-input
+            id="input-name"
+            v-model="form.name"
+            placeholder="Enter a preset name..."
+          ></b-form-input>
+      </b-form-group>
+
+      <b-form-group id="input-group-description" label="Description:" label-for="input-description">
+        <b-form-textarea
+          id="textarea"
+          v-model="form.description"
+          placeholder="Enter a description of the preset..."
+          rows="2"
+          max-rows="6"
+        ></b-form-textarea>
+      </b-form-group>
+
+      <b-form-group id="input-group-output" label="Output:" label-for="input-output">
+        <b-form-input
+          id="input-output"
+          v-model="form.output"
+          placeholder="Enter an output filename..."
+        ></b-form-input>
+      </b-form-group>
+
+      <b-form-group id="input-group-active">
+        <b-form-checkbox v-model="form.active">Active?</b-form-checkbox>
+      </b-form-group>
+
+      <div class="mb-4">
+        <b-alert show variant="info">FFmpeg presets follow the <a href="https://alfg.github.io/ffmpeg-commander">ffmpeg-commander</a> JSON format.</b-alert>
+        <div ref="editor"></div>
       </div>
-    </div>
+
+      <b-button type="submit" variant="primary">Save</b-button>
+    </b-form>
+
+    <b-alert
+      :show="dismissCountDown"
+      dismissible
+      fade
+      variant="success"
+      @dismissed="dismissCountDown=0"
+      @dismiss-count-down="countDownChanged"
+    >
+      Updated Preset!
+    </b-alert>
 
     <h2 class="text-center" v-if="items.length === 0">No Presets Found</h2>
 
@@ -43,6 +86,16 @@ export default {
       count: 0,
       editor: null,
       data: null,
+      form: {
+        name: '',
+        description: '',
+        output: '',
+        data: '',
+        active: false,
+      },
+      dismissSecs: 5,
+      dismissCountDown: 0,
+      showDismissibleAlert: false,
     };
   },
 
@@ -70,6 +123,10 @@ export default {
   },
 
   methods: {
+    countDownChanged(dismissCountDown) {
+      this.dismissCountDown = dismissCountDown;
+    },
+
     linkGen(pageNum) {
       return pageNum === 1 ? '?' : `?page=${pageNum}`;
     },
@@ -93,10 +150,35 @@ export default {
         });
     },
 
+    onSubmit(evt) {
+      evt.preventDefault();
+      console.log(JSON.stringify(this.form));
+      this.updatePreset(this.form);
+    },
+
+    updatePreset(data) {
+      const url = `/api/presets/${data.id}`;
+
+      this.$http.put(url, data, {
+        headers: auth.getAuthHeader(),
+      }).then(response => (
+        response.json()
+      )).then((json) => {
+        console.log('Submitted form: ', json);
+        this.dismissCountDown = this.dismissSecs;
+      });
+    },
+
     onRowSelected(items) {
-      this.data = items[0].data || {};
-      this.editor.set(JSON.parse(this.data));
-      this.editor.expandAll();
+      if (items.length > 0) {
+        [this.form] = items;
+
+        this.data = this.form.data || {};
+        this.editor.set(JSON.parse(this.data));
+        this.editor.expandAll();
+      } else {
+        this.data = null;
+      }
     },
   },
 };

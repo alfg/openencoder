@@ -3,8 +3,8 @@ import Router from 'vue-router';
 import VueResource from 'vue-resource';
 import BootstrapVue from 'bootstrap-vue';
 import Home from './views/Home.vue';
-import Create from './views/Create.vue';
 import Jobs from './views/Jobs.vue';
+import Encode from './views/Encode.vue';
 import Queue from './views/Queue.vue';
 import Workers from './views/Workers.vue';
 import Machines from './views/Machines.vue';
@@ -35,14 +35,14 @@ export default new Router({
       component: Home,
     },
     {
-      path: '/create',
-      name: 'create',
-      component: Create,
-    },
-    {
       path: '/jobs',
       name: 'jobs',
       component: Jobs,
+    },
+    {
+      path: '/encode',
+      name: 'encode',
+      component: Encode,
     },
     {
       path: '/queue',
