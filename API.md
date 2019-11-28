@@ -155,7 +155,7 @@ Content-Type: application/json
 
 #### Get Job
 ```
-GET /jobs/:job_id
+GET /api/jobs/:job_id
 ```
 
 ##### Response
@@ -187,7 +187,7 @@ Machines API resource.
 
 #### Create Machine
 ```
-POST /api/machine
+POST /api/machines
 ```
 
 ##### Parameters
@@ -254,7 +254,7 @@ Content-Type: application/json
 
 #### Delete Machine
 ```
-DELETE /api/machine/:id
+DELETE /api/machines/:id
 ```
 
 ##### Parameters
@@ -374,7 +374,7 @@ Presets API resource.
 
 #### Create Preset
 ```
-POST /api/preset
+POST /api/presets
 ```
 
 ##### Parameters
@@ -443,7 +443,7 @@ Content-Type: application/json
 
 #### Get Preset
 ```
-GET /preset/:preset_id
+GET /api/presets/:preset_id
 ```
 
 ##### Response
@@ -461,5 +461,41 @@ Content-Type: application/json
     "active": true
   },
   "status": 200
+}
+```
+
+---
+
+####  Update Preset
+```
+POST /api/preset/:preset_id
+```
+
+##### Parameters
+```
+Content-Type: application/json
+```
+
+```json
+{
+    "name": "preset name",
+    "description": "preset description",
+    "data": "<json string of ffmpeg preset data>",
+    "active": true
+}
+```
+
+##### Response
+```
+Content-Type: application/json
+```
+
+```json
+{
+  "id": 1,
+  "name": "preset name",
+  "description": "preset description",
+  "data": "<json string of ffmpeg preset data>",
+  "active": true
 }
 ```
