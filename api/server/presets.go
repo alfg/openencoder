@@ -161,6 +161,10 @@ func updatePresetByIDHandler(c *gin.Context) {
 		preset.Data = json.Data
 	}
 
+	if json.Output != "" {
+		preset.Output = json.Output
+	}
+
 	preset.Active = json.Active
 
 	updatedPreset := db.Presets.UpdatePresetByID(id, *preset)
