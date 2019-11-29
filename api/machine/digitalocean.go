@@ -105,10 +105,11 @@ func (do *DigitalOcean) CreateDroplets(ctx context.Context, region, size string,
 		// SSHKeys: []godo.DropletCreateSSHKey{
 		// 	godo.DropletCreateSSHKey{ID: 107149},
 		// },
-		IPv6:       true,
-		Tags:       []string{tagName},
-		Monitoring: true,
-		UserData:   createUserData(),
+		IPv6:              true,
+		Tags:              []string{tagName},
+		Monitoring:        true,
+		UserData:          createUserData(),
+		PrivateNetworking: true,
 	}
 
 	droplets, _, err := do.client.Droplets.CreateMultiple(ctx, createRequest)
