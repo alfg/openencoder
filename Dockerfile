@@ -1,7 +1,5 @@
 FROM golang:1.12-alpine AS builder
 
-ARG VERSION
-
 # Create the user and group files that will be used in the running container to
 # run the process as an unprivileged user.
 RUN mkdir /user && \
@@ -31,7 +29,8 @@ RUN CGO_ENABLED=0 GOOS=linux go build -installsuffix 'static' -v -o /app .
 FROM alfg/ffmpeg:latest
 
 # Set version from CI build.
-ENV VERSION=$VERSION
+ARG BUILD_VERSION=${BUILD_VERSION}
+ENV VERSION=$BUILD_VERSION
 
 # Import the user and group files from the first stage.
 COPY --from=builder /user/group /user/passwd /etc/

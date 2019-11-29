@@ -11,7 +11,7 @@ import (
 var cfgFile string
 
 var rootCmd = &cobra.Command{
-	Use:   "openenc",
+	Use:   "openencoder",
 	Short: "Open Source Cloud Encoder.",
 	Run: func(cmd *cobra.Command, args []string) {
 		// Do Stuff Here
