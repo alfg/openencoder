@@ -13,6 +13,7 @@ import (
 )
 
 const settingKey = "DIGITAL_OCEAN_ACCESS_TOKEN"
+const tag = "openencoder-worker"
 
 type machineRequest struct {
 	Provider string `json:"provider" binding:"required"`
@@ -38,7 +39,7 @@ func machinesHandler(c *gin.Context) {
 	ctx := context.TODO()
 
 	// Get list of machines from DO client.
-	machines, err := client.ListDropletByTag(ctx, "openencoder")
+	machines, err := client.ListDropletByTag(ctx, tag)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -76,6 +77,8 @@ func createMachineHandler(c *gin.Context) {
 	if err != nil {
 		fmt.Println(err)
 	}
+
+	// TODO: Add resource to project?
 
 	c.JSON(200, gin.H{
 		"machine": machine,
@@ -130,7 +133,7 @@ func deleteMachineByTagHandler(c *gin.Context) {
 	ctx := context.TODO()
 
 	// Create machine.
-	err := client.DeleteDropletByTag(ctx, "openencoder")
+	err := client.DeleteDropletByTag(ctx, tag)
 	if err != nil {
 		fmt.Println(err)
 	}

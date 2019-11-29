@@ -90,6 +90,13 @@ func (do *DigitalOcean) ListDropletByTag(ctx context.Context, tag string) ([]Mac
 // CreateDroplets creates a new DigitalOcean droplet.
 func (do *DigitalOcean) CreateDroplets(ctx context.Context, region, size string, count int) ([]MachineCreated, error) {
 
+	var (
+		ipv6              = true
+		tags              = []string{tagName, workerName}
+		monitoring        = true
+		privateNetworking = true
+	)
+
 	var names []string
 	for i := 0; i < count; i++ {
 		names = append(names, workerName)
@@ -105,11 +112,11 @@ func (do *DigitalOcean) CreateDroplets(ctx context.Context, region, size string,
 		// SSHKeys: []godo.DropletCreateSSHKey{
 		// 	godo.DropletCreateSSHKey{ID: 107149},
 		// },
-		IPv6:              true,
-		Tags:              []string{tagName},
-		Monitoring:        true,
 		UserData:          createUserData(),
-		PrivateNetworking: true,
+		Tags:              tags,
+		Monitoring:        monitoring,
+		IPv6:              ipv6,
+		PrivateNetworking: privateNetworking,
 	}
 
 	droplets, _, err := do.client.Droplets.CreateMultiple(ctx, createRequest)

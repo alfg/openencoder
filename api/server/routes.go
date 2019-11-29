@@ -9,13 +9,14 @@ func registerRoutes(r *gin.Engine) {
 	r.POST("/api/register", registerHandler)
 	r.POST("/api/login", authMiddlware.LoginHandler)
 	r.GET("/api/refresh-token", authMiddlware.RefreshHandler)
+	r.GET("/api/", indexHandler)
 
 	// API routes.
 	api := r.Group("/api")
 	api.Use(authMiddlware.MiddlewareFunc())
 	{
 		// Index.
-		api.GET("/", indexHandler)
+		// api.GET("/", indexHandler)
 
 		// S3.
 		api.GET("/s3/list", s3ListHandler)
