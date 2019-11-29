@@ -1,9 +1,8 @@
 name: Docker Image Push
 
 on:
-  push:
-    branches:
-      - master
+  release:
+    types: [created]
 
 jobs:
   build:
@@ -15,5 +14,5 @@ jobs:
         docker build . --file Dockerfile --tag openencoder:latest
         docker tag openencoder alfg/openencoder:latest
         docker login docker.pkg.github.com --username alfg --password ${{ secrets.TOKEN }}
-        docker tag openencoder docker.pkg.github.com/alfg/openencoder/openencoder:latest
-        docker push docker.pkg.github.com/alfg/openencoder/openencoder:latest
+        docker tag openencoder docker.pkg.github.com/alfg/openencoder/openencoder:${GITHUB_REF/refs\/tags\//}
+        docker push docker.pkg.github.com/alfg/openencoder/openencoder:${GITHUB_REF/refs\/tags\//}
