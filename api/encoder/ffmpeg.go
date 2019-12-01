@@ -35,7 +35,7 @@ type progress struct {
 	DupFrames  int
 	DropFrames int
 	Speed      string
-	Progress   string
+	Progress   float64
 }
 
 // ffmpegOptions struct passed into Ffmpeg.Run.
@@ -136,7 +136,8 @@ func (f *FFmpeg) setProgressParts(parts []string) {
 		case "speed":
 			f.Progress.Speed = v
 		case "progress":
-			f.Progress.Progress = v
+			progress, _ := strconv.ParseFloat(v, 64)
+			f.Progress.Progress = progress
 		}
 	}
 }
