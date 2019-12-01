@@ -34,6 +34,7 @@ type Config struct {
 	CloudinitDatabaseUser     string `mapstructure:"cloudinit_database_user"`
 	CloudinitDatabasePassword string `mapstructure:"cloudinit_database_password"`
 	CloudinitDatabaseName     string `mapstructure:"cloudinit_database_name"`
+	CloudinitWorkerImaage     string `mapstructure:"cloudinit_worker_image"`
 }
 
 // LoadConfig loads up the configuration struct.

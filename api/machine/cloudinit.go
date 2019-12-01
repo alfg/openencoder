@@ -22,7 +22,7 @@ write_files:
         DATABASE_PASSWORD={{.CloudinitDatabasePassword}}
         DATABASE_NAME={{.CloudinitDatabaseName}}
 runcmd:
-  - docker run -d --env-file /opt/.env --rm alfg/openencoder:latest worker
+  - docker run -d --env-file /opt/.env --rm {{.CloudinitWorkerImage}} worker
 `
 
 // UserData defines the userdata used for cloud-init.
@@ -38,6 +38,7 @@ type UserData struct {
 	CloudinitDatabaseUser     string
 	CloudinitDatabasePassword string
 	CloudinitDatabaseName     string
+	CloudinitWorkerImage      string
 }
 
 func createUserData() string {
@@ -49,6 +50,7 @@ func createUserData() string {
 		CloudinitDatabaseUser:     config.Get().CloudinitDatabaseUser,
 		CloudinitDatabasePassword: config.Get().CloudinitDatabasePassword,
 		CloudinitDatabaseName:     config.Get().CloudinitDatabaseName,
+		CloudinitWorkerImage:      config.Get().CloudinitWorkerImage,
 	}
 
 	var tpl bytes.Buffer
