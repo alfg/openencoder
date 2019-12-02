@@ -177,7 +177,7 @@ func sendAlert(job types.Job) error {
 func runEncodeJob(job types.Job) {
 	// Set local src path.
 	job.LocalSource = helpers.CreateLocalSourcePath(
-		config.Get().WorkDirectory, job.Source, job.GUID)
+		config.Get().WorkDirectory, job.Source.String, job.GUID)
 
 	db := data.New()
 
@@ -248,12 +248,15 @@ func trackEncodeProgress(encodeID int64, p *encoder.FFProbeResponse, f *encoder.
 			currentFrame := f.Progress.Frame
 			totalFrames, _ := strconv.Atoi(p.Streams[0].NbFrames)
 
-			pct := (float64(currentFrame) / float64(totalFrames)) * 100
+			// Only track progress if we know the total frames.
+			if totalFrames != 0 {
+				pct := (float64(currentFrame) / float64(totalFrames)) * 100
 
-			// Update DB with progress.
-			pct = math.Round(pct*100) / 100
-			fmt.Printf("progress: %d / %d - %0.2f%%\r", currentFrame, totalFrames, pct)
-			db.Jobs.UpdateEncodeProgressByID(encodeID, pct)
+				// Update DB with progress.
+				pct = math.Round(pct*100) / 100
+				fmt.Printf("progress: %d / %d - %0.2f%%\r", currentFrame, totalFrames, pct)
+				db.Jobs.UpdateEncodeProgressByID(encodeID, pct)
+			}
 		}
 	}
 }
