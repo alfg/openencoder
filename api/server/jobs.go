@@ -42,19 +42,29 @@ func createJobHandler(c *gin.Context) {
 
 	// Create Job and push the work to work queue.
 	job := types.Job{
-		GUID:        xid.New().String(),
-		Preset:      json.Preset,
-		Source:      json.Source,
-		Destination: json.Destination,
-		Status:      types.JobQueued, // Status queued.
+		GUID:   xid.New().String(),
+		Preset: json.Preset,
+		Source: types.NullString{
+			NullString: sql.NullString{
+				String: json.Source,
+				Valid:  true,
+			},
+		},
+		Destination: types.NullString{
+			NullString: sql.NullString{
+				String: json.Destination,
+				Valid:  true,
+			},
+		},
+		Status: types.JobQueued, // Status queued.
 	}
 
 	// Send to work queue.
 	_, err := enqueuer.Enqueue(config.Get().WorkerJobName, work.Q{
 		"guid":        job.GUID,
 		"preset":      job.Preset,
-		"source":      job.Source,
-		"destination": job.Destination,
+		"source":      job.Source.String,
+		"destination": job.Destination.String,
 	})
 	if err != nil {
 		log.Fatal(err)

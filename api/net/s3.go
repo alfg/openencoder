@@ -87,7 +87,7 @@ func (s *S3) S3Download(job types.Job) error {
 	s3Client := s3.New(sess)
 	downloader := s3manager.NewDownloader(sess)
 
-	parsedURL, _ := url.Parse(job.Source)
+	parsedURL, _ := url.Parse(job.Source.String)
 	key := parsedURL.Path
 
 	size, err := getFileSize(s3Client, s.InboundBucket, key)
@@ -185,7 +185,7 @@ func (s *S3) uploadFile(path string, job types.Job) error {
 	}
 
 	// Set key.
-	parsedURL, _ := url.Parse(job.Destination)
+	parsedURL, _ := url.Parse(job.Destination.String)
 	key := parsedURL.Path + filepath.Base(path)
 
 	s.Reader = &ProgressReader{

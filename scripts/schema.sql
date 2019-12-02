@@ -7,7 +7,9 @@ create table jobs
     primary key,
   preset        varchar(128) not null,
   created_date timestamp default CURRENT_TIMESTAMP,
-  status       varchar(64)
+  status       varchar(64),
+  source       varchar(128),
+  destination  varchar(128)
 );
 
 alter table jobs

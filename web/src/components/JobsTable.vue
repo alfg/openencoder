@@ -33,13 +33,33 @@
       </template>
 
       <template v-slot:row-details="row">
-        <div class="code">
-          <b-form-textarea
-            rows="3"
-            max-rows="6"
-            :value="row.item.encode"
-          ></b-form-textarea>
-        </div>
+          <b-row class="mb-2">
+            <b-col sm="2" class="text-sm-right"><b>Guid:</b></b-col>
+            <b-col>{{ row.item.guid }}</b-col>
+          </b-row>
+
+          <b-row class="mb-2">
+            <b-col sm="2" class="text-sm-right"><b>Source:</b></b-col>
+            <b-col>{{ row.item.source }}</b-col>
+          </b-row>
+
+          <b-row class="mb-2">
+            <b-col sm="2" class="text-sm-right"><b>Destination:</b></b-col>
+            <b-col>{{ row.item.destination }}</b-col>
+          </b-row>
+
+          <b-row class="mb-2">
+            <b-col sm="2" class="text-sm-right"><b>Probe Data:</b></b-col>
+            <b-col>
+              <div class="code">
+                <b-form-textarea
+                  rows="3"
+                  max-rows="6"
+                  :value="row.item.encode"
+                ></b-form-textarea>
+              </div>
+            </b-col>
+          </b-row>
       </template>
 
     </b-table>
@@ -62,7 +82,7 @@ let intervalId;
 export default {
   data() {
     return {
-      fields: ['id', 'guid', 'preset', 'created_date', 'status', 'progress', 'show_details'],
+      fields: ['id', 'source', 'preset', 'created_date', 'status', 'progress', 'show_details'],
       items: [],
       count: 0,
       autoUpdate: true,

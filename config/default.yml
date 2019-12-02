@@ -20,4 +20,4 @@ cloudinit_database_port: 5432
 cloudinit_database_user: postgres
 cloudinit_database_password: postgres
 cloudinit_database_name: enc
-cloudinit_worker_image: docker.pkg.github.com/alfg/openencoder/openencoder:0.0.3f
+cloudinit_worker_image: alfg/openencoder:latest
