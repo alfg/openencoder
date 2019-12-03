@@ -1,8 +1,8 @@
 <div align="center">
     <h1><code>openencoder</code></h1>
     <p><strong>Open Source Cloud Encoder for FFmpeg</strong></p>
-    <p>The goal of this project is to create a distributed and scalable video encoding pipeline to be used
-    as an API or web interface using your own hosted infrastructure and FFmpeg encoding presets!</p>
+    <p>A distributed and scalable video encoding pipeline to be used
+    as an API or web interface using your own hosted infrastructure and FFmpeg encoding presets.</p>
     <p>⚠️ Currently a work-in-progress! Check back for updates!</p>
     <p>
         <a href="https://travis-ci.org/alfg/openencoder">
