@@ -13,23 +13,30 @@
 
       <template v-slot:cell(status)="data">
         <b-badge
-          :variant="data.item.status === 'error' ? 'danger' : 'primary'"
+          :variant="['error', 'cancelled'].includes(data.item.status) ? 'danger' : 'primary'"
         >{{ data.item.status }}</b-badge>
       </template>
 
       <template v-slot:cell(progress)="data">
         <b-progress
-          v-if="data.item.status !== 'error'"
+          v-if="!['error', 'cancelled'].includes(data.item.status)"
           :value="data.item.progress"
           :animated="data.value !== 100"
           :variant="data.value === 100 ? 'success' : 'primary'"
           show-progress></b-progress>
       </template>
 
-      <template v-slot:cell(show_details)="row">
+      <template v-slot:cell(details)="row">
         <b-button size="sm" @click="row.toggleDetails" class="mr-2">
-          {{ row.detailsShowing ? 'Hide' : 'Show'}} Details
+          {{ row.detailsShowing ? 'Hide' : 'Show'}}
         </b-button>
+      </template>
+
+      <template v-slot:cell(action)="data">
+        <b-button-group size="sm">
+        <b-button variant="light" @click="onClickCancel(data.item.id)">❌</b-button>
+        <b-button variant="light" @click="onClickRestart(data.item.id)">&#10227;</b-button>
+        </b-button-group>
       </template>
 
       <template v-slot:row-details="row">
@@ -82,7 +89,7 @@ let intervalId;
 export default {
   data() {
     return {
-      fields: ['id', 'source', 'preset', 'created_date', 'status', 'progress', 'show_details'],
+      fields: ['id', 'source', 'preset', 'created_date', 'status', 'progress', 'details', 'action'],
       items: [],
       count: 0,
       autoUpdate: true,
@@ -121,6 +128,42 @@ export default {
 
     onChangePage(event) {
       this.getJobs(event);
+    },
+
+    onClickCancel(evt) {
+      const id = evt;
+      this.cancelJob(id);
+    },
+
+    onClickRestart(evt) {
+      const id = evt;
+      this.restartJob(id);
+    },
+
+    cancelJob(id) {
+      const url = `/api/jobs/${id}/cancel`;
+
+      this.$http.post(url, {
+        method: 'POST',
+        headers: auth.getAuthHeader(),
+      }).then(response => (
+        response.json()
+      )).then((json) => {
+        console.log('Cancel job: ', json);
+      });
+    },
+
+    restartJob(id) {
+      const url = `/api/jobs/${id}/restart`;
+
+      this.$http.post(url, {
+        method: 'POST',
+        headers: auth.getAuthHeader(),
+      }).then(response => (
+        response.json()
+      )).then((json) => {
+        console.log('Restart job: ', json);
+      });
     },
 
     getJobs(page) {
