@@ -29,7 +29,7 @@ func download(job types.Job) error {
 
 	// Update status.
 	db := data.New()
-	db.Jobs.UpdateJobStatus(job.GUID, types.JobDownloading)
+	db.Jobs.UpdateJobStatusByGUID(job.GUID, types.JobDownloading)
 
 	// Get job data.
 	j, _ := db.Jobs.GetJobByGUID(job.GUID)
@@ -58,7 +58,7 @@ func probe(job types.Job) (*encoder.FFProbeResponse, error) {
 
 	// Update status.
 	db := data.New()
-	db.Jobs.UpdateJobStatus(job.GUID, types.JobProbing)
+	db.Jobs.UpdateJobStatusByGUID(job.GUID, types.JobProbing)
 
 	// Run FFProbe.
 	f := encoder.FFProbe{}
@@ -80,7 +80,7 @@ func encode(job types.Job, probeData *encoder.FFProbeResponse) error {
 
 	// Update status.
 	db := data.New()
-	db.Jobs.UpdateJobStatus(job.GUID, types.JobEncoding)
+	db.Jobs.UpdateJobStatusByGUID(job.GUID, types.JobEncoding)
 
 	p, err := db.Presets.GetPresetByName(job.Preset)
 	if err != nil {
@@ -112,7 +112,7 @@ func upload(job types.Job) error {
 
 	// Update status.
 	db := data.New()
-	db.Jobs.UpdateJobStatus(job.GUID, types.JobUploading)
+	db.Jobs.UpdateJobStatusByGUID(job.GUID, types.JobUploading)
 
 	// Get job data.
 	j, _ := db.Jobs.GetJobByGUID(job.GUID)
@@ -151,7 +151,7 @@ func completed(job types.Job) error {
 
 	// Update status.
 	db := data.New()
-	db.Jobs.UpdateJobStatus(job.GUID, types.JobCompleted)
+	db.Jobs.UpdateJobStatusByGUID(job.GUID, types.JobCompleted)
 	return nil
 }
 
@@ -185,7 +185,7 @@ func runEncodeJob(job types.Job) {
 	err := download(job)
 	if err != nil {
 		log.Error(err)
-		db.Jobs.UpdateJobStatus(job.GUID, types.JobError)
+		db.Jobs.UpdateJobStatusByGUID(job.GUID, types.JobError)
 		return
 	}
 
@@ -193,7 +193,7 @@ func runEncodeJob(job types.Job) {
 	probeData, err := probe(job)
 	if err != nil {
 		log.Error(err)
-		db.Jobs.UpdateJobStatus(job.GUID, types.JobError)
+		db.Jobs.UpdateJobStatusByGUID(job.GUID, types.JobError)
 		return
 	}
 
@@ -201,7 +201,7 @@ func runEncodeJob(job types.Job) {
 	err = encode(job, probeData)
 	if err != nil {
 		log.Error(err)
-		db.Jobs.UpdateJobStatus(job.GUID, types.JobError)
+		db.Jobs.UpdateJobStatusByGUID(job.GUID, types.JobError)
 		return
 	}
 
@@ -209,7 +209,7 @@ func runEncodeJob(job types.Job) {
 	err = upload(job)
 	if err != nil {
 		log.Error(err)
-		db.Jobs.UpdateJobStatus(job.GUID, types.JobError)
+		db.Jobs.UpdateJobStatusByGUID(job.GUID, types.JobError)
 		return
 	}
 
@@ -217,7 +217,7 @@ func runEncodeJob(job types.Job) {
 	err = cleanup(job)
 	if err != nil {
 		log.Error(err)
-		db.Jobs.UpdateJobStatus(job.GUID, types.JobError)
+		db.Jobs.UpdateJobStatusByGUID(job.GUID, types.JobError)
 		return
 	}
 

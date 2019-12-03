@@ -40,7 +40,37 @@ type progress struct {
 
 // ffmpegOptions struct passed into Ffmpeg.Run.
 type ffmpegOptions struct {
-	Options []string `json:"options"`
+	OptionsRaw []string `json:"options_raw"` // Flag options.
+
+	// FFmpeg commander options.
+	Video videoOptions
+	Audio audioOptions
+}
+
+type videoOptions struct {
+	Input                string
+	Output               string
+	Container            string
+	VideoCodec           string
+	VideoSpeed           string
+	AudioCodec           string
+	HardwareAcceleration string
+	Pass                 string
+	Crf                  int
+	Bitrate              string
+	MinRate              string
+	MaxRate              string
+	BufSize              string
+	PixelFormat          string
+	FrameRate            string
+	Speed                string
+	Tune                 string
+	Profile              string
+	Level                string
+}
+
+type audioOptions struct {
+	AudioCodec string
 }
 
 // Run runs the ffmpeg encoder with options.
@@ -53,13 +83,13 @@ func (f *FFmpeg) Run(input string, output string, data string) error {
 	}
 
 	// Decode JSON get options list from data.
-	dat := &ffmpegOptions{}
-	if err := json.Unmarshal([]byte(data), &dat); err != nil {
+	options := &ffmpegOptions{}
+	if err := json.Unmarshal([]byte(data), &options); err != nil {
 		panic(err)
 	}
 
 	// Add the list of options from ffmpeg presets.
-	for _, v := range dat.Options {
+	for _, v := range options.OptionsRaw {
 		args = append(args, strings.Split(v, " ")...)
 	}
 	args = append(args, output)

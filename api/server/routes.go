@@ -26,6 +26,9 @@ func registerRoutes(r *gin.Engine) {
 		api.GET("/jobs", getJobsHandler)
 		api.GET("/jobs/:id", getJobsByIDHandler)
 		api.PUT("/jobs/:id", updateJobByIDHandler)
+		api.GET("/jobs/:id/status", getJobStatusByIDHandler)
+		api.POST("/jobs/:id/cancel", cancelJobByIDHandler)
+		api.POST("/jobs/:id/restart", restartJobByIDHandler)
 
 		// Stats.
 		api.GET("/stats", getStatsHandler)

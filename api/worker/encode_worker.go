@@ -7,6 +7,7 @@ import (
 	"os/signal"
 
 	"github.com/alfg/openencoder/api/config"
+	"github.com/alfg/openencoder/api/data"
 	"github.com/alfg/openencoder/api/types"
 	"github.com/gocraft/work"
 	"github.com/gomodule/redigo/redis"
@@ -78,6 +79,13 @@ func (c *Context) SendJob(job *work.Job) error {
 				Valid:  true,
 			},
 		},
+	}
+
+	// Check if job is cancelled.
+	db := data.New()
+	jobStatus, _ := db.Jobs.GetJobStatusByGUID(guid)
+	if jobStatus == types.JobCancelled {
+		return nil
 	}
 
 	// Start job.
