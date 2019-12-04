@@ -197,6 +197,9 @@ func runEncodeJob(job types.Job) {
 	err = encode(job, probeData)
 	if err != nil {
 		log.Error(err)
+		if err := cleanup(job); err != nil {
+			log.Error("cleanup err", err)
+		}
 
 		// Set job to 'cancelled' if it was cancelled.
 		if err.Error() == types.JobCancelled {

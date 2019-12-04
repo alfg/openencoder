@@ -215,6 +215,19 @@ func restartJobByIDHandler(c *gin.Context) {
 	db := data.New()
 	db.Jobs.UpdateJobStatusByID(id, types.JobRestarting)
 
+	job, _ := db.Jobs.GetJobByID(int64(id))
+
+	// Send back to work queue.
+	_, err := enqueuer.Enqueue(config.Get().WorkerJobName, work.Q{
+		"guid":        job.GUID,
+		"preset":      job.Preset,
+		"source":      job.Source.String,
+		"destination": job.Destination.String,
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	c.JSON(http.StatusOK, gin.H{
 		"status": http.StatusOK,
 	})
