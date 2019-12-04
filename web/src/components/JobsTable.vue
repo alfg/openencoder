@@ -9,6 +9,7 @@
     <b-table
       striped hover dark
       :fields="fields"
+      :busy="!items"
       :items="items">
 
       <template v-slot:cell(status)="data">
@@ -34,8 +35,14 @@
 
       <template v-slot:cell(action)="data">
         <b-button-group size="sm">
-        <b-button variant="light" @click="onClickCancel(data.item.id)">❌</b-button>
-        <b-button variant="light" @click="onClickRestart(data.item.id)">&#10227;</b-button>
+          <b-button
+            variant="light"
+            v-if="!['error', 'cancelled', 'completed'].includes(data.item.status)"
+            @click="onClickCancel(data.item.id)">❌</b-button>
+          <b-button
+            variant="light"
+            v-if="['error', 'cancelled'].includes(data.item.status)"
+            @click="onClickRestart(data.item.id)">&#10227;</b-button>
         </b-button-group>
       </template>
 
@@ -69,6 +76,13 @@
           </b-row>
       </template>
 
+      <template v-slot:table-busy>
+        <div class="text-center text-danger my-2">
+          <b-spinner class="align-middle"></b-spinner>
+          <strong>Loading...</strong>
+        </div>
+      </template>
+
     </b-table>
     <h2 class="text-center" v-if="items.length === 0">No Jobs Found</h2>
 
@@ -90,7 +104,7 @@ export default {
   data() {
     return {
       fields: ['id', 'source', 'preset', 'created_date', 'status', 'progress', 'details', 'action'],
-      items: [],
+      items: null,
       count: 0,
       autoUpdate: true,
     };
