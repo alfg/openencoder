@@ -45,6 +45,8 @@ type ffmpegOptions struct {
 	OptionsRaw []string `json:"options_raw"` // Flag options.
 
 	// FFmpeg commander options.
+	// TODO: FFmpeg.Run shouold parse and run with struct options.
+	// Currently only supports raw options.
 	Video videoOptions
 	Audio audioOptions
 }
