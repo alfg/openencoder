@@ -14,6 +14,8 @@ const (
 	JobUploading   = "uploading"
 	JobCompleted   = "completed"
 	JobError       = "error"
+	JobCancelled   = "cancelled"
+	JobRestarting  = "restarting"
 )
 
 // JobStatuses All job status types.
@@ -25,6 +27,8 @@ var JobStatuses = []string{
 	JobUploading,
 	JobCompleted,
 	JobError,
+	JobCancelled,
+	JobRestarting,
 }
 
 // Job describes the job info.

@@ -9,8 +9,10 @@ import (
 // Jobs represents the Jobs database operations.
 type Jobs interface {
 	GetJobs(offset, count int) *[]types.Job
-	GetJobByID(id int) (*types.Job, error)
+	GetJobByID(id int64) (*types.Job, error)
 	GetJobByGUID(id string) (*types.Job, error)
+	GetJobStatusByID(id int64) (string, error)
+	GetJobStatusByGUID(guid string) (string, error)
 	GetJobsCount() int
 	GetJobsStats() (*[]Stats, error)
 	CreateJob(job types.Job) *types.Job
@@ -18,7 +20,8 @@ type Jobs interface {
 	UpdateEncodeDataByID(id int64, jsonString string) error
 	UpdateEncodeProgressByID(id int64, progress float64) error
 	UpdateJobByID(id int, job types.Job) *types.Job
-	UpdateJobStatus(guid string, status string) error
+	UpdateJobStatusByID(id int, status string) error
+	UpdateJobStatusByGUID(guid string, status string) error
 }
 
 // JobsOp represents a job operation.
@@ -52,7 +55,7 @@ func (j JobsOp) GetJobs(offset, count int) *[]types.Job {
 }
 
 // GetJobByID Gets a job by ID.
-func (j JobsOp) GetJobByID(id int) (*types.Job, error) {
+func (j JobsOp) GetJobByID(id int64) (*types.Job, error) {
 	const query = `
       SELECT
         jobs.*,
@@ -95,6 +98,42 @@ func (j JobsOp) GetJobByGUID(id string) (*types.Job, error) {
 	}
 	db.Close()
 	return &job, nil
+}
+
+// GetJobStatusByID Gets a job status by GUID.
+func (j JobsOp) GetJobStatusByID(id int64) (string, error) {
+	var status string
+	const query = `
+      SELECT
+        status
+      FROM jobs
+      WHERE id = $1`
+
+	db, _ := ConnectDB()
+	err := db.Get(&status, query, id)
+	if err != nil {
+		fmt.Println(err)
+	}
+	db.Close()
+	return status, nil
+}
+
+// GetJobStatusByGUID Gets a job status by GUID.
+func (j JobsOp) GetJobStatusByGUID(guid string) (string, error) {
+	var status string
+	const query = `
+      SELECT
+        status
+      FROM jobs
+      WHERE jobs.guid = $1`
+
+	db, _ := ConnectDB()
+	err := db.Get(&status, query, guid)
+	if err != nil {
+		fmt.Println(err)
+	}
+	db.Close()
+	return status, nil
 }
 
 // GetJobsCount Gets a count of all jobs.
@@ -255,8 +294,25 @@ func (j JobsOp) UpdateJobByID(id int, job types.Job) *types.Job {
 	return &job
 }
 
-// UpdateJobStatus Update job status by ID.
-func (j JobsOp) UpdateJobStatus(guid string, status string) error {
+// UpdateJobStatusByID Update job by ID.
+func (j JobsOp) UpdateJobStatusByID(id int, status string) error {
+	const query = `UPDATE jobs SET status = $1 WHERE id = $2`
+
+	db, _ := ConnectDB()
+	tx := db.MustBegin()
+	_, err := tx.Exec(query, status, id)
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+	tx.Commit()
+
+	db.Close()
+	return nil
+}
+
+// UpdateJobStatusByGUID Update job status by GUID.
+func (j JobsOp) UpdateJobStatusByGUID(guid string, status string) error {
 	const query = `UPDATE jobs SET status = $1 WHERE guid = $2`
 
 	db, _ := ConnectDB()

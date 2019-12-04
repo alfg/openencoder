@@ -4,7 +4,7 @@ import (
 	"bufio"
 	"bytes"
 	"encoding/json"
-	"fmt"
+	"errors"
 	"io"
 	"os/exec"
 	"strconv"
@@ -21,7 +21,9 @@ const (
 
 // FFmpeg struct.
 type FFmpeg struct {
-	Progress progress
+	Progress    progress
+	cmd         *exec.Cmd
+	isCancelled bool
 }
 
 type progress struct {
@@ -40,7 +42,39 @@ type progress struct {
 
 // ffmpegOptions struct passed into Ffmpeg.Run.
 type ffmpegOptions struct {
-	Options []string `json:"options"`
+	OptionsRaw []string `json:"options_raw"` // Flag options.
+
+	// FFmpeg commander options.
+	// TODO: FFmpeg.Run shouold parse and run with struct options.
+	// Currently only supports raw options.
+	Video videoOptions
+	Audio audioOptions
+}
+
+type videoOptions struct {
+	Input                string
+	Output               string
+	Container            string
+	VideoCodec           string
+	VideoSpeed           string
+	AudioCodec           string
+	HardwareAcceleration string
+	Pass                 string
+	Crf                  int
+	Bitrate              string
+	MinRate              string
+	MaxRate              string
+	BufSize              string
+	PixelFormat          string
+	FrameRate            string
+	Speed                string
+	Tune                 string
+	Profile              string
+	Level                string
+}
+
+type audioOptions struct {
+	AudioCodec string
 }
 
 // Run runs the ffmpeg encoder with options.
@@ -53,26 +87,26 @@ func (f *FFmpeg) Run(input string, output string, data string) error {
 	}
 
 	// Decode JSON get options list from data.
-	dat := &ffmpegOptions{}
-	if err := json.Unmarshal([]byte(data), &dat); err != nil {
+	options := &ffmpegOptions{}
+	if err := json.Unmarshal([]byte(data), &options); err != nil {
 		panic(err)
 	}
 
 	// Add the list of options from ffmpeg presets.
-	for _, v := range dat.Options {
+	for _, v := range options.OptionsRaw {
 		args = append(args, strings.Split(v, " ")...)
 	}
 	args = append(args, output)
 
 	// Execute command.
 	log.Info("running FFmpeg with options: ", args)
-	cmd := exec.Command(ffmpegCmd, args...)
-	stdout, _ := cmd.StdoutPipe()
+	f.cmd = exec.Command(ffmpegCmd, args...)
+	stdout, _ := f.cmd.StdoutPipe()
 
 	// Capture stderr (if any).
 	var stderr bytes.Buffer
-	cmd.Stderr = &stderr
-	cmd.Start()
+	f.cmd.Stderr = &stderr
+	f.cmd.Start()
 
 	// Send progress updates.
 	go f.trackProgress()
@@ -80,9 +114,11 @@ func (f *FFmpeg) Run(input string, output string, data string) error {
 	// Update progress struct.
 	f.updateProgress(stdout)
 
-	err := cmd.Wait()
+	err := f.cmd.Wait()
 	if err != nil {
-		fmt.Println(stderr.String())
+		if f.isCancelled {
+			return errors.New("cancelled")
+		}
 		f.finish()
 		return err
 	}
@@ -155,6 +191,16 @@ func (f *FFmpeg) trackProgress() {
 			// fmt.Println(f.Progress)
 		}
 	}
+}
+
+// Cancel stops an FFmpeg job from running.
+func (f *FFmpeg) Cancel() {
+	log.Warn("killing ffmpeg process")
+	f.isCancelled = true
+	if err := f.cmd.Process.Kill(); err != nil {
+		log.Warn("failed to kill process: ", err)
+	}
+	log.Warn("killed ffmpeg process")
 }
 
 func (f *FFmpeg) finish() {

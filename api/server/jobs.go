@@ -69,6 +69,7 @@ func createJobHandler(c *gin.Context) {
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	db := data.New()
 	created := db.Jobs.CreateJob(job)
 
@@ -139,7 +140,7 @@ func getJobsByIDHandler(c *gin.Context) {
 	jobInt, _ := strconv.Atoi(id)
 
 	db := data.New()
-	job, err := db.Jobs.GetJobByID(jobInt)
+	job, err := db.Jobs.GetJobByID(int64(jobInt))
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{
 			"status":  http.StatusNotFound,
@@ -165,7 +166,7 @@ func updateJobByIDHandler(c *gin.Context) {
 	}
 
 	db := data.New()
-	job, err := db.Jobs.GetJobByID(id)
+	job, err := db.Jobs.GetJobByID(int64(id))
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{
 			"status":  http.StatusNotFound,
@@ -180,4 +181,54 @@ func updateJobByIDHandler(c *gin.Context) {
 
 	updatedJob := db.Jobs.UpdateJobByID(id, *job)
 	c.JSON(http.StatusOK, updatedJob)
+}
+
+func getJobStatusByIDHandler(c *gin.Context) {
+	id, _ := strconv.Atoi(c.Param("id"))
+
+	// Update status.
+	db := data.New()
+	status, _ := db.Jobs.GetJobStatusByID(int64(id))
+
+	c.JSON(http.StatusOK, gin.H{
+		"status":     http.StatusOK,
+		"job_status": status,
+	})
+}
+
+func cancelJobByIDHandler(c *gin.Context) {
+	id, _ := strconv.Atoi(c.Param("id"))
+
+	// Update status.
+	db := data.New()
+	db.Jobs.UpdateJobStatusByID(id, types.JobCancelled)
+
+	c.JSON(http.StatusOK, gin.H{
+		"status": http.StatusOK,
+	})
+}
+
+func restartJobByIDHandler(c *gin.Context) {
+	id, _ := strconv.Atoi(c.Param("id"))
+
+	// Update status.
+	db := data.New()
+	db.Jobs.UpdateJobStatusByID(id, types.JobRestarting)
+
+	job, _ := db.Jobs.GetJobByID(int64(id))
+
+	// Send back to work queue.
+	_, err := enqueuer.Enqueue(config.Get().WorkerJobName, work.Q{
+		"guid":        job.GUID,
+		"preset":      job.Preset,
+		"source":      job.Source.String,
+		"destination": job.Destination.String,
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"status": http.StatusOK,
+	})
 }
