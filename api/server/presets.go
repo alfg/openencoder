@@ -34,6 +34,15 @@ type presetUpdateRequest struct {
 }
 
 func createPresetHandler(c *gin.Context) {
+	user, _ := c.Get(identityKey)
+	role := user.(*types.User).Role
+
+	if role != "operator" && role != "admin" {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"message": "unauthorized",
+		})
+		return
+	}
 
 	// Decode json.
 	var json createPresetRequest

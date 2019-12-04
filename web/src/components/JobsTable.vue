@@ -33,7 +33,7 @@
         </b-button>
       </template>
 
-      <template v-slot:cell(action)="data">
+      <template v-slot:cell(action)="data" v-if="isOperatorAdmin">
         <b-button-group size="sm">
           <b-button
             variant="light"
@@ -107,12 +107,17 @@ export default {
       items: null,
       count: 0,
       autoUpdate: true,
+      user: auth.user,
+      role: auth.role,
     };
   },
 
   computed: {
     pages() {
       return this.count === 0 ? 1 : Math.ceil(this.count / 10);
+    },
+    isOperatorAdmin() {
+      return ['operator', 'admin'].includes(this.user.role);
     },
   },
 
