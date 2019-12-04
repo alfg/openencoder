@@ -87,6 +87,10 @@ Jobs API resource.
 | **POST** | [/api/jobs](#create-job) | Create encode job. |
 | **GET** | [/api/jobs](#list-jobs) | Get jobs list. |
 | **GET** | [/api/jobs/:job_id](#get-job) | Get job details. |
+| **GET** | [/api/jobs/:job_id/status](#get-job-status) | Get job status. |
+| **POST** | [/api/jobs/:job_id/cancel](#cancel-job) | Cancel job. |
+| **POST** | [/api/jobs/:job_id/restart](#restart-job) | Restart job. |
+
 
 ---
 
@@ -168,6 +172,58 @@ Content-Type: application/json
   "guid": "bkl9gbj5bidgus7kjoog",
   "preset": "h264_baseline_360p_600",
   "created_date": "2019-07-14t00:00:00z"
+}
+```
+
+---
+
+#### Get Job Status
+```
+GET /api/jobs/:job_id/status
+```
+
+##### Response
+```
+Content-Type: application/json
+```
+```json
+{
+  "status": 200,
+  "job_status": "encoding"
+}
+```
+
+---
+
+#### Cancel Job
+```
+POST /api/jobs/:job_id/cancel
+```
+
+##### Response
+```
+Content-Type: application/json
+```
+```json
+{
+  "status": 200,
+}
+```
+
+---
+
+#### Restart Job
+```
+POST /api/jobs/:job_id/restart
+```
+
+##### Response
+```
+Content-Type: application/json
+```
+```json
+{
+  "status": 200,
 }
 ```
 
