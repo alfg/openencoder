@@ -140,7 +140,7 @@ func getJobsByIDHandler(c *gin.Context) {
 	jobInt, _ := strconv.Atoi(id)
 
 	db := data.New()
-	job, err := db.Jobs.GetJobByID(jobInt)
+	job, err := db.Jobs.GetJobByID(int64(jobInt))
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{
 			"status":  http.StatusNotFound,
@@ -166,7 +166,7 @@ func updateJobByIDHandler(c *gin.Context) {
 	}
 
 	db := data.New()
-	job, err := db.Jobs.GetJobByID(id)
+	job, err := db.Jobs.GetJobByID(int64(id))
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{
 			"status":  http.StatusNotFound,
@@ -188,7 +188,7 @@ func getJobStatusByIDHandler(c *gin.Context) {
 
 	// Update status.
 	db := data.New()
-	status, _ := db.Jobs.GetJobStatusByID(id)
+	status, _ := db.Jobs.GetJobStatusByID(int64(id))
 
 	c.JSON(http.StatusOK, gin.H{
 		"status":     http.StatusOK,

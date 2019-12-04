@@ -4,7 +4,7 @@ import (
 	"bufio"
 	"bytes"
 	"encoding/json"
-	"fmt"
+	"errors"
 	"io"
 	"os/exec"
 	"strconv"
@@ -21,7 +21,9 @@ const (
 
 // FFmpeg struct.
 type FFmpeg struct {
-	Progress progress
+	Progress    progress
+	cmd         *exec.Cmd
+	isCancelled bool
 }
 
 type progress struct {
@@ -96,13 +98,13 @@ func (f *FFmpeg) Run(input string, output string, data string) error {
 
 	// Execute command.
 	log.Info("running FFmpeg with options: ", args)
-	cmd := exec.Command(ffmpegCmd, args...)
-	stdout, _ := cmd.StdoutPipe()
+	f.cmd = exec.Command(ffmpegCmd, args...)
+	stdout, _ := f.cmd.StdoutPipe()
 
 	// Capture stderr (if any).
 	var stderr bytes.Buffer
-	cmd.Stderr = &stderr
-	cmd.Start()
+	f.cmd.Stderr = &stderr
+	f.cmd.Start()
 
 	// Send progress updates.
 	go f.trackProgress()
@@ -110,9 +112,11 @@ func (f *FFmpeg) Run(input string, output string, data string) error {
 	// Update progress struct.
 	f.updateProgress(stdout)
 
-	err := cmd.Wait()
+	err := f.cmd.Wait()
 	if err != nil {
-		fmt.Println(stderr.String())
+		if f.isCancelled {
+			return errors.New("cancelled")
+		}
 		f.finish()
 		return err
 	}
@@ -185,6 +189,16 @@ func (f *FFmpeg) trackProgress() {
 			// fmt.Println(f.Progress)
 		}
 	}
+}
+
+// Cancel stops an FFmpeg job from running.
+func (f *FFmpeg) Cancel() {
+	log.Warn("killing ffmpeg process")
+	f.isCancelled = true
+	if err := f.cmd.Process.Kill(); err != nil {
+		log.Warn("failed to kill process: ", err)
+	}
+	log.Warn("killed ffmpeg process")
 }
 
 func (f *FFmpeg) finish() {

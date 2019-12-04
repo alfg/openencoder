@@ -9,9 +9,9 @@ import (
 // Jobs represents the Jobs database operations.
 type Jobs interface {
 	GetJobs(offset, count int) *[]types.Job
-	GetJobByID(id int) (*types.Job, error)
+	GetJobByID(id int64) (*types.Job, error)
 	GetJobByGUID(id string) (*types.Job, error)
-	GetJobStatusByID(id int) (string, error)
+	GetJobStatusByID(id int64) (string, error)
 	GetJobStatusByGUID(guid string) (string, error)
 	GetJobsCount() int
 	GetJobsStats() (*[]Stats, error)
@@ -55,7 +55,7 @@ func (j JobsOp) GetJobs(offset, count int) *[]types.Job {
 }
 
 // GetJobByID Gets a job by ID.
-func (j JobsOp) GetJobByID(id int) (*types.Job, error) {
+func (j JobsOp) GetJobByID(id int64) (*types.Job, error) {
 	const query = `
       SELECT
         jobs.*,
@@ -101,7 +101,7 @@ func (j JobsOp) GetJobByGUID(id string) (*types.Job, error) {
 }
 
 // GetJobStatusByID Gets a job status by GUID.
-func (j JobsOp) GetJobStatusByID(id int) (string, error) {
+func (j JobsOp) GetJobStatusByID(id int64) (string, error) {
 	var status string
 	const query = `
       SELECT

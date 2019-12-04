@@ -21,7 +21,7 @@ import (
 
 var progressCh chan struct{}
 
-const progressInterval = time.Second * 2
+const progressInterval = time.Second * 5
 const slackWebhookKey = "SLACK_WEBHOOK"
 
 func download(job types.Job) error {
@@ -90,20 +90,16 @@ func encode(job types.Job, probeData *encoder.FFProbeResponse) error {
 
 	// Get job data.
 	j, _ := db.Jobs.GetJobByGUID(job.GUID)
-	encodeID := j.EncodeDataID
 
 	// Run FFmpeg.
 	f := &encoder.FFmpeg{}
-	go trackEncodeProgress(encodeID, probeData, f)
+	go trackEncodeProgress(j.GUID, j.EncodeDataID, probeData, f)
 	err = f.Run(job.LocalSource, dest, p.Data)
 	if err != nil {
 		close(progressCh)
 		return err
 	}
 	close(progressCh)
-
-	// Set encode progress to 100.
-	db.Jobs.UpdateEncodeProgressByID(encodeID, 100)
 	return err
 }
 
@@ -201,6 +197,12 @@ func runEncodeJob(job types.Job) {
 	err = encode(job, probeData)
 	if err != nil {
 		log.Error(err)
+
+		// Set job to 'cancelled' if it was cancelled.
+		if err.Error() == types.JobCancelled {
+			db.Jobs.UpdateJobStatusByGUID(job.GUID, types.JobCancelled)
+			return
+		}
 		db.Jobs.UpdateJobStatusByGUID(job.GUID, types.JobError)
 		return
 	}
@@ -234,7 +236,7 @@ func runEncodeJob(job types.Job) {
 	}
 }
 
-func trackEncodeProgress(encodeID int64, p *encoder.FFProbeResponse, f *encoder.FFmpeg) {
+func trackEncodeProgress(guid string, encodeID int64, p *encoder.FFProbeResponse, f *encoder.FFmpeg) {
 	db := data.New()
 	progressCh = make(chan struct{})
 	ticker := time.NewTicker(progressInterval)
@@ -247,6 +249,12 @@ func trackEncodeProgress(encodeID int64, p *encoder.FFProbeResponse, f *encoder.
 		case <-ticker.C:
 			currentFrame := f.Progress.Frame
 			totalFrames, _ := strconv.Atoi(p.Streams[0].NbFrames)
+
+			// Check cancel.
+			status, _ := db.Jobs.GetJobStatusByGUID(guid)
+			if status == types.JobCancelled {
+				f.Cancel()
+			}
 
 			// Only track progress if we know the total frames.
 			if totalFrames != 0 {
