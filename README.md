@@ -30,7 +30,9 @@
 * Web Dashboard UI for managing encode jobs
 * Machines UI/API for scaling worker instances
 * Database stored FFmpeg encoding presets
-    
+
+## Preview
+![Screenshot](screenshot.png)    
 
 ## Develop
 
