@@ -49,7 +49,7 @@ func download(job types.Job) error {
 	close(progressCh)
 
 	// Set progress to 100.
-	db.Jobs.UpdateEncodeProgressByID(encodeID, 100)
+	db.Jobs.UpdateTransferProgressByID(encodeID, 100)
 	return err
 }
 
@@ -127,7 +127,7 @@ func upload(job types.Job) error {
 	close(progressCh)
 
 	// Set progress to 100.
-	db.Jobs.UpdateEncodeProgressByID(encodeID, 100)
+	db.Jobs.UpdateTransferProgressByID(encodeID, 100)
 	return err
 }
 
@@ -252,6 +252,8 @@ func trackEncodeProgress(guid string, encodeID int64, p *encoder.FFProbeResponse
 		case <-ticker.C:
 			currentFrame := f.Progress.Frame
 			totalFrames, _ := strconv.Atoi(p.Streams[0].NbFrames)
+			speed := f.Progress.Speed
+			fps := f.Progress.FPS
 
 			// Check cancel.
 			status, _ := db.Jobs.GetJobStatusByGUID(guid)
@@ -266,7 +268,7 @@ func trackEncodeProgress(guid string, encodeID int64, p *encoder.FFProbeResponse
 				// Update DB with progress.
 				pct = math.Round(pct*100) / 100
 				fmt.Printf("progress: %d / %d - %0.2f%%\r", currentFrame, totalFrames, pct)
-				db.Jobs.UpdateEncodeProgressByID(encodeID, pct)
+				db.Jobs.UpdateEncodeProgressByID(encodeID, pct, speed, fps)
 			}
 		}
 	}
@@ -284,7 +286,7 @@ func trackTransferProgress(encodeID int64, d *net.S3) {
 			return
 		case <-ticker.C:
 			fmt.Println("transfer progress: ", d.Progress.Progress)
-			db.Jobs.UpdateEncodeProgressByID(encodeID, float64(d.Progress.Progress))
+			db.Jobs.UpdateTransferProgressByID(encodeID, float64(d.Progress.Progress))
 		}
 	}
 }

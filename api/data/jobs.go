@@ -18,7 +18,8 @@ type Jobs interface {
 	CreateJob(job types.Job) *types.Job
 	CreateEncodeData(ed types.EncodeData) *types.EncodeData
 	UpdateEncodeDataByID(id int64, jsonString string) error
-	UpdateEncodeProgressByID(id int64, progress float64) error
+	UpdateTransferProgressByID(id int64, progress float64) error
+	UpdateEncodeProgressByID(id int64, progress float64, speed string, fps float64) error
 	UpdateJobByID(id int, job types.Job) *types.Job
 	UpdateJobStatusByID(id int, status string) error
 	UpdateJobStatusByGUID(guid string, status string) error
@@ -38,7 +39,9 @@ func (j JobsOp) GetJobs(offset, count int) *[]types.Job {
         jobs.*,
         encode.id "encode.id",
         encode.data "encode.data",
-        encode.progress "encode.progress"
+        encode.progress "encode.progress",
+        encode.speed "encode.speed",
+        encode.fps "encode.fps"
 	  FROM jobs
       LEFT JOIN encode ON jobs.id = encode.job_id
 	  ORDER BY id DESC
@@ -61,7 +64,9 @@ func (j JobsOp) GetJobByID(id int64) (*types.Job, error) {
         jobs.*,
         encode.id "encode.id",
         encode.data "encode.data",
-        encode.progress "encode.progress"
+        encode.progress "encode.progress",
+        encode.speed "encode.speed",
+        encode.fps "encode.fps"
       FROM jobs
       LEFT JOIN encode ON jobs.id = encode.job_id
       WHERE jobs.id = $1`
@@ -84,7 +89,9 @@ func (j JobsOp) GetJobByGUID(id string) (*types.Job, error) {
         jobs.*,
         encode.id "encode.id",
         encode.data "encode.data",
-        encode.progress "encode.progress"
+        encode.progress "encode.progress",
+        encode.speed "encode.speed",
+        encode.fps "encode.fps"
       FROM jobs
       LEFT JOIN encode ON jobs.id = encode.job_id
       WHERE jobs.guid = $1`
@@ -261,13 +268,33 @@ func (j JobsOp) UpdateEncodeDataByID(id int64, jsonString string) error {
 	return nil
 }
 
-// UpdateEncodeProgressByID Update progress by ID.
-func (j JobsOp) UpdateEncodeProgressByID(id int64, progress float64) error {
+// UpdateTransferProgressByID Update progress by ID.
+func (j JobsOp) UpdateTransferProgressByID(id int64, progress float64) error {
 	const query = `UPDATE encode SET progress = $1 WHERE id = $2`
 
 	db, _ := ConnectDB()
 	tx := db.MustBegin()
 	_, err := tx.Exec(query, progress, id)
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+	tx.Commit()
+
+	db.Close()
+	return nil
+}
+
+// UpdateEncodeProgressByID Update progress, speed, and fps by ID.
+func (j JobsOp) UpdateEncodeProgressByID(id int64, progress float64, speed string, fps float64) error {
+	const query = `
+        UPDATE encode
+        SET progress = $1, speed = $2, fps = $3
+        WHERE id = $4`
+
+	db, _ := ConnectDB()
+	tx := db.MustBegin()
+	_, err := tx.Exec(query, progress, speed, fps, id)
 	if err != nil {
 		fmt.Println(err)
 		return err

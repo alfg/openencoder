@@ -54,6 +54,8 @@ type EncodeData struct {
 	JobID        int64       `db:"job_id" json:"-"`
 	Data         NullString  `db:"data" json:"encode,omitempty"`
 	Progress     NullFloat64 `db:"progress" json:"progress,omitempty"`
+	Speed        NullString  `db:"speed" json:"speed"`
+	FPS          NullFloat64 `db:"fps" json:"fps"`
 }
 
 // NullString is an alias for sql.NullString data type
