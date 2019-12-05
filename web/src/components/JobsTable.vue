@@ -25,6 +25,11 @@
           :animated="data.value !== 100"
           :variant="data.value === 100 ? 'success' : 'primary'"
           show-progress></b-progress>
+        <p
+          class="text-monospace text-center"
+          style="font-size: 0.7em; margin: 0;"
+          v-if="(data.item.speed && data.item.fps) && data.item.status === 'encoding'"
+        >{{ data.item.speed }} @ {{ data.item.fps }} FPS</p>
       </template>
 
       <template v-slot:cell(details)="row">
@@ -104,7 +109,7 @@ export default {
   data() {
     return {
       fields: ['id', 'source', 'preset', 'created_date', 'status', 'progress', 'details', 'action'],
-      items: null,
+      items: [],
       count: 0,
       autoUpdate: true,
       user: auth.user,

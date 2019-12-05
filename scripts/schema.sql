@@ -27,21 +27,25 @@ create index jobs_status_index
 -- auto-generated definition
 create table encode
 (
-  id       serial not null
-    constraint encode_pkey
-    primary key,
-  data     json,
-  progress double precision default 0,
-  job_id   integer
-    constraint encode_jobs_id_fk
-    references jobs (id)
+    id       serial not null
+        constraint encode_pkey
+            primary key,
+    data     json,
+    progress double precision default 0,
+    job_id   integer
+        constraint encode_jobs_id_fk
+            references jobs (id),
+    speed    varchar(64),
+    fps      double precision default 0
 );
 
 alter table encode
-  owner to postgres;
+    owner to postgres;
 
 create unique index encode_id_uindex
-  on encode (id);
+    on encode (id);
+
+
 
 -- auto-generated definition
 create table users
