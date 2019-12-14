@@ -124,7 +124,6 @@ export default {
     },
 
     onClickShow() {
-      console.log('show');
       this.hide = !this.hide;
     },
   },
