@@ -16,7 +16,7 @@
       class="container mb-4"
       v-if="!$route.meta.hideNavigation">
       <b-nav tabs>
-        <b-nav-item to="/">Dashboard</b-nav-item>
+        <b-nav-item to="/status">Status</b-nav-item>
         <b-nav-item to="/jobs">Jobs</b-nav-item>
         <b-nav-item v-if="isOperatorAdmin" to="/encode">Encode</b-nav-item>
         <b-nav-item v-if="isOperatorAdmin" to="/queue">Queue</b-nav-item>
@@ -66,7 +66,7 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
 #app {
   font-family: 'Avenir', Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -74,7 +74,8 @@ export default {
   color: #2c3e50;
 }
 
-#app a.router-link-exact-active {
+#app a.router-link-exact-active,
+#app a.router-link-active {
   color: #495057;
   background-color: #fff;
   border-color: #dee2e6 #dee2e6 #fff;

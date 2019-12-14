@@ -1,5 +1,16 @@
 <template>
   <div id="status" class="container">
-    <h1>This is a status page</h1>
+    <Status />
   </div>
 </template>
+
+<script>
+import Status from '@/components/Status.vue';
+
+export default {
+  name: 'status',
+  components: {
+    Status,
+  },
+};
+</script>

@@ -2,15 +2,7 @@ import Vue from 'vue';
 import Router from 'vue-router';
 import VueResource from 'vue-resource';
 import BootstrapVue from 'bootstrap-vue';
-import Home from './views/Home.vue';
-import Jobs from './views/Jobs.vue';
-import Encode from './views/Encode.vue';
-import Queue from './views/Queue.vue';
-import Workers from './views/Workers.vue';
-import Machines from './views/Machines.vue';
-import Presets from './views/Presets.vue';
-import PresetsCreate from './views/PresetsCreate.vue';
-import Settings from './views/Settings.vue';
+import Status from './views/Status.vue';
 import Login from './views/Login.vue';
 import Register from './views/Register.vue';
 
@@ -31,56 +23,52 @@ export default new Router({
   routes: [
     {
       path: '/',
+      redirect: '/status',
+    },
+    {
+      path: '/status',
       name: 'home',
-      component: Home,
+      component: () => import(/* webpackChunkName: "status" */ './views/Status.vue'),
     },
     {
       path: '/jobs',
       name: 'jobs',
-      component: Jobs,
+      component: () => import(/* webpackChunkName: "jobs" */ './views/Jobs.vue'),
     },
     {
       path: '/encode',
       name: 'encode',
-      component: Encode,
+      component: () => import(/* webpackChunkName: "encode" */ './views/Encode.vue'),
     },
     {
       path: '/queue',
       name: 'queue',
-      component: Queue,
+      component: () => import(/* webpackChunkName: "queue" */ './views/Queue.vue'),
     },
     {
       path: '/workers',
       name: 'workers',
-      component: Workers,
+      component: () => import(/* webpackChunkName: "workers" */ './views/Workers.vue'),
     },
     {
       path: '/machines',
       name: 'machines',
-      component: Machines,
+      component: () => import(/* webpackChunkName: "machines" */ './views/Machines.vue'),
     },
     {
       path: '/presets',
       name: 'presets',
-      component: Presets,
+      component: () => import(/* webpackChunkName: "presets" */ './views/Presets.vue'),
     },
     {
       path: '/presets/create',
       name: 'presets-create',
-      component: PresetsCreate,
+      component: () => import(/* webpackChunkName: "presets" */ './views/PresetsCreate.vue'),
     },
     {
       path: '/settings',
       name: 'settings',
-      component: Settings,
-    },
-    {
-      path: '/status',
-      name: 'status',
-      // route level code-splitting
-      // this generates a separate chunk (about.[hash].js) for this route
-      // which is lazy-loaded when the route is visited.
-      component: () => import(/* webpackChunkName: "about" */ './views/Status.vue'),
+      component: () => import(/* webpackChunkName: "settings" */ './views/Settings.vue'),
     },
     {
       path: '/login',

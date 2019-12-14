@@ -1,5 +1,5 @@
 <template>
-  <div class="dashboard container">
+  <div class="status container">
     <b-card-group deck>
       <div
         v-for="(o, i) in stats.jobs"
@@ -27,7 +27,7 @@ const UPDATE_INTERVAL = 5000;
 let intervalId;
 
 export default {
-  name: 'dashboard',
+  name: 'status',
 
   data() {
     return {
