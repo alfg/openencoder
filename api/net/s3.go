@@ -1,7 +1,6 @@
 package net
 
 import (
-	"fmt"
 	"net/url"
 	"os"
 	"path"
@@ -52,8 +51,6 @@ type progress struct {
 // NewS3 creates a new S3 instance.
 func NewS3(accessKey, secretKey, provider, region, inboundBucket, outboundBucket string) *S3 {
 	endpoint := getEndpoint(provider, region)
-
-	fmt.Println(endpoint, provider, region)
 
 	return &S3{
 		AccessKey:      accessKey,

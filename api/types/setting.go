@@ -2,8 +2,8 @@ package types
 
 // Settings types.
 const (
-	AWSAccessKey            = "AWS_ACCESS_KEY"
-	AWSSecretKey            = "AWS_SECRET_KEY"
+	S3AccessKey             = "S3_ACCESS_KEY"
+	S3SecretKey             = "S3_SECRET_KEY"
 	DigitalOceanAccessToken = "DIGITAL_OCEAN_ACCESS_TOKEN"
 	SlackWebhook            = "SLACK_WEBHOOK"
 	S3InboundBucket         = "S3_INBOUND_BUCKET"

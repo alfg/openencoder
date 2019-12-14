@@ -9,8 +9,8 @@ import (
 )
 
 type settingsUpdateRequest struct {
-	AWSAccessKey            string `json:"AWS_ACCESS_KEY"`
-	AWSSecretKey            string `json:"AWS_SECRET_KEY"`
+	S3AccessKey             string `json:"S3_ACCESS_KEY"`
+	S3SecretKey             string `json:"S3_SECRET_KEY"`
 	DigitalOceanAccessToken string `json:"DIGITAL_OCEAN_ACCESS_TOKEN"`
 	SlackWebhook            string `json:"SLACK_WEBHOOK"`
 	S3InboundBucket         string `json:"S3_INBOUND_BUCKET"`
@@ -74,8 +74,8 @@ func updateSettingsHandler(c *gin.Context) {
 	}
 
 	s := map[string]string{
-		types.AWSAccessKey:            json.AWSAccessKey,
-		types.AWSSecretKey:            json.AWSSecretKey,
+		types.S3AccessKey:             json.S3AccessKey,
+		types.S3SecretKey:             json.S3SecretKey,
 		types.DigitalOceanAccessToken: json.DigitalOceanAccessToken,
 		types.SlackWebhook:            json.SlackWebhook,
 		types.S3InboundBucket:         json.S3InboundBucket,

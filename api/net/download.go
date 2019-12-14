@@ -13,8 +13,8 @@ func GetDownloader() *S3 {
 
 	// Get credentials from settings.
 	db := data.New()
-	ak := db.Settings.GetSetting("AWS_ACCESS_KEY").Value
-	sk := db.Settings.GetSetting("AWS_SECRET_KEY").Value
+	ak := db.Settings.GetSetting("S3_ACCESS_KEY").Value
+	sk := db.Settings.GetSetting("S3_SECRET_KEY").Value
 	pv := db.Settings.GetSetting("S3_PROVIDER").Value
 	rg := db.Settings.GetSetting("S3_INBOUND_BUCKET_REGION").Value
 	ib := db.Settings.GetSetting("S3_INBOUND_BUCKET").Value
