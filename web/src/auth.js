@@ -31,7 +31,7 @@ export default {
   },
 
   register(context, creds, redirect) {
-    context.$http.post(REGISTER_URL, creds).then((data) => {
+    context.$http.post(REGISTER_URL, creds).then(() => {
       // TODO: Authenticate after registration?
       // cookie.set('token', data.body.token);
       // store.setTokenAction(data.body.token);
