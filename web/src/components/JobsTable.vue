@@ -127,13 +127,13 @@ export default {
   },
 
   mounted() {
-    const page = this.$route.query.page || 0;
+    let page = this.$route.query.page || 0;
     this.getJobs(page);
 
     // Start auto-update interval.
     intervalId = setInterval(() => {
       if (this.autoUpdate) {
-        const page = this.$route.query.page || 0;
+        page = this.$route.query.page || 0;
         this.getJobs(page);
       }
     }, UPDATE_INTERVAL);

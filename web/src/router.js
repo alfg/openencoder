@@ -2,7 +2,6 @@ import Vue from 'vue';
 import Router from 'vue-router';
 import VueResource from 'vue-resource';
 import BootstrapVue from 'bootstrap-vue';
-import Status from './views/Status.vue';
 import Login from './views/Login.vue';
 import Register from './views/Register.vue';
 
