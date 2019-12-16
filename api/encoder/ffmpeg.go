@@ -76,31 +76,9 @@ type audioOptions struct {
 
 // Run runs the ffmpeg encoder with options.
 func (f *FFmpeg) Run(input, output, data string) error {
-	// args := []string{
-	// 	"-hide_banner",
-	// 	"-loglevel", "error", // Set loglevel to fail job on errors.
-	// 	"-progress", "pipe:1",
-	// 	"-i", input,
-	// }
-
-	args := []string{}
-
-	// Decode JSON get options list from data.
-	// options := &ffmpegOptions{}
-	// if err := json.Unmarshal([]byte(data), &options); err != nil {
-	// 	panic(err)
-	// }
 
 	// Parse options and add to args slice.
-	args = append(args, parseOptions(input, output, data)...)
-
-	// // Add the list of raw options from ffmpeg presets.
-	// for _, v := range options.Raw {
-	// 	args = append(args, strings.Split(v, " ")...)
-	// }
-
-	// Add output as last argument.
-	// args = append(args, output)
+	args := parseOptions(input, output, data)
 
 	// Execute command.
 	log.Info("running FFmpeg with options: ", args)
@@ -237,6 +215,8 @@ func parseOptions(input, output, data string) []string {
 
 	// Set options from struct.
 	args = append(args, transformOptions(options)...)
+
+	// Add output arg last.
 	args = append(args, output)
 	return args
 }
@@ -254,20 +234,20 @@ func transformOptions(opt *ffmpegOptions) []string {
 
 	// Video codec.
 	if opt.Video.Codec != "" {
-		arg := strings.Join([]string{"-c:v", opt.Video.Codec}, " ")
-		args = append(args, arg)
+		arg := []string{"-c:v", opt.Video.Codec}
+		args = append(args, arg...)
 	}
 
 	// Audio codec.
 	if opt.Audio.Codec != "" {
-		arg := strings.Join([]string{"-c:a", opt.Audio.Codec}, " ")
-		args = append(args, arg)
+		arg := []string{"-c:a", opt.Audio.Codec}
+		args = append(args, arg...)
 	}
 
 	// Video preset.
 	if opt.Video.Preset != "" && opt.Video.Preset != "none" {
-		arg := strings.Join([]string{"-preset", opt.Video.Preset}, " ")
-		args = append(args, arg)
+		arg := []string{"-preset", opt.Video.Preset}
+		args = append(args, arg...)
 	}
 
 	// Hardware Acceleration.
@@ -281,69 +261,69 @@ func transformOptions(opt *ffmpegOptions) []string {
 			}
 		}
 	} else if opt.Video.HardwareAcceleration != "off" {
-		arg := strings.Join([]string{"-hwaccel", opt.Video.HardwareAcceleration}, " ")
-		args = append(args, arg)
+		arg := []string{"-hwaccel", opt.Video.HardwareAcceleration}
+		args = append(args, arg...)
 	}
 
 	// CRF.
 	if opt.Video.Crf != 0 && opt.Video.Pass == "crf" {
 		crf := strconv.Itoa(opt.Video.Crf)
-		arg := strings.Join([]string{"-crf", crf}, " ")
-		args = append(args, arg)
+		arg := []string{"-crf", crf}
+		args = append(args, arg...)
 	}
 
 	// Bitrate.
 	if opt.Video.Bitrate != "" && opt.Video.Bitrate != "0" {
-		arg := strings.Join([]string{"-b:v", opt.Video.Bitrate}, " ")
-		args = append(args, arg)
+		arg := []string{"-b:v", opt.Video.Bitrate}
+		args = append(args, arg...)
 	}
 
 	// Minrate.
 	if opt.Video.MinRate != "" && opt.Video.MinRate != "0" {
-		arg := strings.Join([]string{"-minrate", opt.Video.MinRate}, " ")
-		args = append(args, arg)
+		arg := []string{"-minrate", opt.Video.MinRate}
+		args = append(args, arg...)
 	}
 
 	// Maxrate.
 	if opt.Video.MaxRate != "" && opt.Video.MaxRate != "0" {
-		arg := strings.Join([]string{"-maxrate", opt.Video.MaxRate}, " ")
-		args = append(args, arg)
+		arg := []string{"-maxrate", opt.Video.MaxRate}
+		args = append(args, arg...)
 	}
 
 	// Buffer Size.
 	if opt.Video.BufSize != "" && opt.Video.BufSize != "0" {
-		arg := strings.Join([]string{"-bufsize", opt.Video.BufSize}, " ")
-		args = append(args, arg)
+		arg := []string{"-bufsize", opt.Video.BufSize}
+		args = append(args, arg...)
 	}
 
 	// Pixel Format.
 	if opt.Video.PixelFormat != "" && opt.Video.PixelFormat != "auto" {
-		arg := strings.Join([]string{"-pix_fmt", opt.Video.PixelFormat}, " ")
-		args = append(args, arg)
+		arg := []string{"-pix_fmt", opt.Video.PixelFormat}
+		args = append(args, arg...)
 	}
 
 	// Frame Rate.
 	if opt.Video.FrameRate != "" && opt.Video.PixelFormat != "auto" {
-		arg := strings.Join([]string{"-r", opt.Video.FrameRate}, " ")
-		args = append(args, arg)
+		arg := []string{"-r", opt.Video.FrameRate}
+		args = append(args, arg...)
 	}
 
 	// Tune.
 	if opt.Video.Tune != "" && opt.Video.Tune != "none" {
-		arg := strings.Join([]string{"-tune", opt.Video.Tune}, " ")
-		args = append(args, arg)
+		arg := []string{"-tune", opt.Video.Tune}
+		args = append(args, arg...)
 	}
 
 	// Profile.
 	if opt.Video.Profile != "" && opt.Video.Profile != "none" {
-		arg := strings.Join([]string{"-profile:v", opt.Video.Profile}, " ")
-		args = append(args, arg)
+		arg := []string{"-profile:v", opt.Video.Profile}
+		args = append(args, arg...)
 	}
 
 	// Level.
 	if opt.Video.Level != "" && opt.Video.Level != "none" {
-		arg := strings.Join([]string{"-level", opt.Video.Level}, " ")
-		args = append(args, arg)
+		arg := []string{"-level", opt.Video.Level}
+		args = append(args, arg...)
 	}
 
 	// Video Filters.
