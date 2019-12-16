@@ -48,7 +48,7 @@ export default {
   methods: {
     onSubmit(event) {
       event.preventDefault();
-      auth.login(this, this.form, 'home');
+      auth.login(this, this.form, '/');
     },
   },
 };

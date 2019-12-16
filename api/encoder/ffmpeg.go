@@ -42,61 +42,65 @@ type progress struct {
 
 // ffmpegOptions struct passed into Ffmpeg.Run.
 type ffmpegOptions struct {
-	OptionsRaw []string `json:"options_raw"` // Flag options.
+	Input  string
+	Output string
 
-	// FFmpeg commander options.
-	// TODO: FFmpeg.Run shouold parse and run with struct options.
-	// Currently only supports raw options.
-	Video videoOptions
-	Audio audioOptions
+	Container string       `json:"container"`
+	Video     videoOptions `json:"video"`
+	Audio     audioOptions `json:"audio"`
+
+	Raw []string `json:"raw"` // Raw flag options.
 }
 
 type videoOptions struct {
-	Input                string
-	Output               string
-	Container            string
-	VideoCodec           string
-	VideoSpeed           string
-	AudioCodec           string
-	HardwareAcceleration string
-	Pass                 string
-	Crf                  int
-	Bitrate              string
-	MinRate              string
-	MaxRate              string
-	BufSize              string
-	PixelFormat          string
-	FrameRate            string
-	Speed                string
-	Tune                 string
-	Profile              string
-	Level                string
+	Codec                string `json:"codec"`
+	Preset               string `json:"preset"`
+	HardwareAcceleration string `json:"hardware_acceleration_option"`
+	Pass                 string `json:"pass"`
+	Crf                  int    `json:"crf"`
+	Bitrate              string `json:"bitrate"`
+	MinRate              string `json:"minrate"`
+	MaxRate              string `json:"maxrate"`
+	BufSize              string `json:"bufsize"`
+	PixelFormat          string `json:"pixel_format"`
+	FrameRate            string `json:"frame_rate"`
+	Speed                string `json:"speed"`
+	Tune                 string `json:"tune"`
+	Profile              string `json:"profile"`
+	Level                string `json:"level"`
 }
 
 type audioOptions struct {
-	AudioCodec string
+	Codec string
 }
 
 // Run runs the ffmpeg encoder with options.
-func (f *FFmpeg) Run(input string, output string, data string) error {
-	args := []string{
-		"-hide_banner",
-		"-loglevel", "error", // Set loglevel to fail job on errors.
-		"-progress", "pipe:1",
-		"-i", input,
-	}
+func (f *FFmpeg) Run(input, output, data string) error {
+	// args := []string{
+	// 	"-hide_banner",
+	// 	"-loglevel", "error", // Set loglevel to fail job on errors.
+	// 	"-progress", "pipe:1",
+	// 	"-i", input,
+	// }
+
+	args := []string{}
 
 	// Decode JSON get options list from data.
-	options := &ffmpegOptions{}
-	if err := json.Unmarshal([]byte(data), &options); err != nil {
-		panic(err)
-	}
+	// options := &ffmpegOptions{}
+	// if err := json.Unmarshal([]byte(data), &options); err != nil {
+	// 	panic(err)
+	// }
 
-	// Add the list of options from ffmpeg presets.
-	for _, v := range options.OptionsRaw {
-		args = append(args, strings.Split(v, " ")...)
-	}
-	args = append(args, output)
+	// Parse options and add to args slice.
+	args = append(args, parseOptions(input, output, data)...)
+
+	// // Add the list of raw options from ffmpeg presets.
+	// for _, v := range options.Raw {
+	// 	args = append(args, strings.Split(v, " ")...)
+	// }
+
+	// Add output as last argument.
+	// args = append(args, output)
 
 	// Execute command.
 	log.Info("running FFmpeg with options: ", args)
@@ -124,6 +128,16 @@ func (f *FFmpeg) Run(input string, output string, data string) error {
 	}
 	f.finish()
 	return nil
+}
+
+// Cancel stops an FFmpeg job from running.
+func (f *FFmpeg) Cancel() {
+	log.Warn("killing ffmpeg process")
+	f.isCancelled = true
+	if err := f.cmd.Process.Kill(); err != nil {
+		log.Warn("failed to kill process: ", err)
+	}
+	log.Warn("killed ffmpeg process")
 }
 
 func (f *FFmpeg) updateProgress(stdout io.ReadCloser) {
@@ -193,16 +207,164 @@ func (f *FFmpeg) trackProgress() {
 	}
 }
 
-// Cancel stops an FFmpeg job from running.
-func (f *FFmpeg) Cancel() {
-	log.Warn("killing ffmpeg process")
-	f.isCancelled = true
-	if err := f.cmd.Process.Kill(); err != nil {
-		log.Warn("failed to kill process: ", err)
-	}
-	log.Warn("killed ffmpeg process")
-}
-
 func (f *FFmpeg) finish() {
 	close(f.Progress.quit)
+}
+
+// Utilities for parsing ffmpeg options.
+func parseOptions(input, output, data string) []string {
+	args := []string{
+		"-hide_banner",
+		"-loglevel", "error", // Set loglevel to fail job on errors.
+		"-progress", "pipe:1",
+		"-i", input,
+	}
+
+	// Decode JSON get options list from data.
+	options := &ffmpegOptions{}
+	if err := json.Unmarshal([]byte(data), &options); err != nil {
+		panic(err)
+	}
+
+	// If raw options provided, add the list of raw options from ffmpeg presets.
+	if len(options.Raw) > 0 {
+		for _, v := range options.Raw {
+			args = append(args, strings.Split(v, " ")...)
+		}
+		args = append(args, output)
+		return args
+	}
+
+	// Set options from struct.
+	args = append(args, transformOptions(options)...)
+	args = append(args, output)
+	return args
+}
+
+// transformOptions converts the ffmpegOptions{} struct and converts into
+// a slice of ffmpeg options to be passed to exec.Command arguments.
+//
+// NOTE: There is probably a better way of iterating the struct fields and values
+// using reflect, but there are some tricky ffmpeg options here, such as video filters.
+// TODO: Look into refactor using reflect. Example:
+//   fields := reflect.TypeOf(opt)
+//   values := reflect.ValueOf(opt)
+func transformOptions(opt *ffmpegOptions) []string {
+	args := []string{}
+
+	// Video codec.
+	if opt.Video.Codec != "" {
+		arg := strings.Join([]string{"-c:v", opt.Video.Codec}, " ")
+		args = append(args, arg)
+	}
+
+	// Audio codec.
+	if opt.Audio.Codec != "" {
+		arg := strings.Join([]string{"-c:a", opt.Audio.Codec}, " ")
+		args = append(args, arg)
+	}
+
+	// Video preset.
+	if opt.Video.Preset != "" && opt.Video.Preset != "none" {
+		arg := strings.Join([]string{"-preset", opt.Video.Preset}, " ")
+		args = append(args, arg)
+	}
+
+	// Hardware Acceleration.
+	if opt.Video.HardwareAcceleration == "nvenc" {
+		// Replace encoder with NVidia hardware accelerated encoder.
+		for i := 0; i < len(args); i++ {
+			if args[i] == "libx264" {
+				args[i] = "h264_nvenc"
+			} else if args[i] == "libx265" {
+				args[i] = "hevc_nvenc"
+			}
+		}
+	} else if opt.Video.HardwareAcceleration != "off" {
+		arg := strings.Join([]string{"-hwaccel", opt.Video.HardwareAcceleration}, " ")
+		args = append(args, arg)
+	}
+
+	// CRF.
+	if opt.Video.Crf != 0 && opt.Video.Pass == "crf" {
+		crf := strconv.Itoa(opt.Video.Crf)
+		arg := strings.Join([]string{"-crf", crf}, " ")
+		args = append(args, arg)
+	}
+
+	// Bitrate.
+	if opt.Video.Bitrate != "" && opt.Video.Bitrate != "0" {
+		arg := strings.Join([]string{"-b:v", opt.Video.Bitrate}, " ")
+		args = append(args, arg)
+	}
+
+	// Minrate.
+	if opt.Video.MinRate != "" && opt.Video.MinRate != "0" {
+		arg := strings.Join([]string{"-minrate", opt.Video.MinRate}, " ")
+		args = append(args, arg)
+	}
+
+	// Maxrate.
+	if opt.Video.MaxRate != "" && opt.Video.MaxRate != "0" {
+		arg := strings.Join([]string{"-maxrate", opt.Video.MaxRate}, " ")
+		args = append(args, arg)
+	}
+
+	// Buffer Size.
+	if opt.Video.BufSize != "" && opt.Video.BufSize != "0" {
+		arg := strings.Join([]string{"-bufsize", opt.Video.BufSize}, " ")
+		args = append(args, arg)
+	}
+
+	// Pixel Format.
+	if opt.Video.PixelFormat != "" && opt.Video.PixelFormat != "auto" {
+		arg := strings.Join([]string{"-pix_fmt", opt.Video.PixelFormat}, " ")
+		args = append(args, arg)
+	}
+
+	// Frame Rate.
+	if opt.Video.FrameRate != "" && opt.Video.PixelFormat != "auto" {
+		arg := strings.Join([]string{"-r", opt.Video.FrameRate}, " ")
+		args = append(args, arg)
+	}
+
+	// Tune.
+	if opt.Video.Tune != "" && opt.Video.Tune != "none" {
+		arg := strings.Join([]string{"-tune", opt.Video.Tune}, " ")
+		args = append(args, arg)
+	}
+
+	// Profile.
+	if opt.Video.Profile != "" && opt.Video.Profile != "none" {
+		arg := strings.Join([]string{"-profile:v", opt.Video.Profile}, " ")
+		args = append(args, arg)
+	}
+
+	// Level.
+	if opt.Video.Level != "" && opt.Video.Level != "none" {
+		arg := strings.Join([]string{"-level", opt.Video.Level}, " ")
+		args = append(args, arg)
+	}
+
+	// Video Filters.
+	vf := []string{"-vf", "\""}
+
+	// Speed.
+	if opt.Video.Speed != "" && opt.Video.Speed != "auto" {
+		arg := "setpts=" + opt.Video.Speed
+		vf = append(vf, arg)
+	}
+
+	vf = append(vf, "\"") // End of video filters.
+
+	// Only push -vf flag if there are video filter arguments.
+	if len(vf) > 3 {
+		args = append(args, vf...)
+	}
+
+	extra := []string{
+		"-y",
+	}
+	args = append(args, extra...)
+	return args
 }

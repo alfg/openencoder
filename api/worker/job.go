@@ -162,7 +162,7 @@ func sendAlert(job types.Job) error {
 			"*Preset*: %s\n"+
 			"*Source*: %s\n"+
 			"*Destination*: %s\n\n",
-		job.GUID, job.Preset, job.Source, job.Destination)
+		job.GUID, job.Preset, job.Source.String, job.Destination.String)
 	err := notify.SendSlackMessage(webhook, message)
 	if err != nil {
 		return err
