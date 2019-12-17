@@ -45,7 +45,7 @@
       </b-form-group>
 
       <div class="mb-4">
-        <b-alert show variant="info">FFmpeg presets follow the <a href="https://alfg.github.io/ffmpeg-commander">ffmpeg-commander</a> JSON format.</b-alert>
+        <b-alert show variant="info">FFmpeg presets follow the <a href="https://alfg.github.io/ffmpeg-commander">ffmpeg-commander</a> JSON format. See documentation for details.</b-alert>
         <div ref="editor"></div>
       </div>
 

@@ -74,7 +74,20 @@
                 <b-form-textarea
                   rows="3"
                   max-rows="6"
-                  :value="row.item.encode"
+                  :value="row.item.probe"
+                ></b-form-textarea>
+              </div>
+            </b-col>
+          </b-row>
+
+          <b-row class="mb-2">
+            <b-col sm="2" class="text-sm-right"><b>Encode Options:</b></b-col>
+            <b-col>
+              <div class="code">
+                <b-form-textarea
+                  rows="3"
+                  max-rows="6"
+                  :value="row.item.options"
                 ></b-form-textarea>
               </div>
             </b-col>
