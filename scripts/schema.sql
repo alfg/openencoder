@@ -37,7 +37,7 @@ create table encode
             references jobs (id),
     speed    varchar(64),
     fps      double precision default 0,
-    options  varchar(1024)
+    options  json
 );
 
 alter table encode
