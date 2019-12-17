@@ -33,8 +33,8 @@
       </b-form-group>
 
       <div class="mb-4">
-        <b-alert show variant="info">FFmpeg presets follow the <a href="https://alfg.github.io/ffmpeg-commander">ffmpeg-commander</a> JSON format.</b-alert>
-        <div ref="editor"></div>
+        <b-alert show variant="info">FFmpeg presets follow the <a href="https://alfg.github.io/ffmpeg-commander">ffmpeg-commander</a> JSON format. See documentation for details.</b-alert>
+        <div ref="editor" class="editor"></div>
       </div>
 
       <b-button type="submit" variant="primary">Create</b-button>
@@ -57,6 +57,34 @@
 import JSONEditor from 'jsoneditor';
 import 'jsoneditor/dist/jsoneditor.min.css';
 import auth from '../auth';
+
+const tmpl = `
+{
+  "input": "tears-of-steel.mp4",
+  "output": "tears-of-steel.out.mp4",
+  "container": "mp4",
+  "video": {
+    "codec": "x264",
+    "preset": "none",
+    "hardware_acceleration_option": "off",
+    "pass": "1",
+    "crf": 23,
+    "bitrate": "3000k",
+    "minrate": "3000k",
+    "maxrate": "3000k",
+    "bufsize": "3000k",
+    "pixel_format": "auto",
+    "frame_rate": "auto",
+    "speed": "auto",
+    "tune": "none",
+    "profile": "none",
+    "level": "none"
+  },
+  "audio": {
+    "codec": "copy"
+  }
+}
+`;
 
 export default {
   data() {
@@ -85,9 +113,7 @@ export default {
       modes: ['code', 'text', 'tree', 'preview'],
     };
     this.editor = new JSONEditor(container, options);
-    this.editor.set({
-      options: ['-y'],
-    });
+    this.editor.set(JSON.parse(tmpl));
   },
 
   destroyed() {
@@ -135,3 +161,9 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+.editor {
+  height: 50vh;
+}
+</style>

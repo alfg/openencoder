@@ -70,7 +70,7 @@ func probe(job types.Job) (*encoder.FFProbeResponse, error) {
 		log.Error(err)
 	}
 	j, _ := db.Jobs.GetJobByGUID(job.GUID)
-	db.Jobs.UpdateEncodeDataByID(j.EncodeDataID, string(b))
+	db.Jobs.UpdateEncodeProbeByID(j.EncodeDataID, string(b))
 
 	return probeData, nil
 }
@@ -90,6 +90,9 @@ func encode(job types.Job, probeData *encoder.FFProbeResponse) error {
 
 	// Get job data.
 	j, _ := db.Jobs.GetJobByGUID(job.GUID)
+
+	// Update encode options in DB.
+	db.Jobs.UpdateEncodeOptionsByID(j.EncodeDataID, p.Data)
 
 	// Run FFmpeg.
 	f := &encoder.FFmpeg{}
@@ -162,7 +165,7 @@ func sendAlert(job types.Job) error {
 			"*Preset*: %s\n"+
 			"*Source*: %s\n"+
 			"*Destination*: %s\n\n",
-		job.GUID, job.Preset, job.Source, job.Destination)
+		job.GUID, job.Preset, job.Source.String, job.Destination.String)
 	err := notify.SendSlackMessage(webhook, message)
 	if err != nil {
 		return err
