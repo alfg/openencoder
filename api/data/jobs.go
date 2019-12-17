@@ -16,8 +16,9 @@ type Jobs interface {
 	GetJobsCount() int
 	GetJobsStats() (*[]Stats, error)
 	CreateJob(job types.Job) *types.Job
-	CreateEncodeData(ed types.EncodeData) *types.EncodeData
-	UpdateEncodeDataByID(id int64, jsonString string) error
+	CreateEncode(ed types.Encode) *types.Encode
+	UpdateEncodeProbeByID(id int64, jsonString string) error
+	UpdateEncodeOptionsByID(id int64, options string) error
 	UpdateTransferProgressByID(id int64, progress float64) error
 	UpdateEncodeProgressByID(id int64, progress float64, speed string, fps float64) error
 	UpdateJobByID(id int, job types.Job) *types.Job
@@ -38,7 +39,8 @@ func (j JobsOp) GetJobs(offset, count int) *[]types.Job {
 	  SELECT
         jobs.*,
         encode.id "encode.id",
-        encode.data "encode.data",
+        encode.probe "encode.probe",
+        encode.options "encode.options",
         encode.progress "encode.progress",
         encode.speed "encode.speed",
         encode.fps "encode.fps"
@@ -63,7 +65,8 @@ func (j JobsOp) GetJobByID(id int64) (*types.Job, error) {
       SELECT
         jobs.*,
         encode.id "encode.id",
-        encode.data "encode.data",
+        encode.probe "encode.probe",
+        encode.options "encode.options",
         encode.progress "encode.progress",
         encode.speed "encode.speed",
         encode.fps "encode.fps"
@@ -88,7 +91,8 @@ func (j JobsOp) GetJobByGUID(id string) (*types.Job, error) {
       SELECT
         jobs.*,
         encode.id "encode.id",
-        encode.data "encode.data",
+        encode.probe "encode.probe",
+        encode.options "encode.options",
         encode.progress "encode.progress",
         encode.speed "encode.speed",
         encode.fps "encode.fps"
@@ -222,12 +226,12 @@ func (j JobsOp) CreateJob(job types.Job) *types.Job {
 	return &job
 }
 
-// CreateEncodeData creates encode in database.
-func (j JobsOp) CreateEncodeData(ed types.EncodeData) *types.EncodeData {
+// CreateEncode creates encode in database.
+func (j JobsOp) CreateEncode(ed types.Encode) *types.Encode {
 	const query = `
       INSERT INTO
-        encode (data,progress,job_id)
-      VALUES (:data,:progress,:job_id)
+        encode (probe,options,progress,job_id)
+      VALUES (:probe,:options,:progress,:job_id)
       RETURNING id`
 
 	db, _ := ConnectDB()
@@ -251,13 +255,30 @@ func (j JobsOp) CreateEncodeData(ed types.EncodeData) *types.EncodeData {
 	return &ed
 }
 
-// UpdateEncodeDataByID Update encode by ID.
-func (j JobsOp) UpdateEncodeDataByID(id int64, jsonString string) error {
-	const query = `UPDATE encode SET data = $1 WHERE id = $2`
+// UpdateEncodeProbeByID Update encode probe by ID.
+func (j JobsOp) UpdateEncodeProbeByID(id int64, jsonString string) error {
+	const query = `UPDATE encode SET probe = $1 WHERE id = $2`
 
 	db, _ := ConnectDB()
 	tx := db.MustBegin()
 	_, err := tx.Exec(query, jsonString, id)
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+	tx.Commit()
+
+	db.Close()
+	return nil
+}
+
+// UpdateEncodeOptionsByID Update encode options by ID.
+func (j JobsOp) UpdateEncodeOptionsByID(id int64, options string) error {
+	const query = `UPDATE encode SET options = $1 WHERE id = $2`
+
+	db, _ := ConnectDB()
+	tx := db.MustBegin()
+	_, err := tx.Exec(query, options, id)
 	if err != nil {
 		fmt.Println(err)
 		return err
