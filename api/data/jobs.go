@@ -249,7 +249,7 @@ func (j JobsOp) CreateEncode(ed types.Encode) *types.Encode {
 	tx.Commit()
 
 	// Set to Job type response.
-	ed.EncodeDataID = id
+	ed.EncodeID = id
 
 	db.Close()
 	return &ed

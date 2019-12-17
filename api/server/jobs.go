@@ -99,13 +99,13 @@ func createJobHandler(c *gin.Context) {
 		},
 		Options: types.NullString{
 			NullString: sql.NullString{
-				String: "",
+				String: "{}",
 				Valid:  true,
 			},
 		},
 	}
 	edCreated := db.Jobs.CreateEncode(ed)
-	created.EncodeDataID = edCreated.EncodeDataID
+	created.EncodeID = edCreated.EncodeID
 
 	// Create response.
 	resp := response{

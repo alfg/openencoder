@@ -33,7 +33,7 @@ func download(job types.Job) error {
 
 	// Get job data.
 	j, _ := db.Jobs.GetJobByGUID(job.GUID)
-	encodeID := j.EncodeDataID
+	encodeID := j.EncodeID
 
 	// Get downloader type.
 	d := net.GetDownloader()
@@ -70,7 +70,7 @@ func probe(job types.Job) (*encoder.FFProbeResponse, error) {
 		log.Error(err)
 	}
 	j, _ := db.Jobs.GetJobByGUID(job.GUID)
-	db.Jobs.UpdateEncodeProbeByID(j.EncodeDataID, string(b))
+	db.Jobs.UpdateEncodeProbeByID(j.EncodeID, string(b))
 
 	return probeData, nil
 }
@@ -92,11 +92,11 @@ func encode(job types.Job, probeData *encoder.FFProbeResponse) error {
 	j, _ := db.Jobs.GetJobByGUID(job.GUID)
 
 	// Update encode options in DB.
-	db.Jobs.UpdateEncodeOptionsByID(j.EncodeDataID, p.Data)
+	db.Jobs.UpdateEncodeOptionsByID(j.EncodeID, p.Data)
 
 	// Run FFmpeg.
 	f := &encoder.FFmpeg{}
-	go trackEncodeProgress(j.GUID, j.EncodeDataID, probeData, f)
+	go trackEncodeProgress(j.GUID, j.EncodeID, probeData, f)
 	err = f.Run(job.LocalSource, dest, p.Data)
 	if err != nil {
 		close(progressCh)
@@ -115,7 +115,7 @@ func upload(job types.Job) error {
 
 	// Get job data.
 	j, _ := db.Jobs.GetJobByGUID(job.GUID)
-	encodeID := j.EncodeDataID
+	encodeID := j.EncodeID
 
 	d := net.GetUploader()
 

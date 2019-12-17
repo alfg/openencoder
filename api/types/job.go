@@ -50,13 +50,13 @@ type Job struct {
 
 // Encode describes the encode data.
 type Encode struct {
-	EncodeDataID int64       `db:"id" json:"-"`
-	JobID        int64       `db:"job_id" json:"-"`
-	Probe        NullString  `db:"probe" json:"probe,omitempty"`
-	Options      NullString  `db:"options" json:"options,omitempty"`
-	Progress     NullFloat64 `db:"progress" json:"progress,omitempty"`
-	Speed        NullString  `db:"speed" json:"speed"`
-	FPS          NullFloat64 `db:"fps" json:"fps"`
+	EncodeID int64       `db:"id" json:"-"`
+	JobID    int64       `db:"job_id" json:"-"`
+	Probe    NullString  `db:"probe" json:"probe,omitempty"`
+	Options  NullString  `db:"options" json:"options,omitempty"`
+	Progress NullFloat64 `db:"progress" json:"progress,omitempty"`
+	Speed    NullString  `db:"speed" json:"speed"`
+	FPS      NullFloat64 `db:"fps" json:"fps"`
 }
 
 // NullString is an alias for sql.NullString data type
