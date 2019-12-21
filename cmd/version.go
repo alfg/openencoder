@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/spf13/cobra"
 )
@@ -14,6 +15,6 @@ var versionCmd = &cobra.Command{
 	Use:   "version",
 	Short: " Print the version.",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("Version 0.1.0")
+		fmt.Println(os.Getenv("VERSION"))
 	},
 }

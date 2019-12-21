@@ -38,5 +38,7 @@ services:
       - 5432:5432
     environment:
       POSTGRES_PASSWORD: 'postgres'
+      POSTGRES_DB: 'openencoder'
     volumes:
-      - /var/lib/postgresql/data
+    #   - /var/lib/postgresql/data
+      - ./scripts:/docker-entrypoint-initdb.d
