@@ -7,8 +7,8 @@ database_host: localhost
 database_port: 5432
 database_user: postgres
 database_password: postgres
-database_name: enc
-worker_namespace: enc
+database_name: openencoder
+worker_namespace: openencoder
 worker_job_name: encode
 worker_concurrency: 1
 work_dir: /tmp
@@ -19,5 +19,5 @@ cloudinit_database_host: dev.openencode.com
 cloudinit_database_port: 5432
 cloudinit_database_user: postgres
 cloudinit_database_password: postgres
-cloudinit_database_name: enc
+cloudinit_database_name: openencoder
 cloudinit_worker_image: alfg/openencoder:latest
