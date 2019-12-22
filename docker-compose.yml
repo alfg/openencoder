@@ -18,8 +18,6 @@ services:
     environment:
       - DATABASE_HOST=db
       - REDIS_HOST=redis
-    env_file:
-      - .env
     links:
       - redis
       - db

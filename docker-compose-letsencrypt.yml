@@ -1,0 +1,63 @@
+services:
+  nginx-proxy:
+    image: jwilder/nginx-proxy
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - conf:/etc/nginx/conf.d
+      - vhost:/etc/nginx/vhost.d
+      - html:/usr/share/nginx/html
+      - dhparam:/etc/nginx/dhparam
+      - certs:/etc/nginx/certs:ro
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+    environment:
+      - DHPARAM_GENERATION=false
+
+  nginx-proxy-letsencrypt:
+    image: jrcs/letsencrypt-nginx-proxy-companion
+    volumes_from:
+      - nginx-proxy
+    volumes:
+      - certs:/etc/nginx/certs:rw
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+
+  openencoder-web:
+    image: alfg/openencoder:latest
+    environment:
+      - GIN_MODE=release
+      - DATABASE_HOST=db
+      - REDIS_HOST=redis
+      - CLOUDINIT_REDIS_HOST=priv.net.ip.addr
+      - CLOUDINIT_DATABASE_HOST=priv.net.ip.addr
+      - VIRTUAL_HOST=dev.openencode.com
+      - LETSENCRYPT_HOST=dev.openencode.com
+    links:
+      - redis
+      - db
+    ports:
+      - "8080:8080"
+    entrypoint: ["/app", "server"]
+
+  redis:
+    image: "redis:alpine"
+    ports:
+      - priv.net.ip.addr:6379:6379
+    volumes:
+      - /data
+
+  db:
+    image: postgres
+    ports:
+      - priv.net.ip.addr:5432:5432
+    environment:
+      POSTGRES_PASSWORD: 'postgres'
+    volumes:
+      - /var/lib/postgresql/data
+
+volumes:
+  conf:
+  vhost:
+  html:
+  dhparam:
+  certs:

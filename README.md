@@ -42,6 +42,7 @@
 #### Requirements
 * Docker
 * Go 1.11+
+* NodeJS 8+ (For web dashboard)
 * FFmpeg
 * Postgres
 * S3 API Credentials & Bucket (AWS or Digital Ocean)
