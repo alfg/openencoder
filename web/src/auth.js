@@ -13,7 +13,7 @@ export default {
     authenticated: false,
   },
 
-  login(context, creds, redirect) {
+  login(context, creds, redirect, callback) {
     context.$http.post(LOGIN_URL, creds).then((data) => {
       cookie.set('token', data.body.token);
       store.setTokenAction(data.body.token);
@@ -26,11 +26,11 @@ export default {
         context.$router.go();
       }
     }, (err) => {
-      console.log(err);
+      callback(err);
     });
   },
 
-  register(context, creds, redirect) {
+  register(context, creds, redirect, callback) {
     context.$http.post(REGISTER_URL, creds).then(() => {
       // TODO: Authenticate after registration?
       // cookie.set('token', data.body.token);
@@ -43,7 +43,7 @@ export default {
         context.$router.push({ name: redirect });
       }
     }, (err) => {
-      console.log(err);
+      callback(err);
     });
   },
 

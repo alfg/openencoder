@@ -26,6 +26,18 @@
 
       <b-button type="submit" variant="primary">Submit</b-button>
     </b-form>
+
+    <b-alert
+      class="mt-4"
+      :show="dismissCountDown"
+      dismissible
+      fade
+      variant="danger"
+      @dismissed="dismissCountDown=0"
+      @dismiss-count-down="countDownChanged"
+    >
+      {{ errorMessage }}
+    </b-alert>
   </div>
 </template>
 
@@ -40,13 +52,25 @@ export default {
         password: '',
       },
       show: true,
+      dismissSecs: 5,
+      dismissCountDown: 0,
+      showDismissibleAlert: false,
+      errorMessage: '',
     };
   },
 
   methods: {
+    countDownChanged(dismissCountDown) {
+      this.dismissCountDown = dismissCountDown;
+    },
     onSubmit(event) {
       event.preventDefault();
-      auth.register(this, this.form, 'login');
+      auth.register(this, this.form, 'login', (err) => {
+        if (err) {
+          this.errorMessage = err.body && err.body.message;
+          this.dismissCountDown = this.dismissSecs;
+        }
+      });
     },
   },
 };

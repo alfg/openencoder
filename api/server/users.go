@@ -1,6 +1,7 @@
 package server
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/alfg/openencoder/api/data"
@@ -49,5 +50,42 @@ func registerHandler(c *gin.Context) {
 	c.JSON(200, gin.H{
 		"user":    u.Username,
 		"message": "user created",
+	})
+}
+
+func getUserHandler(c *gin.Context) {
+	user, _ := c.Get(identityKey)
+	username := user.(*types.User).Username
+
+	fmt.Println(username)
+
+	db := data.New()
+	u, _ := db.Users.GetUserByUsername(username)
+
+	fmt.Println(u)
+
+	c.JSON(200, gin.H{
+		// "user":    username,
+		"message": "user updated",
+	})
+}
+
+func updateUserHandler(c *gin.Context) {
+	user, _ := c.Get(identityKey)
+	username := user.(*types.User).Username
+	// if username != "" {
+	// 	c.JSON(http.StatusUnauthorized, gin.H{
+	// 		"message": "unauthorized",
+	// 	})
+	// }
+
+	db := data.New()
+	u, _ := db.Users.GetUserByUsername(username)
+
+	fmt.Println(u)
+
+	c.JSON(200, gin.H{
+		"user":    username,
+		"message": "user updated",
 	})
 }

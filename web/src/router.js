@@ -70,6 +70,11 @@ export default new Router({
       component: () => import(/* webpackChunkName: "settings" */ './views/Settings.vue'),
     },
     {
+      path: '/profile',
+      name: 'profile',
+      component: () => import(/* webpackChunkName: "user" */ './views/UserProfile.vue'),
+    },
+    {
       path: '/login',
       name: 'login',
       component: Login,

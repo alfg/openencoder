@@ -15,8 +15,9 @@ func registerRoutes(r *gin.Engine) {
 	api := r.Group("/api")
 	api.Use(authMiddlware.MiddlewareFunc())
 	{
-		// Index.
-		// api.GET("/", indexHandler)
+		// User.
+		api.GET("/user", getUserHandler)
+		api.PUT("/user", updateUserHandler)
 
 		// S3.
 		api.GET("/s3/list", s3ListHandler)
