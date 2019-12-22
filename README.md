@@ -23,6 +23,7 @@
     </p>
 </div>
 
+
 ## Features
 * HTTP API for submitting jobs to an redis-backed FFmpeg worker
 * S3 storage (AWS and Digital Ocean)
@@ -31,18 +32,23 @@
 * Database stored FFmpeg encoding presets
 * User accounts and roles
 
+
 ## Preview
 ![Screenshot](screenshot.png)    
 
-## Develop
+
+## Development
 
 #### Requirements
 * Docker
 * Go 1.11+
 * FFmpeg
 * Postgres
-* AWS S3 Credentials & Bucket
-* Digital Ocean API Keys (optional)
+* S3 API Credentials & Bucket (AWS or Digital Ocean)
+* Digital Ocean API Key (only required for Machines API)
+
+Docker is optional, but highly recommended for this setup. This guide assumes you are using Docker.
+
 
 #### Setup
 * Start Redis and Postgres in Docker:
@@ -51,7 +57,8 @@ docker-compose up -d redis
 docker-compose up -d db
 ```
 
-* Create DB and run `scripts/schema.sql` to set up schema.
+When the database container runs for the first time, it will create a persistent volume as `/var/lib/postgresql/data`. It will also run the scripts in `scripts/` to create the database, schema, settings and presets.
+
 
 * Set environment variables in `docker-compose.yml`.
 
@@ -86,8 +93,10 @@ curl -X POST \
 
 See [API.md](/API.md) for full jobs API documentation.
 
+
 ## API
 See: [API.md](/API.md)
+
 
 ## Scaling
 You can scale workers by adding more machines via the Web UI or API.
@@ -96,7 +105,12 @@ Currently only `Digital Ocean` is supported. More providers are planned.
 
 See: [API.md](/API.md) for Machines API documentation.
 
-## TODO
+
+## Documentation
+See: [wiki](https://github.com/alfg/openencoder/wiki) for more documentation.
+
+
+## Roadmap
 See: [Development Project](https://github.com/alfg/openencoder/projects/1) for current development tasks and status.
 
 ## License

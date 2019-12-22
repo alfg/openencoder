@@ -6,8 +6,6 @@ services:
       - GIN_MODE=release
       - DATABASE_HOST=db
       - REDIS_HOST=redis
-    env_file:
-      - .env
     links:
       - redis
       - db
