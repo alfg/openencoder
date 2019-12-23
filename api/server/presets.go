@@ -19,12 +19,6 @@ type createPresetRequest struct {
 	Active      *bool  `json:"active" binding:"exists"`
 }
 
-type createPresetResponse struct {
-	Message string        `json:"message"`
-	Status  int           `json:"status"`
-	Preset  *types.Preset `json:"preset"`
-}
-
 type presetUpdateRequest struct {
 	Name        string `json:"name" binding:"required"`
 	Description string `json:"description" binding:"required"`
@@ -67,12 +61,10 @@ func createPresetHandler(c *gin.Context) {
 	}
 
 	// Create response.
-	resp := createPresetResponse{
-		Message: "Preset created",
-		Status:  200,
-		Preset:  created,
-	}
-	c.JSON(http.StatusCreated, resp)
+	c.JSON(http.StatusCreated, gin.H{
+		"status": http.StatusCreated,
+		"preset": created,
+	})
 }
 
 func getPresetsHandler(c *gin.Context) {

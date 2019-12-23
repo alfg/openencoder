@@ -11,6 +11,7 @@ type Users interface {
 	CreateUser(user types.User) (*types.User, error)
 	GetUserByUsername(username string) (*types.User, error)
 	GetUserID(username string) int64
+	UpdateUserByID(id int64, user *types.User) (*types.User, error)
 }
 
 // UsersOp represents the users operations.
@@ -79,4 +80,24 @@ func (u UsersOp) GetUserID(username string) int64 {
 		fmt.Println(err)
 	}
 	return id
+}
+
+// UpdateUserByID Update user by ID.
+func (u UsersOp) UpdateUserByID(id int64, user *types.User) (*types.User, error) {
+	const query = `
+        UPDATE users
+        SET username = :username, password = :password
+        WHERE id = :id`
+
+	db, _ := ConnectDB()
+	tx := db.MustBegin()
+	_, err := tx.NamedExec(query, &user)
+	if err != nil {
+		fmt.Println(err)
+		return user, err
+	}
+	tx.Commit()
+
+	db.Close()
+	return user, nil
 }
