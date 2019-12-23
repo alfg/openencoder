@@ -7,6 +7,7 @@
       <b-nav-item-dropdown right>
         <template slot="button-content">{{ user.username }}</template>
         <b-dropdown-item disabled>{{ user.role }}</b-dropdown-item>
+        <b-dropdown-item to="/profile">Profile</b-dropdown-item>
         <b-dropdown-item href="#" @click="logout">Sign Out</b-dropdown-item>
       </b-nav-item-dropdown>
       </b-navbar-nav>
