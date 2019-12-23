@@ -1,7 +1,6 @@
 package server
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/alfg/openencoder/api/data"
@@ -77,11 +76,6 @@ func getUserHandler(c *gin.Context) {
 func updateUserHandler(c *gin.Context) {
 	user, _ := c.Get(identityKey)
 	username := user.(*types.User).Username
-	// if username != "" {
-	// 	c.JSON(http.StatusUnauthorized, gin.H{
-	// 		"message": "unauthorized",
-	// 	})
-	// }
 
 	// Decode json.
 	var json userUpdateRequest
@@ -97,7 +91,6 @@ func updateUserHandler(c *gin.Context) {
 	// Verify user credentials.
 	err := bcrypt.CompareHashAndPassword([]byte(u.Password), []byte(json.CurrentPassword))
 	if err != nil {
-		fmt.Println(err)
 		c.JSON(http.StatusUnauthorized, gin.H{
 			"code":    http.StatusUnauthorized,
 			"message": "unauthorized",
@@ -123,6 +116,7 @@ func updateUserHandler(c *gin.Context) {
 		u.Password = string(hash)
 	}
 
+	// Update the user.
 	u, err = db.Users.UpdateUserByID(u.ID, u)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{

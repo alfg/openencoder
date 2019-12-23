@@ -139,7 +139,7 @@ export default {
         // Re-auth with new token.
         auth.login(this, {
           username: this.form.username,
-          password: this.form.current_password,
+          password: this.form.new_password || this.form.current_password,
         }, 'profile', (err) => {
           if (err) {
             console.log('err', err);

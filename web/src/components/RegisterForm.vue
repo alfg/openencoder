@@ -24,6 +24,16 @@
         ></b-form-input>
       </b-form-group>
 
+      <b-form-group label="Verify Password:" label-for="input-verify-password">
+        <b-form-input
+          id="input-verify-password"
+          v-model="form.verify_password"
+          type="password"
+          required
+          :state="form.password === form.verify_password"
+        ></b-form-input>
+      </b-form-group>
+
       <b-button type="submit" variant="primary">Submit</b-button>
     </b-form>
 
@@ -50,6 +60,7 @@ export default {
       form: {
         username: '',
         password: '',
+        verify_passwword: '',
       },
       show: true,
       dismissSecs: 5,
