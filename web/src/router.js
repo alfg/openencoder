@@ -66,6 +66,11 @@ export default new Router({
       component: () => import(/* webpackChunkName: "presets" */ './views/PresetsCreate.vue'),
     },
     {
+      path: '/users',
+      name: 'users',
+      component: () => import(/* webpackChunkName: "users" */ './views/Users.vue'),
+    },
+    {
       path: '/settings',
       name: 'settings',
       component: () => import(/* webpackChunkName: "settings" */ './views/Settings.vue'),
