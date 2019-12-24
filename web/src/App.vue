@@ -4,7 +4,7 @@
       <b-navbar-brand href="#">Open Encoder <sup class="alpha">Alpha</sup></b-navbar-brand>
       <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
       <b-navbar-nav class="ml-auto">
-      <b-nav-item-dropdown right v-if="user.auth">
+      <b-nav-item-dropdown right v-if="user.authenticated">
         <template slot="button-content">{{ user.username }}</template>
         <b-dropdown-item disabled>{{ user.role }}</b-dropdown-item>
         <b-dropdown-item to="/profile">Profile</b-dropdown-item>

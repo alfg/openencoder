@@ -1,3 +1,5 @@
+; http://editorconfig.org/
+
 root = true
 
 [*]
@@ -7,3 +9,7 @@ charset = utf-8
 trim_trailing_whitespace = false
 insert_final_newline = false
 end_of_line = lf
+
+[{Makefile,go.mod,go.sum,*.go}]
+indent_style = tab
+indent_size = 4
