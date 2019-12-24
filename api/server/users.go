@@ -21,6 +21,13 @@ type userUpdateRequest struct {
 	VerifyPassword  string `json:"verify_password"`
 }
 
+type userPasswordUpdateRequest struct {
+	Username        string `json:"username" binding:"required"`
+	CurrentPassword string `json:"current_password" binding:"required"`
+	NewPassword     string `json:"new_password" binding:"required"`
+	VerifyPassword  string `json:"verify_password"`
+}
+
 func registerHandler(c *gin.Context) {
 	// Decode json.
 	var json registerRequest
@@ -128,6 +135,61 @@ func updateUserHandler(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"user":    username,
+		"message": "user updated",
+	})
+}
+
+func updatePasswordHandler(c *gin.Context) {
+
+	// Decode json.
+	var json userUpdateRequest
+	if err := c.ShouldBindJSON(&json); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code":    http.StatusBadRequest,
+			"message": "validation error. please provide username, current password and new password",
+		})
+		return
+	}
+
+	// Get user from DB.
+	db := data.New()
+	u, _ := db.Users.GetUserByUsername(json.Username)
+
+	// Verify user credentials.
+	err := bcrypt.CompareHashAndPassword([]byte(u.Password), []byte(json.CurrentPassword))
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"code":    http.StatusUnauthorized,
+			"message": "unauthorized",
+		})
+		return
+	}
+
+	// Create new password hash if new_password is provided.
+	if json.NewPassword != "" {
+		hash, err := bcrypt.GenerateFromPassword([]byte(json.NewPassword), bcrypt.MinCost)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"code":    http.StatusBadRequest,
+				"message": "error updating user",
+			})
+			return
+		}
+		u.Password = string(hash)
+	}
+
+	// Update the user.
+	u, err = db.Users.UpdateUserPasswordByID(u.ID, u)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code":    http.StatusBadRequest,
+			"message": "error updating user",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"user":    u.Username,
 		"message": "user updated",
 	})
 }

@@ -8,7 +8,6 @@ import (
 
 	"github.com/alfg/openencoder/api/data"
 	"github.com/alfg/openencoder/api/machine"
-	"github.com/alfg/openencoder/api/types"
 	"github.com/gin-gonic/gin"
 )
 
@@ -24,13 +23,10 @@ type machineRequest struct {
 
 func machinesHandler(c *gin.Context) {
 	user, _ := c.Get(identityKey)
-	role := user.(*types.User).Role
 
-	if role != "operator" && role != "admin" {
-		c.JSON(http.StatusUnauthorized, gin.H{
-			"message": "unauthorized",
-		})
-		return
+	// Role check.
+	if !isAdminOrOperator(user) {
+		c.JSON(http.StatusUnauthorized, gin.H{"message": "unauthorized"})
 	}
 
 	d := data.New()
@@ -51,13 +47,10 @@ func machinesHandler(c *gin.Context) {
 
 func createMachineHandler(c *gin.Context) {
 	user, _ := c.Get(identityKey)
-	role := user.(*types.User).Role
 
-	if role != "operator" && role != "admin" {
-		c.JSON(http.StatusUnauthorized, gin.H{
-			"message": "unauthorized",
-		})
-		return
+	// Role check.
+	if !isAdminOrOperator(user) {
+		c.JSON(http.StatusUnauthorized, gin.H{"message": "unauthorized"})
 	}
 
 	// Decode json.
@@ -88,13 +81,10 @@ func createMachineHandler(c *gin.Context) {
 
 func deleteMachineHandler(c *gin.Context) {
 	user, _ := c.Get(identityKey)
-	role := user.(*types.User).Role
 
-	if role != "operator" && role != "admin" {
-		c.JSON(http.StatusUnauthorized, gin.H{
-			"message": "unauthorized",
-		})
-		return
+	// Role check.
+	if !isAdminOrOperator(user) {
+		c.JSON(http.StatusUnauthorized, gin.H{"message": "unauthorized"})
 	}
 
 	id, _ := strconv.Atoi(c.Param("id"))
@@ -118,13 +108,10 @@ func deleteMachineHandler(c *gin.Context) {
 
 func deleteMachineByTagHandler(c *gin.Context) {
 	user, _ := c.Get(identityKey)
-	role := user.(*types.User).Role
 
-	if role != "operator" && role != "admin" {
-		c.JSON(http.StatusUnauthorized, gin.H{
-			"message": "unauthorized",
-		})
-		return
+	// Role check.
+	if !isAdminOrOperator(user) {
+		c.JSON(http.StatusUnauthorized, gin.H{"message": "unauthorized"})
 	}
 
 	d := data.New()
@@ -146,13 +133,10 @@ func deleteMachineByTagHandler(c *gin.Context) {
 
 func listMachineRegionsHandler(c *gin.Context) {
 	user, _ := c.Get(identityKey)
-	role := user.(*types.User).Role
 
-	if role != "operator" && role != "admin" {
-		c.JSON(http.StatusUnauthorized, gin.H{
-			"message": "unauthorized",
-		})
-		return
+	// Role check.
+	if !isAdminOrOperator(user) {
+		c.JSON(http.StatusUnauthorized, gin.H{"message": "unauthorized"})
 	}
 
 	d := data.New()
@@ -173,13 +157,10 @@ func listMachineRegionsHandler(c *gin.Context) {
 
 func listMachineSizesHandler(c *gin.Context) {
 	user, _ := c.Get(identityKey)
-	role := user.(*types.User).Role
 
-	if role != "operator" && role != "admin" {
-		c.JSON(http.StatusUnauthorized, gin.H{
-			"message": "unauthorized",
-		})
-		return
+	// Role check.
+	if !isAdminOrOperator(user) {
+		c.JSON(http.StatusUnauthorized, gin.H{"message": "unauthorized"})
 	}
 
 	d := data.New()

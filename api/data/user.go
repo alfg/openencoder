@@ -12,6 +12,7 @@ type Users interface {
 	GetUserByUsername(username string) (*types.User, error)
 	GetUserID(username string) int64
 	UpdateUserByID(id int64, user *types.User) (*types.User, error)
+	UpdateUserPasswordByID(id int64, user *types.User) (*types.User, error)
 }
 
 // UsersOp represents the users operations.
@@ -87,6 +88,26 @@ func (u UsersOp) UpdateUserByID(id int64, user *types.User) (*types.User, error)
 	const query = `
         UPDATE users
         SET username = :username, password = :password
+        WHERE id = :id`
+
+	db, _ := ConnectDB()
+	tx := db.MustBegin()
+	_, err := tx.NamedExec(query, &user)
+	if err != nil {
+		fmt.Println(err)
+		return user, err
+	}
+	tx.Commit()
+
+	db.Close()
+	return user, nil
+}
+
+// UpdateUserPasswordByID Update user password by ID and reset force_password_reset.
+func (u UsersOp) UpdateUserPasswordByID(id int64, user *types.User) (*types.User, error) {
+	const query = `
+        UPDATE users
+        SET password = :password, force_password_reset = false
         WHERE id = :id`
 
 	db, _ := ConnectDB()

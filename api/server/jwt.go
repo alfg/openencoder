@@ -1,7 +1,7 @@
 package server
 
 import (
-	"fmt"
+	"errors"
 	"log"
 	"time"
 
@@ -76,15 +76,18 @@ func jwtMiddleware() *jwt.GinJWTMiddleware {
 			db := data.New()
 			user, err := db.Users.GetUserByUsername(userID)
 			if err != nil {
-				fmt.Println(err)
 				return nil, jwt.ErrFailedAuthentication
 			}
 
 			// Check the encrypted password.
 			err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
 			if err != nil {
-				fmt.Println(err)
 				return nil, jwt.ErrFailedAuthentication
+			}
+
+			// Error with 403 if password needs to be reset.
+			if user.ForcePasswordReset {
+				return nil, errors.New("require password reset")
 			}
 
 			// Log-in the user.
@@ -95,7 +98,7 @@ func jwtMiddleware() *jwt.GinJWTMiddleware {
 		},
 
 		Authorizator: func(data interface{}, c *gin.Context) bool {
-			// Only authorize if user is an operator.
+			// Only authorize if user has the following roles.
 			if v, ok := data.(*types.User); ok &&
 				(v.Role == "guest" || v.Role == "operator" || v.Role == "admin") {
 				return true
@@ -110,6 +113,14 @@ func jwtMiddleware() *jwt.GinJWTMiddleware {
 			})
 		},
 
+		LoginResponse: func(c *gin.Context, code int, message string, time time.Time) {
+			c.JSON(code, gin.H{
+				"code":   code,
+				"token":  message,
+				"expire": time,
+			})
+		},
+
 		TokenLookup:   "header: Authorization, query: token, cookie: jwt",
 		TokenHeadName: "Bearer",
 		TimeFunc:      time.Now,
@@ -119,4 +130,35 @@ func jwtMiddleware() *jwt.GinJWTMiddleware {
 		log.Fatal("JWT Error:" + err.Error())
 	}
 	return authMiddleware
+}
+
+// User role types.
+const (
+	admin    = "admin"
+	operator = "operator"
+	guest    = "guest"
+)
+
+func isAdminOrOperator(user interface{}) bool {
+	role := user.(*types.User).Role
+	if role != operator && role != admin {
+		return false
+	}
+	return true
+}
+
+func isOperator(user interface{}) bool {
+	role := user.(*types.User).Role
+	if role != operator {
+		return false
+	}
+	return true
+}
+
+func isAdmin(user interface{}) bool {
+	role := user.(*types.User).Role
+	if role != admin {
+		return false
+	}
+	return true
 }

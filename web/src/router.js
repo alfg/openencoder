@@ -4,6 +4,7 @@ import VueResource from 'vue-resource';
 import BootstrapVue from 'bootstrap-vue';
 import Login from './views/Login.vue';
 import Register from './views/Register.vue';
+import UpdatePassword from './views/UpdatePassword.vue';
 
 import cookie from './cookie';
 
@@ -84,6 +85,12 @@ export default new Router({
       path: '/register',
       name: 'register',
       component: Register,
+      meta: { hideNavigation: true },
+    },
+    {
+      path: '/update-password',
+      name: 'update-password',
+      component: UpdatePassword,
       meta: { hideNavigation: true },
     },
   ],

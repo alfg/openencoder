@@ -9,6 +9,7 @@ func registerRoutes(r *gin.Engine) {
 	r.POST("/api/register", registerHandler)
 	r.POST("/api/login", authMiddlware.LoginHandler)
 	r.GET("/api/refresh-token", authMiddlware.RefreshHandler)
+	r.POST("/api/update-password", updatePasswordHandler)
 	r.GET("/api/", indexHandler)
 
 	// API routes.
