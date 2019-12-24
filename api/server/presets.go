@@ -29,16 +29,9 @@ type presetUpdateRequest struct {
 
 func createPresetHandler(c *gin.Context) {
 	user, _ := c.Get(identityKey)
-	// role := user.(*types.User).Role
 
-	// if role != "operator" && role != "admin" {
-	// 	c.JSON(http.StatusUnauthorized, gin.H{
-	// 		"message": "unauthorized",
-	// 	})
-	// 	return
-	// }
-
-	if !checkAuth(user) {
+	// Role check.
+	if !isAdminOrOperator(user) {
 		c.JSON(http.StatusUnauthorized, gin.H{"message": "unauthorized"})
 	}
 
@@ -128,12 +121,10 @@ func getPresetByIDHandler(c *gin.Context) {
 func updatePresetByIDHandler(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
 	user, _ := c.Get(identityKey)
-	role := user.(*types.User).Role
 
-	if role != "admin" {
-		c.JSON(http.StatusUnauthorized, gin.H{
-			"message": "unauthorized",
-		})
+	// Role check.
+	if !isAdminOrOperator(user) {
+		c.JSON(http.StatusUnauthorized, gin.H{"message": "unauthorized"})
 	}
 
 	// Decode json.

@@ -33,16 +33,9 @@ type response struct {
 
 func createJobHandler(c *gin.Context) {
 	user, _ := c.Get(identityKey)
-	// role := user.(*types.User).Role
 
-	// if role != "operator" && role != "admin" {
-	// 	c.JSON(http.StatusUnauthorized, gin.H{
-	// 		"message": "unauthorized",
-	// 	})
-	// 	return
-	// }
-
-	if !checkAuth(user) {
+	// Role check.
+	if !isAdminOrOperator(user) {
 		c.JSON(http.StatusUnauthorized, gin.H{"message": "unauthorized"})
 	}
 
@@ -177,13 +170,10 @@ func getJobsByIDHandler(c *gin.Context) {
 func updateJobByIDHandler(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
 	user, _ := c.Get(identityKey)
-	role := user.(*types.User).Role
 
-	if role != "operator" && role != "admin" {
-		c.JSON(http.StatusUnauthorized, gin.H{
-			"message": "unauthorized",
-		})
-		return
+	// Role check.
+	if !isAdminOrOperator(user) {
+		c.JSON(http.StatusUnauthorized, gin.H{"message": "unauthorized"})
 	}
 
 	// Decode json.
@@ -227,13 +217,10 @@ func getJobStatusByIDHandler(c *gin.Context) {
 func cancelJobByIDHandler(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
 	user, _ := c.Get(identityKey)
-	role := user.(*types.User).Role
 
-	if role != "operator" && role != "admin" {
-		c.JSON(http.StatusUnauthorized, gin.H{
-			"message": "unauthorized",
-		})
-		return
+	// Role check.
+	if !isAdminOrOperator(user) {
+		c.JSON(http.StatusUnauthorized, gin.H{"message": "unauthorized"})
 	}
 
 	// Update status.
@@ -248,13 +235,10 @@ func cancelJobByIDHandler(c *gin.Context) {
 func restartJobByIDHandler(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
 	user, _ := c.Get(identityKey)
-	role := user.(*types.User).Role
 
-	if role != "operator" && role != "admin" {
-		c.JSON(http.StatusUnauthorized, gin.H{
-			"message": "unauthorized",
-		})
-		return
+	// Role check.
+	if !isAdminOrOperator(user) {
+		c.JSON(http.StatusUnauthorized, gin.H{"message": "unauthorized"})
 	}
 
 	// Update status.

@@ -132,12 +132,32 @@ func jwtMiddleware() *jwt.GinJWTMiddleware {
 	return authMiddleware
 }
 
-func checkAuth(user interface{}) bool {
+// User role types.
+const (
+	admin    = "admin"
+	operator = "operator"
+	guest    = "guest"
+)
+
+func isAdminOrOperator(user interface{}) bool {
 	role := user.(*types.User).Role
-	if role != "operator" && role != "admin" {
-		// c.JSON(http.StatusUnauthorized, gin.H{
-		// 	"message": "unauthorized",
-		// })
+	if role != operator && role != admin {
+		return false
+	}
+	return true
+}
+
+func isOperator(user interface{}) bool {
+	role := user.(*types.User).Role
+	if role != operator {
+		return false
+	}
+	return true
+}
+
+func isAdmin(user interface{}) bool {
+	role := user.(*types.User).Role
+	if role != admin {
 		return false
 	}
 	return true

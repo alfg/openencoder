@@ -22,12 +22,10 @@ type settingsUpdateRequest struct {
 
 func settingsHandler(c *gin.Context) {
 	user, _ := c.Get(identityKey)
-	role := user.(*types.User).Role
 
-	if role != "admin" {
-		c.JSON(http.StatusUnauthorized, gin.H{
-			"message": "unauthorized",
-		})
+	// Role check.
+	if !isAdmin(user) {
+		c.JSON(http.StatusUnauthorized, gin.H{"message": "unauthorized"})
 	}
 
 	d := data.New()
@@ -58,12 +56,10 @@ func settingsHandler(c *gin.Context) {
 
 func updateSettingsHandler(c *gin.Context) {
 	user, _ := c.Get(identityKey)
-	role := user.(*types.User).Role
 
-	if role != "admin" {
-		c.JSON(http.StatusUnauthorized, gin.H{
-			"message": "unauthorized",
-		})
+	// Role check.
+	if !isAdmin(user) {
+		c.JSON(http.StatusUnauthorized, gin.H{"message": "unauthorized"})
 	}
 
 	// Decode json.
