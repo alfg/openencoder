@@ -55,7 +55,8 @@ create table users
     constraint user_pkey
     primary key,
   password varchar(128) not null,
-  role     varchar(64)
+  role     varchar(64),
+  force_password_reset boolean default false
 );
 
 alter table users
