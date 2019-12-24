@@ -4,6 +4,7 @@ import store from './store';
 
 const LOGIN_URL = '/api/login';
 const REGISTER_URL = '/api/register';
+const UPDATE_PASSWORD_URL = '/api/update-password';
 
 export default {
 
@@ -26,6 +27,11 @@ export default {
         context.$router.go();
       }
     }, (err) => {
+      // If password needs to be updated.
+      if (err && err.body.message === 'require password reset') {
+        context.$router.push({ name: 'update-password' });
+        context.$router.go();
+      }
       callback(err);
     });
   },
@@ -47,6 +53,17 @@ export default {
     });
   },
 
+  updatePassword(context, creds, redirect, callback) {
+    context.$http.post(UPDATE_PASSWORD_URL, creds).then(() => {
+      if (redirect) {
+        context.$router.push({ name: redirect });
+      }
+    }, (err) => {
+      callback(err);
+    });
+  },
+
+
   logout(context) {
     cookie.remove('token');
     this.user.authenticated = false;
@@ -57,7 +74,7 @@ export default {
   checkAuth(context) {
     const jwt = cookie.get('token');
 
-    if (context.$route.name === 'register') {
+    if (context.$route.name === 'register' || context.$route.name === 'update-password') {
       return;
     }
 

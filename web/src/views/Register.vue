@@ -8,7 +8,7 @@
 import RegisterForm from '@/components/RegisterForm.vue';
 
 export default {
-  name: 'home',
+  name: 'register',
   components: {
     RegisterForm,
   },

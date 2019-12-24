@@ -69,7 +69,6 @@ export default {
       event.preventDefault();
       auth.login(this, this.form, '/', (err) => {
         if (err) {
-          console.log('err', err);
           this.errorMessage = err.body && err.body.message;
           this.dismissCountDown = this.dismissSecs;
         }
