@@ -13,6 +13,8 @@ type Users interface {
 	GetUserID(username string) int64
 	UpdateUserByID(id int64, user *types.User) (*types.User, error)
 	UpdateUserPasswordByID(id int64, user *types.User) (*types.User, error)
+	GetUsers(offset, count int) *[]types.User
+	GetUsersCount() int
 }
 
 // UsersOp represents the users operations.
@@ -121,4 +123,36 @@ func (u UsersOp) UpdateUserPasswordByID(id int64, user *types.User) (*types.User
 
 	db.Close()
 	return user, nil
+}
+
+// GetUsers gets a list of users with an offset and count.
+func (u UsersOp) GetUsers(offset, count int) *[]types.User {
+	const query = `
+	  SELECT *
+	  FROM users 
+	  ORDER BY id DESC
+      LIMIT $1 OFFSET $2`
+
+	db, _ := ConnectDB()
+	users := []types.User{}
+	err := db.Select(&users, query, count, offset)
+	if err != nil {
+		fmt.Println(err)
+	}
+	db.Close()
+	return &users
+}
+
+// GetUsersCount Gets a count of all users.
+func (u UsersOp) GetUsersCount() int {
+	var count int
+	const query = `SELECT COUNT(*) FROM users`
+
+	db, _ := ConnectDB()
+	err := db.Get(&count, query)
+	if err != nil {
+		fmt.Println(err)
+	}
+	db.Close()
+	return count
 }

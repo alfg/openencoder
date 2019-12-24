@@ -2,6 +2,8 @@ package server
 
 import (
 	"net/http"
+	"strconv"
+	"sync"
 
 	"github.com/alfg/openencoder/api/data"
 	"github.com/alfg/openencoder/api/types"
@@ -191,5 +193,47 @@ func updatePasswordHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"user":    u.Username,
 		"message": "user updated",
+	})
+}
+
+func getUsersHandler(c *gin.Context) {
+	user, _ := c.Get(identityKey)
+
+	// Role check.
+	if !isAdmin(user) {
+		c.JSON(http.StatusUnauthorized, gin.H{"message": "unauthorized"})
+	}
+
+	page := c.DefaultQuery("page", "1")
+	count := c.DefaultQuery("count", "10")
+	pageInt, _ := strconv.Atoi(page)
+	countInt, _ := strconv.Atoi(count)
+
+	if page == "0" {
+		pageInt = 1
+	}
+
+	var wg sync.WaitGroup
+	var users *[]types.User
+	var usersCount int
+
+	db := data.New()
+	wg.Add(1)
+	go func() {
+		users = db.Users.GetUsers((pageInt-1)*countInt, countInt)
+		wg.Done()
+	}()
+
+	wg.Add(1)
+	go func() {
+		usersCount = db.Users.GetUsersCount()
+		wg.Done()
+	}()
+	wg.Wait()
+
+	c.JSON(http.StatusOK, gin.H{
+		"code":  http.StatusOK,
+		"users": users,
+		"count": usersCount,
 	})
 }
