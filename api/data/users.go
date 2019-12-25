@@ -11,9 +11,10 @@ type Users interface {
 	CreateUser(user types.User) (*types.User, error)
 	GetUserByUsername(username string) (*types.User, error)
 	GetUserID(username string) int64
-	UpdateUserByID(id int64, user *types.User) (*types.User, error)
+	UpdateUserByID(id int, user *types.User) (*types.User, error)
 	UpdateUserPasswordByID(id int64, user *types.User) (*types.User, error)
 	GetUsers(offset, count int) *[]types.User
+	GetUserByID(id int) (*types.User, error)
 	GetUsersCount() int
 }
 
@@ -86,10 +87,10 @@ func (u UsersOp) GetUserID(username string) int64 {
 }
 
 // UpdateUserByID Update user by ID.
-func (u UsersOp) UpdateUserByID(id int64, user *types.User) (*types.User, error) {
+func (u UsersOp) UpdateUserByID(id int, user *types.User) (*types.User, error) {
 	const query = `
         UPDATE users
-        SET username = :username, password = :password
+        SET username = :username, password = :password, active = :active
         WHERE id = :id`
 
 	db, _ := ConnectDB()
@@ -141,6 +142,23 @@ func (u UsersOp) GetUsers(offset, count int) *[]types.User {
 	}
 	db.Close()
 	return &users
+}
+
+// GetUserByID Gets a user by ID.
+func (u UsersOp) GetUserByID(id int) (*types.User, error) {
+	const query = `
+      SELECT *
+      FROM users
+      WHERE id = $1`
+
+	db, _ := ConnectDB()
+	user := types.User{}
+	err := db.Get(&user, query, id)
+	if err != nil {
+		return &user, err
+	}
+	db.Close()
+	return &user, nil
 }
 
 // GetUsersCount Gets a count of all users.
