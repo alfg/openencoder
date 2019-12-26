@@ -11,14 +11,43 @@
       :fields="fields"
       :items="items"
       @row-selected="onRowSelected">
+
+      <template v-slot:cell(role)="data">
+        <b-badge
+          :variant="['admin'].includes(data.item.role) ? 'danger' : 'primary'"
+        >{{ data.item.role }}</b-badge>
+      </template>
+
+      <template v-slot:cell(active)="data">
+        {{ data.item.active ? '✔️' : '❌' }}
+      </template>
     </b-table>
 
+
     <b-form class="mb-3" @submit="onSubmit" v-show="data">
-      <b-form-group id="input-group-active">
-        <b-form-checkbox v-model="form.active">Active?</b-form-checkbox>
+      <b-alert
+        :show="isMasterUser"
+        variant="warning">
+      Cannot update master user settings.</b-alert>
+
+      <b-form-group id="input-group-role" label="Role:" label-for="input-role">
+        <b-form-select
+          id="input-role"
+          v-model="form.role"
+          :options="roles"
+          required
+          :disabled="isMasterUser"
+        ></b-form-select>
       </b-form-group>
 
-      <b-button type="submit" variant="primary">Save</b-button>
+      <b-form-group id="input-group-active">
+        <b-form-checkbox
+          v-model="form.active"
+          :disabled="isMasterUser"
+        >Active?</b-form-checkbox>
+      </b-form-group>
+
+      <b-button type="submit" variant="primary" :disabled="isMasterUser">Save</b-button>
     </b-form>
 
     <b-alert
@@ -46,8 +75,10 @@ export default {
       items: [],
       data: null,
       form: {
+        role: '',
         active: false,
       },
+      roles: ['admin', 'operator', 'guest'],
       dismissSecs: 5,
       dismissCountDown: 0,
       showDismissibleAlert: false,
@@ -57,6 +88,9 @@ export default {
   computed: {
     pages() {
       return this.count === 0 ? 1 : Math.ceil(this.count / 10);
+    },
+    isMasterUser() {
+      return this.data && this.data.id === 1;
     },
   },
 
@@ -109,7 +143,7 @@ export default {
       if (items.length > 0) {
         [this.form] = items;
 
-        this.data = this.form.data || {};
+        this.data = this.form || {};
       } else {
         this.data = null;
       }
