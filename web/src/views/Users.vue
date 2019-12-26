@@ -1,5 +1,5 @@
 <template>
-  <div id="settings" class="container">
+  <div id="users" class="container">
     <UsersTable />
   </div>
 </template>
