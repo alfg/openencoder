@@ -11,6 +11,7 @@ func registerRoutes(r *gin.Engine) {
 	r.GET("/api/refresh-token", authMiddlware.RefreshHandler)
 	r.POST("/api/update-password", updatePasswordHandler)
 	r.GET("/api/", indexHandler)
+	r.GET("/api/health", healthHandler)
 
 	// API routes.
 	api := r.Group("/api")
