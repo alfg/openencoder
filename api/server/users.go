@@ -212,6 +212,7 @@ func getUsersHandler(c *gin.Context) {
 	// Role check.
 	if !isAdmin(user) {
 		c.JSON(http.StatusUnauthorized, gin.H{"message": "unauthorized"})
+		return
 	}
 
 	page := c.DefaultQuery("page", "1")
@@ -256,6 +257,7 @@ func updateUserByIDHandler(c *gin.Context) {
 	// Role check.
 	if !isAdmin(user) {
 		c.JSON(http.StatusUnauthorized, gin.H{"message": "unauthorized"})
+		return
 	}
 
 	// Decode json.

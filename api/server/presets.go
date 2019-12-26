@@ -33,6 +33,7 @@ func createPresetHandler(c *gin.Context) {
 	// Role check.
 	if !isAdminOrOperator(user) {
 		c.JSON(http.StatusUnauthorized, gin.H{"message": "unauthorized"})
+		return
 	}
 
 	// Decode json.
@@ -125,6 +126,7 @@ func updatePresetByIDHandler(c *gin.Context) {
 	// Role check.
 	if !isAdminOrOperator(user) {
 		c.JSON(http.StatusUnauthorized, gin.H{"message": "unauthorized"})
+		return
 	}
 
 	// Decode json.

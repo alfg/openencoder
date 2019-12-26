@@ -27,6 +27,7 @@ func machinesHandler(c *gin.Context) {
 	// Role check.
 	if !isAdminOrOperator(user) {
 		c.JSON(http.StatusUnauthorized, gin.H{"message": "unauthorized"})
+		return
 	}
 
 	d := data.New()
@@ -51,6 +52,7 @@ func createMachineHandler(c *gin.Context) {
 	// Role check.
 	if !isAdminOrOperator(user) {
 		c.JSON(http.StatusUnauthorized, gin.H{"message": "unauthorized"})
+		return
 	}
 
 	// Decode json.
@@ -85,6 +87,7 @@ func deleteMachineHandler(c *gin.Context) {
 	// Role check.
 	if !isAdminOrOperator(user) {
 		c.JSON(http.StatusUnauthorized, gin.H{"message": "unauthorized"})
+		return
 	}
 
 	id, _ := strconv.Atoi(c.Param("id"))
@@ -112,6 +115,7 @@ func deleteMachineByTagHandler(c *gin.Context) {
 	// Role check.
 	if !isAdminOrOperator(user) {
 		c.JSON(http.StatusUnauthorized, gin.H{"message": "unauthorized"})
+		return
 	}
 
 	d := data.New()
@@ -137,6 +141,7 @@ func listMachineRegionsHandler(c *gin.Context) {
 	// Role check.
 	if !isAdminOrOperator(user) {
 		c.JSON(http.StatusUnauthorized, gin.H{"message": "unauthorized"})
+		return
 	}
 
 	d := data.New()
@@ -161,6 +166,7 @@ func listMachineSizesHandler(c *gin.Context) {
 	// Role check.
 	if !isAdminOrOperator(user) {
 		c.JSON(http.StatusUnauthorized, gin.H{"message": "unauthorized"})
+		return
 	}
 
 	d := data.New()

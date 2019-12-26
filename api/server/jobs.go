@@ -37,6 +37,7 @@ func createJobHandler(c *gin.Context) {
 	// Role check.
 	if !isAdminOrOperator(user) {
 		c.JSON(http.StatusUnauthorized, gin.H{"message": "unauthorized"})
+		return
 	}
 
 	// Decode json.
@@ -174,6 +175,7 @@ func updateJobByIDHandler(c *gin.Context) {
 	// Role check.
 	if !isAdminOrOperator(user) {
 		c.JSON(http.StatusUnauthorized, gin.H{"message": "unauthorized"})
+		return
 	}
 
 	// Decode json.
@@ -221,6 +223,7 @@ func cancelJobByIDHandler(c *gin.Context) {
 	// Role check.
 	if !isAdminOrOperator(user) {
 		c.JSON(http.StatusUnauthorized, gin.H{"message": "unauthorized"})
+		return
 	}
 
 	// Update status.
@@ -239,6 +242,7 @@ func restartJobByIDHandler(c *gin.Context) {
 	// Role check.
 	if !isAdminOrOperator(user) {
 		c.JSON(http.StatusUnauthorized, gin.H{"message": "unauthorized"})
+		return
 	}
 
 	// Update status.

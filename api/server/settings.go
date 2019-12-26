@@ -26,6 +26,7 @@ func settingsHandler(c *gin.Context) {
 	// Role check.
 	if !isAdmin(user) {
 		c.JSON(http.StatusUnauthorized, gin.H{"message": "unauthorized"})
+		return
 	}
 
 	d := data.New()
@@ -60,6 +61,7 @@ func updateSettingsHandler(c *gin.Context) {
 	// Role check.
 	if !isAdmin(user) {
 		c.JSON(http.StatusUnauthorized, gin.H{"message": "unauthorized"})
+		return
 	}
 
 	// Decode json.
