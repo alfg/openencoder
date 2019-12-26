@@ -30,6 +30,19 @@
     </div>
 
     <router-view />
+
+    <footer class="container mt-4 text-center">
+      <hr />
+      <div class="text-muted">
+        <ul>
+          <li><a href="https://github.com/alfg/openencoder">Docs</a></li>
+          <li><a href="https://github.com/alfg/openencoder/blob/master/API.md">API</a></li>
+          <li><a href="https://github.com/alfg/openencoder/wiki">Wiki</a></li>
+          <li><a href="https://github.com/alfg/openencoder">Source</a></li>
+          <li>{{ version }}</li>
+        </ul>
+      </div>
+    </footer>
   </div>
 </template>
 
@@ -41,6 +54,7 @@ export default {
     return {
       user: auth.user,
       role: auth.role,
+      version: null,
     };
   },
 
@@ -58,9 +72,29 @@ export default {
 
   created() {
     auth.checkAuth(this);
+    this.getVersion();
   },
 
   methods: {
+    getVersion() {
+      const url = '/api/';
+
+      this.$http.get(url, {
+        headers: auth.getAuthHeader(),
+      })
+        .then(response => (
+          response.json()
+        ))
+        .then((json) => {
+          if (json.version) {
+            const { name, version } = json;
+            this.version = `${name}-${version}`;
+          }
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    },
     logout() {
       auth.logout(this);
     },
@@ -86,5 +120,18 @@ export default {
 .alpha {
   font-size: 12px;
   text-transform: uppercase;
+}
+
+footer ul {
+  display: inline-block;
+  padding-left: 0;
+  text-align: left;
+  width: 100%;
+}
+
+footer ul li {
+  display: inline;
+  margin: 0 6px;
+  list-style: none;
 }
 </style>
