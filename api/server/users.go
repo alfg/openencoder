@@ -24,7 +24,8 @@ type userProfileUpdateRequest struct {
 }
 
 type userUpdateRequest struct {
-	Active bool `json:"active"`
+	Active bool   `json:"active"`
+	Role   string `json:"role" binding:"eq=admin|eq=operator|eq=guest|eq="`
 }
 
 type userPasswordUpdateRequest struct {
@@ -274,8 +275,16 @@ func updateUserByIDHandler(c *gin.Context) {
 		return
 	}
 
-	// Set active status.
-	u.Active = json.Active
+	// Disallow updates on master user.
+	if id != 1 {
+		// Set role.
+		if json.Role != "" {
+			u.Role = json.Role
+		}
+
+		// Set active status.
+		u.Active = json.Active
+	}
 
 	updatedUser, _ := db.Users.UpdateUserByID(id, u)
 	c.JSON(http.StatusOK, updatedUser)

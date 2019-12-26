@@ -90,7 +90,7 @@ func (u UsersOp) GetUserID(username string) int64 {
 func (u UsersOp) UpdateUserByID(id int, user *types.User) (*types.User, error) {
 	const query = `
         UPDATE users
-        SET username = :username, password = :password, active = :active
+        SET username = :username, password = :password, active = :active, role = :role
         WHERE id = :id`
 
 	db, _ := ConnectDB()
