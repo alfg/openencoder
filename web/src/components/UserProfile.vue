@@ -109,7 +109,7 @@ export default {
     },
 
     getUser() {
-      const url = '/api/user';
+      const url = '/api/me';
 
       this.$http.get(url, {
         headers: auth.getAuthHeader(),
@@ -124,7 +124,7 @@ export default {
     },
 
     submitForm(data) {
-      const url = '/api/user';
+      const url = '/api/me';
 
       this.$http.put(url, data, {
         headers: auth.getAuthHeader(),
