@@ -1,6 +1,7 @@
 package server
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/alfg/openencoder/api/config"
@@ -38,7 +39,7 @@ func healthHandler(c *gin.Context) {
 	defer db.Close()
 
 	// Check Redis health.
-	conn, err := redis.Dial("tcp", "localhost:6379")
+	conn, err := redis.Dial("tcp", fmt.Sprintf("%s:%d", config.Get().RedisHost, config.Get().RedisPort))
 	if err != nil {
 		redisHealth = "NOTOK"
 	}
