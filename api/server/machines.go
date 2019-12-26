@@ -184,3 +184,20 @@ func listMachineSizesHandler(c *gin.Context) {
 		"sizes": sizes,
 	})
 }
+
+func getCurrentMachinePricing(c *gin.Context) {
+	d := data.New()
+	token := d.Settings.GetSetting(settingKey).Value
+	client, _ := machine.NewDigitalOceanClient(token)
+	ctx := context.TODO()
+
+	// Get the current machine pricing from DO client.
+	pricing, err := client.GetCurrentPricing(ctx, tag)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	c.JSON(200, gin.H{
+		"pricing": pricing,
+	})
+}

@@ -38,3 +38,9 @@ type Size struct {
 	PriceMonthly float64 `json:"price_monthly"`
 	PriceHourly  float64 `json:"price_hourly"`
 }
+
+type Pricing struct {
+	Count        int     `json:"count"`
+	PriceHourly  float64 `json:"price_hourly"`
+	PriceMonthly float64 `json:"price_monthly"`
+}
