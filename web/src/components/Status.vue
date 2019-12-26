@@ -1,5 +1,6 @@
 <template>
   <div class="status container">
+    <h2 class="text-muted">Jobs</h2>
     <b-card-group deck>
       <div
         v-for="(o, i) in stats.jobs"
@@ -8,7 +9,7 @@
       >
           <b-card
             :border-variant="getStatusColor(o.status)"
-            :header="o.status"
+            :header="o.status.toUpperCase()"
             class="text-center"
             style=""
             >
@@ -18,6 +19,7 @@
     </b-card-group>
     <hr />
 
+    <h2 class="text-muted">Health</h2>
     <b-card-group deck>
       <div
         v-for="(o, i) in health"
@@ -25,7 +27,7 @@
         class="col-lg-3 col-md-3 p-1 mb-2"
       >
           <b-card
-            :header="i"
+            :header="i.toUpperCase()"
             class="text-center"
             style=""
             >
@@ -33,6 +35,28 @@
               <b-alert
                 show
                 :variant="['NOTOK', 0].includes(o) ? 'danger' : 'success'">{{ o }}</b-alert>
+            </b-card-text>
+          </b-card>
+      </div>
+    </b-card-group>
+    <hr />
+
+    <h2 class="text-muted">Machines</h2>
+    <b-card-group deck>
+      <div
+        v-for="(o, i) in pricing"
+        v-bind:key="i"
+        class="col-lg-4 col-md-4 p-1 mb-2"
+      >
+          <b-card
+            :header="i.toUpperCase()"
+            class="text-center"
+            style=""
+            >
+            <b-card-text>
+              <b-alert
+                show
+              >{{ o }}</b-alert>
             </b-card-text>
           </b-card>
       </div>
@@ -46,10 +70,12 @@
 import auth from '../auth';
 
 const UPDATE_INTERVAL = 5000;
-const HEALTH_UPDATE_INTERVAL = 5000;
+const HEALTH_UPDATE_INTERVAL = 10000;
+const PRICING_UPDATE_INTERVAL = 30000;
 
 let intervalId;
 let healthIntervalId;
+let pricingIntervalId;
 
 export default {
   name: 'status',
@@ -58,20 +84,24 @@ export default {
     return {
       stats: {},
       health: {},
+      pricing: {},
     };
   },
 
   mounted() {
     this.getStats();
     this.getHealth();
+    this.getPricing();
 
     intervalId = setInterval(this.getStats, UPDATE_INTERVAL);
     healthIntervalId = setInterval(this.getHealth, HEALTH_UPDATE_INTERVAL);
+    pricingIntervalId = setInterval(this.getPricing, PRICING_UPDATE_INTERVAL);
   },
 
   destroyed() {
     clearInterval(intervalId);
     clearInterval(healthIntervalId);
+    clearInterval(pricingIntervalId);
   },
 
   methods: {
@@ -123,6 +153,25 @@ export default {
             Redis: 'NOTOK',
             Workers: 0,
           };
+        });
+    },
+
+    getPricing() {
+      const url = '/api/machines/pricing';
+
+      this.$http.get(url, {
+        headers: auth.getAuthHeader(),
+      })
+        .then(response => (
+          response.json()
+        ))
+        .then((json) => {
+          if (json.pricing) {
+            this.pricing = json.pricing;
+          }
+        })
+        .catch((err) => {
+          console.log(err);
         });
     },
   },
