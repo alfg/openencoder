@@ -35,6 +35,7 @@ func healthHandler(c *gin.Context) {
 	if err != nil {
 		dbHealth = "NOTOK"
 	}
+	defer db.Close()
 
 	// Check Redis health.
 	conn, err := redis.Dial("tcp", "localhost:6379")

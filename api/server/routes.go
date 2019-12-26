@@ -48,6 +48,7 @@ func registerRoutes(r *gin.Engine) {
 		api.DELETE("/machines/:id", deleteMachineHandler)
 		api.GET("/machines/regions", listMachineRegionsHandler)
 		api.GET("/machines/sizes", listMachineSizesHandler)
+		api.GET("/machines/pricing", getCurrentMachinePricing)
 
 		// Presets.
 		api.POST("/presets", createPresetHandler)

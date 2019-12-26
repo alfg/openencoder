@@ -202,9 +202,90 @@ func (do *DigitalOcean) ListSizes(ctx context.Context) ([]Size, error) {
 		})
 		// }
 	}
-
-	createUserData()
 	return list, err
+}
+
+// GetCurrentPricing gets the current pricing data of running machines.
+func (do *DigitalOcean) GetCurrentPricing(ctx context.Context, tag string) (*Pricing, error) {
+
+	// Get sizes first.
+	opt := &godo.ListOptions{
+		Page:    1,
+		PerPage: 200,
+	}
+
+	sizes, _, err := do.client.Sizes.List(ctx, opt)
+	if err != nil {
+		return nil, err
+	}
+
+	sizeList := []Size{}
+	for _, d := range sizes {
+		sizeList = append(sizeList, Size{
+			Slug:         d.Slug,
+			Available:    d.Available,
+			PriceMonthly: d.PriceMonthly,
+			PriceHourly:  d.PriceHourly,
+		})
+	}
+
+	// Get current running machines.
+	machines := []Machine{}
+
+	opt = &godo.ListOptions{}
+	for {
+		droplets, resp, err := do.client.Droplets.ListByTag(ctx, tag, opt)
+		if err != nil {
+			return nil, err
+		}
+
+		for _, d := range droplets {
+			machines = append(machines, Machine{
+				ID:       d.ID,
+				Name:     d.Name,
+				Status:   d.Status,
+				SizeSlug: d.SizeSlug,
+				Created:  d.Created,
+				Region:   d.Region.Name,
+				Tags:     d.Tags,
+				Provider: providerName,
+			})
+		}
+
+		if resp.Links == nil || resp.Links.IsLastPage() {
+			break
+		}
+
+		page, err := resp.Links.CurrentPage()
+		if err != nil {
+			return nil, err
+		}
+		opt.Page = page + 1
+	}
+
+	// Calculate pricing.
+
+	var running = len(machines)
+	var priceHourly float64
+	var priceMonthly float64
+
+	for _, m := range machines {
+		slug := m.SizeSlug
+		for _, sl := range sizeList {
+			if sl.Slug == slug {
+				priceHourly += sl.PriceHourly
+				priceMonthly += sl.PriceMonthly
+			}
+		}
+	}
+
+	p := &Pricing{
+		Count:        running,
+		PriceHourly:  priceHourly,
+		PriceMonthly: priceMonthly,
+	}
+
+	return p, nil
 }
 
 func contains(slice []string, item string) bool {
