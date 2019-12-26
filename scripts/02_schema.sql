@@ -56,7 +56,8 @@ create table users
     primary key,
   password varchar(128) not null,
   role     varchar(64),
-  force_password_reset boolean default false
+  force_password_reset boolean default false,
+  active boolean default true
 );
 
 alter table users
