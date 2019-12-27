@@ -1,6 +1,7 @@
 import Vue from 'vue';
 import Router from 'vue-router';
 import VueResource from 'vue-resource';
+import Moment from 'vue-moment';
 import BootstrapVue from 'bootstrap-vue';
 import Login from './views/Login.vue';
 import Register from './views/Register.vue';
@@ -14,6 +15,7 @@ import 'bootstrap-vue/dist/bootstrap-vue.css';
 Vue.use(Router);
 Vue.use(BootstrapVue);
 Vue.use(VueResource);
+Vue.use(Moment);
 
 Vue.http.headers.common.Authorization = `Bearer ${cookie.get('token')}`;
 

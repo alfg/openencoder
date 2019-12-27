@@ -12,6 +12,13 @@
       :busy="!items"
       :items="items">
 
+      <template v-slot:cell(created_date)="data">
+        <span
+          v-b-tooltip="data.item.created_date">
+          {{ data.item.created_date |  moment("from", "now") }}
+        </span>
+      </template>
+
       <template v-slot:cell(status)="data">
         <b-badge
           :variant="['error', 'cancelled'].includes(data.item.status) ? 'danger' : 'primary'"

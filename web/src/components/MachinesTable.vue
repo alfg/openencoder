@@ -4,6 +4,12 @@
       striped hover dark
       :fields="fields"
       :items="items">
+      <template v-slot:cell(created_at)="data">
+        <span
+          v-b-tooltip="data.item.created_at">
+          {{ data.item.created_at |  moment("from", "now") }}
+        </span>
+      </template>
       <template v-slot:cell(action)="data">
         <b-button variant="light" @click="onClickDelete(data.item.id)">❌</b-button>
       </template>
