@@ -20,6 +20,7 @@ import (
 const (
 	EndpointAmazonAWS          = ".amazonaws.com"
 	EndpointDigitalOceanSpaces = ".digitaloceanspaces.com"
+	PresignedDuration          = 72 * time.Hour // 3 days.
 )
 
 // S3 Provider Endpoints with region.
@@ -250,7 +251,7 @@ func (s *S3) GetPresignedURL(job types.Job) (string, error) {
 	}
 
 	req, _ := svc.GetObjectRequest(&objInput)
-	urlStr, err := req.Presign(15 * time.Minute)
+	urlStr, err := req.Presign(PresignedDuration)
 
 	return urlStr, err
 }
