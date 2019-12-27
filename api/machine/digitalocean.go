@@ -264,7 +264,6 @@ func (do *DigitalOcean) GetCurrentPricing(ctx context.Context, tag string) (*Pri
 	}
 
 	// Calculate pricing.
-
 	var running = len(machines)
 	var priceHourly float64
 	var priceMonthly float64
