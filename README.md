@@ -58,21 +58,16 @@ docker-compose up -d redis
 docker-compose up -d db
 ```
 
-When the database container runs for the first time, it will create a persistent volume as `/var/lib/postgresql/data`. It will also run the scripts in `scripts/` to create the database, schema, settings and presets.
-
-
-* Set environment variables in `docker-compose.yml`.
-
-*Environment variables will override defaults set in `config/default.yml`.*
+When the database container runs for the first time, it will create a persistent volume as `/var/lib/postgresql/data`. It will also run the scripts in `scripts/` to create the database, schema, settings, presets, and an admin user.
 
 * Build & start API server:
 ```
-go build -v && openencoder.exe server
+go build -v && ./openencoder server
 ```
 
-* Build & start worker:
+* Start the worker:
 ```
-go build -v && openencoder.exe worker
+./openencoder worker
 ```
 
 * Start Web Dashboard for development:
@@ -80,20 +75,10 @@ go build -v && openencoder.exe worker
 cd static && npm run serve
 ```
 
-## Example Usage
-```bash
-curl -X POST \
-  http://localhost:8080/api/jobs \
-  -H 'Content-Type: application/json' \
-  -d '{
-	"preset": "h264_baseline_360p_600",
-	"source": "s3:///src/ToS-1080p.mp4",
-	"dest": "s3:///dst/tears-of-steel/"
-  }'
-```
+* Open `http://localhost:8081/dashboard` in the browser and login with `admin/password`.
 
-See [API.md](/API.md) for full jobs API documentation.
 
+See [Quick-Setup-Guide](https://github.com/alfg/openencoder/wiki/Quick-Setup-Guide-%5Bfor-development%5D) for full development setup guide.
 
 ## API
 See: [API.md](/API.md)
