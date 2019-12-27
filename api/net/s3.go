@@ -20,6 +20,7 @@ import (
 const (
 	EndpointAmazonAWS          = ".amazonaws.com"
 	EndpointDigitalOceanSpaces = ".digitaloceanspaces.com"
+	PresignedDuration          = 72 * time.Hour // 3 days.
 )
 
 // S3 Provider Endpoints with region.
@@ -230,6 +231,29 @@ func (s *S3) S3ListFiles(prefix string) (*s3.ListObjectsV2Output, error) {
 		},
 	)
 	return resp, err
+}
+
+// GetPresignedURL generates a presigned URL from S3.
+func (s *S3) GetPresignedURL(job types.Job) (string, error) {
+	sess, err := session.NewSession(&aws.Config{
+		Endpoint:    aws.String(s.Endpoint),
+		Region:      aws.String(s.Region),
+		Credentials: credentials.NewStaticCredentials(s.AccessKey, s.SecretKey, ""),
+	})
+	svc := s3.New(sess)
+
+	parsedURL, _ := url.Parse(job.Source.String)
+	key := parsedURL.Path
+
+	objInput := s3.GetObjectInput{
+		Bucket: aws.String(s.InboundBucket),
+		Key:    aws.String(key),
+	}
+
+	req, _ := svc.GetObjectRequest(&objInput)
+	urlStr, err := req.Presign(PresignedDuration)
+
+	return urlStr, err
 }
 
 func isDirectory(path string) bool {
