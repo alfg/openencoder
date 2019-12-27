@@ -3,15 +3,14 @@
     <h2>Register</h2>
     <b-form @submit="onSubmit" v-if="show">
       <b-form-group
-        label="Email:"
-        label-for="input-email"
+        label="Username:"
+        label-for="input-username"
       >
         <b-form-input
-          id="input-email"
+          id="input-username"
           v-model="form.username"
-          type="email"
+          type="input"
           required
-          placeholder="you@email.com"
         ></b-form-input>
       </b-form-group>
 

@@ -7,14 +7,11 @@
       <b-form-group id="input-group-username" label="Username:" label-for="input-username">
           <b-form-input
             id="input-username"
-            type="email"
+            type="input"
             required
             aria-describedby="username-help-block"
             v-model="form.username"
           ></b-form-input>
-          <b-form-text id="username-help-block">
-            Username must be an email.
-          </b-form-text>
       </b-form-group>
 
       <b-form-group

@@ -6,7 +6,7 @@
       <b-form-group id="input-group-username" label="Username:" label-for="input-username">
           <b-form-input
             id="input-username"
-            type="email"
+            type="input"
             required
             v-model="form.username"
           ></b-form-input>

@@ -45,7 +45,12 @@
       </b-form-group>
 
       <div class="mb-4">
-        <b-alert show variant="info">FFmpeg presets follow the <a href="https://alfg.github.io/ffmpeg-commander">ffmpeg-commander</a> JSON format. See documentation for details.</b-alert>
+        <b-alert
+          show
+          variant="info"
+        >FFmpeg presets follow the <a href="https://alfg.github.io/ffmpeg-commander">ffmpeg-commander</a> JSON
+        format. See <a href="https://github.com/alfg/openencoder/wiki/Creating-Presets">wiki</a> for details.
+        </b-alert>
         <div ref="editor"></div>
       </div>
 
