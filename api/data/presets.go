@@ -1,8 +1,6 @@
 package data
 
 import (
-	"fmt"
-
 	"github.com/alfg/openencoder/api/types"
 )
 
@@ -35,7 +33,7 @@ func (p PresetsOp) GetPresets(offset, count int) *[]types.Preset {
 	presets := []types.Preset{}
 	err := db.Select(&presets, query, count, offset)
 	if err != nil {
-		fmt.Println(err)
+		log.Fatal(err)
 	}
 	db.Close()
 	return &presets
@@ -52,7 +50,7 @@ func (p PresetsOp) GetPresetByID(id int) (*types.Preset, error) {
 	preset := types.Preset{}
 	err := db.Get(&preset, query, id)
 	if err != nil {
-		fmt.Println(err)
+		log.Fatal(err)
 		return &preset, err
 	}
 	db.Close()
@@ -70,7 +68,7 @@ func (p PresetsOp) GetPresetByName(name string) (*types.Preset, error) {
 	preset := types.Preset{}
 	err := db.Get(&preset, query, name)
 	if err != nil {
-		fmt.Println(err)
+		log.Fatal(err)
 		return &preset, err
 	}
 	db.Close()
@@ -85,7 +83,7 @@ func (p PresetsOp) GetPresetsCount() int {
 	db, _ := ConnectDB()
 	err := db.Get(&count, query)
 	if err != nil {
-		fmt.Println(err)
+		log.Fatal(err)
 	}
 	db.Close()
 	return count
@@ -103,13 +101,13 @@ func (p PresetsOp) CreatePreset(preset types.Preset) (*types.Preset, error) {
 	tx := db.MustBegin()
 	stmt, err := tx.PrepareNamed(query)
 	if err != nil {
-		fmt.Println("Error", err)
+		log.Fatal(err)
 	}
 
 	var id int64 // Returned ID.
 	err = stmt.QueryRowx(&preset).Scan(&id)
 	if err != nil {
-		fmt.Println("Error", err.Error())
+		log.Fatal(err.Error())
 		return nil, err
 	}
 	tx.Commit()
@@ -130,7 +128,7 @@ func (p PresetsOp) UpdatePresetByID(id int, preset types.Preset) *types.Preset {
 	tx := db.MustBegin()
 	_, err := tx.NamedExec(query, &preset)
 	if err != nil {
-		fmt.Println(err)
+		log.Fatal(err)
 	}
 	tx.Commit()
 
@@ -146,7 +144,7 @@ func (p PresetsOp) UpdatePresetStatusByID(id int, active bool) error {
 	tx := db.MustBegin()
 	_, err := tx.Exec(query, active, id)
 	if err != nil {
-		fmt.Println(err)
+		log.Fatal(err)
 		return err
 	}
 	tx.Commit()

@@ -22,7 +22,6 @@ func init() {
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "default", "Config YAML")
 
 	config.LoadConfig(cfgFile)
-	fmt.Println(config.Get())
 }
 
 // Execute starts cmd.

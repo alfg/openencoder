@@ -1,8 +1,6 @@
 package data
 
 import (
-	"fmt"
-
 	"github.com/alfg/openencoder/api/types"
 )
 
@@ -37,13 +35,13 @@ func (u UsersOp) CreateUser(user types.User) (*types.User, error) {
 	tx := db.MustBegin()
 	stmt, err := tx.PrepareNamed(query)
 	if err != nil {
-		fmt.Println("Error", err)
+		log.Fatal(err)
 	}
 
 	var id int64 // Returned ID.
 	err = stmt.QueryRowx(&user).Scan(&id)
 	if err != nil {
-		fmt.Println("Error", err.Error())
+		log.Fatal(err.Error())
 		return nil, err
 	}
 	tx.Commit()
@@ -65,7 +63,7 @@ func (u UsersOp) GetUserByUsername(username string) (*types.User, error) {
 	user := types.User{}
 	err := db.Get(&user, query, username)
 	if err != nil {
-		fmt.Println(err)
+		log.Fatal(err)
 		return &user, err
 	}
 	db.Close()
@@ -81,7 +79,7 @@ func (u UsersOp) GetUserID(username string) int64 {
 	db, _ := ConnectDB()
 	err := db.QueryRow(query, username).Scan(&id)
 	if err != nil {
-		fmt.Println(err)
+		log.Fatal(err)
 	}
 	return id
 }
@@ -97,7 +95,7 @@ func (u UsersOp) UpdateUserByID(id int, user *types.User) (*types.User, error) {
 	tx := db.MustBegin()
 	_, err := tx.NamedExec(query, &user)
 	if err != nil {
-		fmt.Println(err)
+		log.Fatal(err)
 		return user, err
 	}
 	tx.Commit()
@@ -117,7 +115,7 @@ func (u UsersOp) UpdateUserPasswordByID(id int64, user *types.User) (*types.User
 	tx := db.MustBegin()
 	_, err := tx.NamedExec(query, &user)
 	if err != nil {
-		fmt.Println(err)
+		log.Fatal(err)
 		return user, err
 	}
 	tx.Commit()
@@ -138,7 +136,7 @@ func (u UsersOp) GetUsers(offset, count int) *[]types.User {
 	users := []types.User{}
 	err := db.Select(&users, query, count, offset)
 	if err != nil {
-		fmt.Println(err)
+		log.Fatal(err)
 	}
 	db.Close()
 	return &users
@@ -169,7 +167,7 @@ func (u UsersOp) GetUsersCount() int {
 	db, _ := ConnectDB()
 	err := db.Get(&count, query)
 	if err != nil {
-		fmt.Println(err)
+		log.Fatal(err)
 	}
 	db.Close()
 	return count

@@ -2,7 +2,6 @@ package encoder
 
 import (
 	"encoding/json"
-	"fmt"
 	"os/exec"
 )
 
@@ -28,12 +27,12 @@ func (f FFProbe) Run(input string) *FFProbeResponse {
 
 	// Execute command.
 	cmd := exec.Command(ffprobeCmd, args...)
-	fmt.Println("Running FFprobe...")
+	log.Info("Running FFprobe...")
 	stdout, err := cmd.CombinedOutput()
 	if err != nil {
-		fmt.Println(err.Error())
+		log.Fatal(err.Error())
 	}
-	// fmt.Println(string(stdout))
+	// log.Info((string(stdout))
 
 	// j, _ := json.Marshal(string(stdout))
 	dat := &FFProbeResponse{}

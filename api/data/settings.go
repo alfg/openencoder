@@ -47,7 +47,7 @@ func (s SettingsOp) GetSetting(key string) types.Setting {
 	setting := types.Setting{}
 	err := db.Get(&setting, query, key)
 	if err != nil {
-		fmt.Println(err)
+		log.Fatal(err)
 	}
 	db.Close()
 
@@ -77,7 +77,7 @@ func (s SettingsOp) GetSettings() []types.Setting {
 	settings := []types.Setting{}
 	err := db.Select(&settings, query)
 	if err != nil {
-		fmt.Println(err)
+		log.Fatal(err)
 	}
 	db.Close()
 
@@ -100,7 +100,7 @@ func (s SettingsOp) GetSettingsOptions() []types.SettingsOption {
 	options := []types.SettingsOption{}
 	err := db.Select(&options, query)
 	if err != nil {
-		fmt.Println(err)
+		log.Fatal(err)
 	}
 	db.Close()
 	return options
@@ -153,7 +153,7 @@ func (s SettingsOp) UpdateSetting(setting types.Setting) *types.Setting {
 	tx := db.MustBegin()
 	_, err := tx.NamedExec(query, &setting)
 	if err != nil {
-		fmt.Println(err)
+		log.Fatal(err)
 	}
 	tx.Commit()
 
@@ -173,13 +173,13 @@ func (s SettingsOp) CreateSetting(setting types.Setting) *types.Setting {
 	tx := db.MustBegin()
 	stmt, err := tx.PrepareNamed(query)
 	if err != nil {
-		fmt.Println("Error", err.Error())
+		log.Fatal(err.Error())
 	}
 
 	var id int64 // Returned ID.
 	err = stmt.QueryRowx(&setting).Scan(&id)
 	if err != nil {
-		fmt.Println("Error", err.Error())
+		log.Fatal(err.Error())
 	}
 	tx.Commit()
 
@@ -202,7 +202,7 @@ func (s SettingsOp) SettingExists(optionID int64) bool {
 	db, _ := ConnectDB()
 	err := db.QueryRow(query, optionID).Scan(&exists)
 	if err != nil {
-		fmt.Println(err)
+		log.Fatal(err)
 	}
 	db.Close()
 	return exists

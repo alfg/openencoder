@@ -10,8 +10,6 @@ import (
 	"strconv"
 	"strings"
 	"time"
-
-	log "github.com/sirupsen/logrus"
 )
 
 const (
@@ -180,7 +178,7 @@ func (f *FFmpeg) trackProgress() {
 			ticker.Stop()
 			return
 		case <-ticker.C:
-			// fmt.Println(f.Progress)
+			// log.Info((f.Progress)
 		}
 	}
 }

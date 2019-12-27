@@ -3,7 +3,6 @@ package machine
 import (
 	"bytes"
 	"html/template"
-	"log"
 
 	"github.com/alfg/openencoder/api/config"
 )
