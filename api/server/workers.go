@@ -1,8 +1,6 @@
 package server
 
 import (
-	"fmt"
-
 	"github.com/alfg/openencoder/api/config"
 	"github.com/gin-gonic/gin"
 	"github.com/gocraft/work"
@@ -13,7 +11,7 @@ func workerQueueHandler(c *gin.Context) {
 
 	queues, err := client.Queues()
 	if err != nil {
-		fmt.Println(err)
+		log.Fatal(err)
 	}
 	c.JSON(200, queues)
 }
@@ -23,7 +21,7 @@ func workerPoolsHandler(c *gin.Context) {
 
 	resp, err := client.WorkerPoolHeartbeats()
 	if err != nil {
-		fmt.Println(err)
+		log.Fatal(err)
 	}
 	c.JSON(200, resp)
 }
@@ -33,7 +31,7 @@ func workerBusyHandler(c *gin.Context) {
 
 	observations, err := client.WorkerObservations()
 	if err != nil {
-		fmt.Println(err)
+		log.Fatal(err)
 	}
 
 	var busyObservations []*work.WorkerObservation

@@ -3,25 +3,25 @@ package data
 import (
 	_ "database/sql" // Database.
 	"fmt"
-	"log"
 
 	"github.com/alfg/openencoder/api/config"
+	"github.com/alfg/openencoder/api/logging"
 	"github.com/jmoiron/sqlx"
 
 	_ "github.com/lib/pq" // Postgres driver.
-	// _ "github.com/mattn/go-sqlite3"
 )
 
 var (
 	connectionString = ""
 	conn             *sqlx.DB
+	log              = logging.Log
 )
 
 // ConnectDB Connects to postgres database
 func ConnectDB() (*sqlx.DB, error) {
 	var err error
 	if connectionString == "" {
-		fmt.Println("connection not set. setting now.")
+		log.Info("connection not set. setting now.")
 		var (
 			host     = config.Get().DatabaseHost
 			port     = config.Get().DatabasePort

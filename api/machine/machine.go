@@ -1,5 +1,9 @@
 package machine
 
+import "github.com/alfg/openencoder/api/logging"
+
+var log = logging.Log
+
 // Machine defines a machine struct from a provider.
 type Machine struct {
 	ID       int      `json:"id"`

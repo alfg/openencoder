@@ -16,7 +16,6 @@ import (
 	"github.com/alfg/openencoder/api/net"
 	"github.com/alfg/openencoder/api/notify"
 	"github.com/alfg/openencoder/api/types"
-	log "github.com/sirupsen/logrus"
 )
 
 var progressCh chan struct{}
@@ -288,7 +287,7 @@ func trackTransferProgress(encodeID int64, d *net.S3) {
 			ticker.Stop()
 			return
 		case <-ticker.C:
-			fmt.Println("transfer progress: ", d.Progress.Progress)
+			log.Info("transfer progress: ", d.Progress.Progress)
 			db.Jobs.UpdateTransferProgressByID(encodeID, float64(d.Progress.Progress))
 		}
 	}

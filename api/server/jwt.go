@@ -2,7 +2,6 @@ package server
 
 import (
 	"errors"
-	"log"
 	"time"
 
 	"github.com/alfg/openencoder/api/config"

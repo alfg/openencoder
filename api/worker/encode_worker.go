@@ -8,11 +8,13 @@ import (
 
 	"github.com/alfg/openencoder/api/config"
 	"github.com/alfg/openencoder/api/data"
+	"github.com/alfg/openencoder/api/logging"
 	"github.com/alfg/openencoder/api/types"
 	"github.com/gocraft/work"
 	"github.com/gomodule/redigo/redis"
-	log "github.com/sirupsen/logrus"
 )
+
+var log = logging.Log
 
 // Context defines the job context to be passed to the worker.
 type Context struct {

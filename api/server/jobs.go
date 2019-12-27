@@ -2,7 +2,6 @@ package server
 
 import (
 	"database/sql"
-	"log"
 	"net/http"
 	"strconv"
 	"sync"

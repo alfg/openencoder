@@ -2,7 +2,6 @@ package server
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 	"strconv"
 
@@ -38,7 +37,7 @@ func machinesHandler(c *gin.Context) {
 	// Get list of machines from DO client.
 	machines, err := client.ListDropletByTag(ctx, tag)
 	if err != nil {
-		fmt.Println(err)
+		log.Fatal(err)
 	}
 
 	c.JSON(200, gin.H{
@@ -70,7 +69,7 @@ func createMachineHandler(c *gin.Context) {
 	// Create machine.
 	machine, err := client.CreateDroplets(ctx, json.Region, json.Size, json.Count)
 	if err != nil {
-		fmt.Println(err)
+		log.Fatal(err)
 	}
 
 	// TODO: Add resource to project?
@@ -100,7 +99,7 @@ func deleteMachineHandler(c *gin.Context) {
 	// Create machine.
 	machine, err := client.DeleteDropletByID(ctx, id)
 	if err != nil {
-		fmt.Println(err)
+		log.Fatal(err)
 	}
 
 	c.JSON(200, gin.H{
@@ -126,7 +125,7 @@ func deleteMachineByTagHandler(c *gin.Context) {
 	// Create machine.
 	err := client.DeleteDropletByTag(ctx, tag)
 	if err != nil {
-		fmt.Println(err)
+		log.Fatal(err)
 	}
 
 	c.JSON(200, gin.H{
@@ -152,7 +151,7 @@ func listMachineRegionsHandler(c *gin.Context) {
 	// Get list of machine regions from DO client.
 	regions, err := client.ListRegions(ctx)
 	if err != nil {
-		fmt.Println(err)
+		log.Fatal(err)
 	}
 
 	c.JSON(200, gin.H{
@@ -177,7 +176,7 @@ func listMachineSizesHandler(c *gin.Context) {
 	// Get list of machine sizes from DO client.
 	sizes, err := client.ListSizes(ctx)
 	if err != nil {
-		fmt.Println(err)
+		log.Fatal(err)
 	}
 
 	c.JSON(200, gin.H{
@@ -194,7 +193,7 @@ func getCurrentMachinePricing(c *gin.Context) {
 	// Get the current machine pricing from DO client.
 	pricing, err := client.GetCurrentPricing(ctx, tag)
 	if err != nil {
-		fmt.Println(err)
+		log.Fatal(err)
 	}
 
 	c.JSON(200, gin.H{

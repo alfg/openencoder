@@ -4,15 +4,16 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/alfg/openencoder/api/logging"
 	"github.com/gin-gonic/gin"
 	"github.com/gocraft/work"
 	"github.com/gomodule/redigo/redis"
-	log "github.com/sirupsen/logrus"
 )
 
 var (
 	redisPool *redis.Pool
 	enqueuer  *work.Enqueuer
+	log       = logging.Log
 )
 
 // Config defines configuration for creating a NewServer.
