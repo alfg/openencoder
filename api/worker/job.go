@@ -1,6 +1,7 @@
 package worker
 
 import (
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"math"
@@ -22,6 +23,24 @@ var progressCh chan struct{}
 
 const progressInterval = time.Second * 5
 const slackWebhookKey = "SLACK_WEBHOOK"
+
+func generatePresignedURL(job types.Job) (string, error) {
+	log.Info("generating a presigned URL")
+
+	// Update status.
+	db := data.New()
+	db.Jobs.UpdateJobStatusByGUID(job.GUID, types.JobDownloading)
+
+	// Get downloader type.
+	d := net.GetDownloader()
+
+	// Get presigned URL.
+	str, err := d.GetPresignedURL(job)
+	if err != nil {
+		log.Error(err)
+	}
+	return str, nil
+}
 
 func download(job types.Job) error {
 	log.Info("running download task")
@@ -61,7 +80,7 @@ func probe(job types.Job) (*encoder.FFProbeResponse, error) {
 
 	// Run FFProbe.
 	f := encoder.FFProbe{}
-	probeData := f.Run(job.LocalSource)
+	probeData := f.Run(job.Source.String)
 
 	// Add probe data to DB.
 	b, err := json.Marshal(probeData)
@@ -96,7 +115,7 @@ func encode(job types.Job, probeData *encoder.FFProbeResponse) error {
 	// Run FFmpeg.
 	f := &encoder.FFmpeg{}
 	go trackEncodeProgress(j.GUID, j.EncodeID, probeData, f)
-	err = f.Run(job.LocalSource, dest, p.Data)
+	err = f.Run(job.Source.String, dest, p.Data)
 	if err != nil {
 		close(progressCh)
 		return err
@@ -179,13 +198,30 @@ func runEncodeJob(job types.Job) {
 
 	db := data.New()
 
-	// 1. Download.
-	err := download(job)
+	// 0. Get presigned URL.
+	presigned, err := generatePresignedURL(job)
 	if err != nil {
 		log.Error(err)
 		db.Jobs.UpdateJobStatusByGUID(job.GUID, types.JobError)
 		return
 	}
+
+	// Update source with presigned URL.
+	// TODO: job.Source should really just be string type.
+	job.Source = types.NullString{
+		NullString: sql.NullString{
+			String: presigned,
+			Valid:  true,
+		},
+	}
+
+	// 1. Download.
+	// err = download(job)
+	// if err != nil {
+	// 	log.Error(err)
+	// 	db.Jobs.UpdateJobStatusByGUID(job.GUID, types.JobError)
+	// 	return
+	// }
 
 	// 2. Probe data.
 	probeData, err := probe(job)
