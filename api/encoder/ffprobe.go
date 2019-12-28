@@ -19,12 +19,6 @@ func (f FFProbe) Run(input string) *FFProbeResponse {
 		"-v", "quiet",
 	}
 
-	// Build args string.
-	// for _, v := range options {
-	// 	args = append(args, strings.Split(v, " ")...)
-	// }
-	// args = append(args, output)
-
 	// Execute command.
 	cmd := exec.Command(ffprobeCmd, args...)
 	log.Info("Running FFprobe...")
@@ -34,7 +28,6 @@ func (f FFProbe) Run(input string) *FFProbeResponse {
 	}
 	// log.Info((string(stdout))
 
-	// j, _ := json.Marshal(string(stdout))
 	dat := &FFProbeResponse{}
 	if err := json.Unmarshal([]byte(stdout), &dat); err != nil {
 		panic(err)
@@ -42,11 +35,12 @@ func (f FFProbe) Run(input string) *FFProbeResponse {
 	return dat
 }
 
+// FFProbeResponse defines the response from ffprobe.
 type FFProbeResponse struct {
-	Streams []Stream `json:"streams"`
+	Streams []stream `json:"streams"`
 }
 
-type Stream struct {
+type stream struct {
 	Index              int         `json:"index"`
 	CodecName          string      `json:"codec_name"`
 	CodecLongName      string      `json:"codec_long_name"`
@@ -78,11 +72,11 @@ type Stream struct {
 	BitRate            string      `json:"bit_rate"`
 	BitsPerRawSample   string      `json:"bits_per_raw_sample"`
 	NbFrames           string      `json:"nb_frames"`
-	Disposition        Disposition `json:"disposition"`
-	Tags               Tags        `json:"tags"`
+	Disposition        disposition `json:"disposition"`
+	Tags               tags        `json:"tags"`
 }
 
-type Disposition struct {
+type disposition struct {
 	Default         int `json:"default"`
 	Dub             int `json:"dub"`
 	Original        int `json:"original"`
@@ -97,7 +91,7 @@ type Disposition struct {
 	TimedThumbnails int `json:"timed_thumbnails"`
 }
 
-type Tags struct {
+type tags struct {
 	Language    string `json:"language"`
 	HandlerName string `json:"handler_name"`
 }

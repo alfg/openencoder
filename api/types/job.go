@@ -33,19 +33,20 @@ var JobStatuses = []string{
 
 // Job describes the job info.
 type Job struct {
-	ID          int64      `db:"id" json:"id"`
-	GUID        string     `db:"guid" json:"guid"`
-	Preset      string     `db:"preset" json:"preset"`
-	CreatedDate string     `db:"created_date" json:"created_date"`
-	Status      string     `db:"status" json:"status"`
-	Source      NullString `db:"source" json:"source"`
-	Destination NullString `db:"destination" json:"destination"`
+	ID          int64  `db:"id" json:"id"`
+	GUID        string `db:"guid" json:"guid"`
+	Preset      string `db:"preset" json:"preset"`
+	CreatedDate string `db:"created_date" json:"created_date"`
+	Status      string `db:"status" json:"status"`
+	Source      string `db:"source" json:"source"`
+	Destination string `db:"destination" json:"destination"`
 
 	// EncodeData.
 	Encode `db:"encode"`
 
 	LocalSource      string `json:"local_source,omitempty"`
 	LocalDestination string `json:"local_destination,omitempty"`
+	Streaming        bool   `json:"streaming"`
 }
 
 // Encode describes the encode data.

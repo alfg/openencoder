@@ -11,6 +11,7 @@ const (
 	S3OutboundBucket        = "S3_OUTBOUND_BUCKET"
 	S3OutboundBucketRegion  = "S3_OUTBOUND_BUCKET_REGION"
 	S3Provider              = "S3_PROVIDER"
+	S3Streaming             = "S3_STREAMING"
 
 	DigitalOcean = "DIGITALOCEAN"
 	AWS          = "AWS"
@@ -37,6 +38,7 @@ type SettingsOption struct {
 	Secure      bool   `db:"secure" json:"secure"`
 }
 
+// SettingsForm defines the setting form options.
 type SettingsForm struct {
 	Name        string `json:"name"`
 	Title       string `json:"title"`

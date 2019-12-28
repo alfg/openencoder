@@ -84,7 +84,7 @@ func (s *S3) S3Download(job types.Job) error {
 	s3Client := s3.New(sess)
 	downloader := s3manager.NewDownloader(sess)
 
-	parsedURL, _ := url.Parse(job.Source.String)
+	parsedURL, _ := url.Parse(job.Source)
 	key := parsedURL.Path
 
 	size, err := getFileSize(s3Client, s.InboundBucket, key)
@@ -182,7 +182,7 @@ func (s *S3) uploadFile(path string, job types.Job) error {
 	}
 
 	// Set key.
-	parsedURL, _ := url.Parse(job.Destination.String)
+	parsedURL, _ := url.Parse(job.Destination)
 	key := parsedURL.Path + filepath.Base(path)
 
 	s.Reader = &ProgressReader{
@@ -242,7 +242,7 @@ func (s *S3) GetPresignedURL(job types.Job) (string, error) {
 	})
 	svc := s3.New(sess)
 
-	parsedURL, _ := url.Parse(job.Source.String)
+	parsedURL, _ := url.Parse(job.Source)
 	key := parsedURL.Path
 
 	objInput := s3.GetObjectInput{

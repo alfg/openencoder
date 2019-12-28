@@ -16,7 +16,10 @@
           :description="o.description"
         >
           <div v-if="isSelectInput(o.name)">
-            <b-form-select v-model="form[o.name]" :options="providers"></b-form-select>
+            <b-form-select
+              v-model="form[o.name]"
+              :options="getSelectOptions(o.name)">
+            </b-form-select>
           </div>
           <div v-else>
             <b-form-input
@@ -58,9 +61,14 @@ export default {
       form: {},
       settings: {},
       providers: [
-        { value: '', text: 'Select an S3 Provider' },
+        { value: '', text: 'Select an S3 Provider', disabled: true },
         { value: 'digitalocean', text: 'Digital Ocean' },
         { value: 'aws', text: 'Amazon AWS' },
+      ],
+      streamingOptions: [
+        { value: '', text: 'Select an S3 Streaming Option', disabled: true },
+        { value: 'enabled', text: 'Enabled' },
+        { value: 'disabled', text: 'Disabled' },
       ],
       hide: true,
       dismissSecs: 5,
@@ -75,7 +83,20 @@ export default {
 
   methods: {
     isSelectInput(inputName) {
-      return ['S3_PROVIDER'].includes(inputName);
+      return ['S3_PROVIDER', 'S3_STREAMING'].includes(inputName);
+    },
+
+    getSelectOptions(inputName) {
+      switch (inputName) {
+        case 'S3_PROVIDER':
+          return this.providers;
+
+        case 'S3_STREAMING':
+          return this.streamingOptions;
+
+        default:
+          return [];
+      }
     },
 
     countDownChanged(dismissCountDown) {
