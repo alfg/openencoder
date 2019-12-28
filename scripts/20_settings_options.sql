@@ -7,3 +7,4 @@ INSERT INTO public.settings_option (id, name, description, title, secure) VALUES
 INSERT INTO public.settings_option (id, name, description, title, secure) VALUES (9, 'S3_OUTBOUND_BUCKET_REGION', 'S3 Outbound Bucket Region', 'S3 Outbound Bucket Region', false);
 INSERT INTO public.settings_option (id, name, description, title, secure) VALUES (7, 'S3_INBOUND_BUCKET_REGION', 'S3 Inbound Bucket Region', 'S3 Inbound Bucket Region', false);
 INSERT INTO public.settings_option (id, name, description, title, secure) VALUES (10, 'S3_PROVIDER', 'S3 Provider', 'S3 Provider', false);
+INSERT INTO public.settings_option (id, name, description, title, secure) VALUES (11, 'S3_STREAMING', 'Enable this setting to enable streaming directly to FFmpeg from a pre-signed S3 URL, instead of downloading the file first if disk space is a concern. Please note this setting can impact performance.', 'Stream Encode from S3', false);
