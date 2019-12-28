@@ -18,6 +18,7 @@ type settingsUpdateRequest struct {
 	S3OutboundBucket        string `json:"S3_OUTBOUND_BUCKET"`
 	S3OutboundBucketRegion  string `json:"S3_OUTBOUND_BUCKET_REGION"`
 	S3Provider              string `json:"S3_PROVIDER" binding:"eq=digitalocean|eq=aws|eq="`
+	S3Streaming             string `json:"S3_STREAMING" binding:"eq=enabled|eq=disabled"`
 }
 
 func settingsHandler(c *gin.Context) {
@@ -81,6 +82,7 @@ func updateSettingsHandler(c *gin.Context) {
 		types.S3OutboundBucket:        json.S3OutboundBucket,
 		types.S3OutboundBucketRegion:  json.S3OutboundBucketRegion,
 		types.S3Provider:              json.S3Provider,
+		types.S3Streaming:             json.S3Streaming,
 	}
 
 	db := data.New()

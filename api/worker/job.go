@@ -1,7 +1,6 @@
 package worker
 
 import (
-	"database/sql"
 	"encoding/json"
 	"fmt"
 	"math"
@@ -80,7 +79,7 @@ func probe(job types.Job) (*encoder.FFProbeResponse, error) {
 
 	// Run FFProbe.
 	f := encoder.FFProbe{}
-	probeData := f.Run(job.Source.String)
+	probeData := f.Run(job.Source)
 
 	// Add probe data to DB.
 	b, err := json.Marshal(probeData)
@@ -115,7 +114,7 @@ func encode(job types.Job, probeData *encoder.FFProbeResponse) error {
 	// Run FFmpeg.
 	f := &encoder.FFmpeg{}
 	go trackEncodeProgress(j.GUID, j.EncodeID, probeData, f)
-	err = f.Run(job.Source.String, dest, p.Data)
+	err = f.Run(job.Source, dest, p.Data)
 	if err != nil {
 		close(progressCh)
 		return err
@@ -183,7 +182,7 @@ func sendAlert(job types.Job) error {
 			"*Preset*: %s\n"+
 			"*Source*: %s\n"+
 			"*Destination*: %s\n\n",
-		job.GUID, job.Preset, job.Source.String, job.Destination.String)
+		job.GUID, job.Preset, job.Source, job.Destination)
 	err := notify.SendSlackMessage(webhook, message)
 	if err != nil {
 		return err
@@ -194,38 +193,41 @@ func sendAlert(job types.Job) error {
 func runEncodeJob(job types.Job) {
 	// Set local src path.
 	job.LocalSource = helpers.CreateLocalSourcePath(
-		config.Get().WorkDirectory, job.Source.String, job.GUID)
+		config.Get().WorkDirectory, job.Source, job.GUID)
 
 	db := data.New()
 
-	// 0. Get presigned URL.
-	presigned, err := generatePresignedURL(job)
-	if err != nil {
-		log.Error(err)
-		db.Jobs.UpdateJobStatusByGUID(job.GUID, types.JobError)
-		return
-	}
+	// If STREAMING setting is enabled, get a presigned URL and update
+	// the job.Source.
+	isStreaming := db.Settings.GetSetting("S3_STREAMING").Value
+	if isStreaming == "enabled" {
+		// 0. Get presigned URL.
+		presigned, err := generatePresignedURL(job)
+		if err != nil {
+			log.Error(err)
+			db.Jobs.UpdateJobStatusByGUID(job.GUID, types.JobError)
+			return
+		}
 
-	// Update source with presigned URL.
-	// TODO: job.Source should really just be string type.
-	job.Source = types.NullString{
-		NullString: sql.NullString{
-			String: presigned,
-			Valid:  true,
-		},
-	}
+		// Update source with presigned URL.
+		job.Source = presigned
 
-	// 1. Download.
-	// err = download(job)
-	// if err != nil {
-	// 	log.Error(err)
-	// 	db.Jobs.UpdateJobStatusByGUID(job.GUID, types.JobError)
-	// 	return
-	// }
+	} else {
+		// 1. Download.
+		err := download(job)
+		if err != nil {
+			log.Error(err)
+			db.Jobs.UpdateJobStatusByGUID(job.GUID, types.JobError)
+			return
+		}
+
+		job.Source = job.LocalSource
+	}
 
 	// 2. Probe data.
 	probeData, err := probe(job)
 	if err != nil {
+		fmt.Println(err)
 		log.Error(err)
 		db.Jobs.UpdateJobStatusByGUID(job.GUID, types.JobError)
 		return

@@ -2,6 +2,7 @@ package encoder
 
 import (
 	"encoding/json"
+	"fmt"
 	"os/exec"
 )
 
@@ -19,11 +20,7 @@ func (f FFProbe) Run(input string) *FFProbeResponse {
 		"-v", "quiet",
 	}
 
-	// Build args string.
-	// for _, v := range options {
-	// 	args = append(args, strings.Split(v, " ")...)
-	// }
-	// args = append(args, output)
+	fmt.Println(args)
 
 	// Execute command.
 	cmd := exec.Command(ffprobeCmd, args...)

@@ -1,7 +1,6 @@
 package worker
 
 import (
-	"database/sql"
 	"fmt"
 	"os"
 	"os/signal"
@@ -67,20 +66,10 @@ func (c *Context) SendJob(job *work.Job) error {
 	destination := job.ArgString("destination")
 
 	j := types.Job{
-		GUID:   guid,
-		Preset: preset,
-		Source: types.NullString{
-			NullString: sql.NullString{
-				String: source,
-				Valid:  true,
-			},
-		},
-		Destination: types.NullString{
-			NullString: sql.NullString{
-				String: destination,
-				Valid:  true,
-			},
-		},
+		GUID:        guid,
+		Preset:      preset,
+		Source:      source,
+		Destination: destination,
 	}
 
 	// Check if job is cancelled.
