@@ -199,8 +199,8 @@ func runEncodeJob(job types.Job) {
 
 	// If STREAMING setting is enabled, get a presigned URL and update
 	// the job.Source.
-	isStreaming := db.Settings.GetSetting("S3_STREAMING").Value
-	if isStreaming == "enabled" {
+	s3Streaming := db.Settings.GetSetting("S3_STREAMING").Value
+	if s3Streaming == "enabled" {
 		// 0. Get presigned URL.
 		presigned, err := generatePresignedURL(job)
 		if err != nil {
