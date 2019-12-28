@@ -25,7 +25,8 @@ type FFmpeg struct {
 }
 
 type progress struct {
-	quit       chan struct{}
+	quit chan struct{}
+
 	Frame      int
 	FPS        float64
 	Bitrate    float64
@@ -114,6 +115,12 @@ func (f *FFmpeg) Cancel() {
 		log.Warn("failed to kill process: ", err)
 	}
 	log.Warn("killed ffmpeg process")
+}
+
+// Version gets the ffmpeg version.
+func (f *FFmpeg) Version() string {
+	out, _ := exec.Command(ffmpegCmd, "-version").Output()
+	return string(out)
 }
 
 func (f *FFmpeg) updateProgress(stdout io.ReadCloser) {
