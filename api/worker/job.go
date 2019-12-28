@@ -307,7 +307,8 @@ func trackEncodeProgress(guid string, encodeID int64, p *encoder.FFProbeResponse
 
 				// Update DB with progress.
 				pct = math.Round(pct*100) / 100
-				fmt.Printf("progress: %d / %d - %0.2f%%\r", currentFrame, totalFrames, pct)
+				// fmt.Printf("progress: %d / %d - %0.2f%%\r", currentFrame, totalFrames, pct)
+				log.Infof("progress: %d / %d - %0.2f%%", currentFrame, totalFrames, pct)
 				db.Jobs.UpdateEncodeProgressByID(encodeID, pct, speed, fps)
 			}
 		}
