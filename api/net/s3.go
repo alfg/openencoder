@@ -16,19 +16,6 @@ import (
 	"github.com/aws/aws-sdk-go/service/s3/s3manager"
 )
 
-// S3 Provider Endpoints.
-const (
-	EndpointAmazonAWS          = ".amazonaws.com"
-	EndpointDigitalOceanSpaces = ".digitaloceanspaces.com"
-	PresignedDuration          = 72 * time.Hour // 3 days.
-)
-
-// S3 Provider Endpoints with region.
-var (
-	EndpointDigitalOceanSpacesRegion = func(region string) string { return region + EndpointDigitalOceanSpaces }
-	EndpointAmazonAWSRegion          = func(region string) string { return "s3." + region + EndpointDigitalOceanSpaces }
-)
-
 // S3 creates a new S3 instance.
 type S3 struct {
 	Progress progress

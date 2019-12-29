@@ -10,9 +10,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-const settingKey = "DIGITAL_OCEAN_ACCESS_TOKEN"
-const tag = "openencoder-worker"
-
 type machineRequest struct {
 	Provider string `json:"provider" binding:"required"`
 	Region   string `json:"region" binding:"required"`
@@ -21,7 +18,7 @@ type machineRequest struct {
 }
 
 func machinesHandler(c *gin.Context) {
-	user, _ := c.Get(identityKey)
+	user, _ := c.Get(JwtIdentityKey)
 
 	// Role check.
 	if !isAdminOrOperator(user) {
@@ -30,12 +27,12 @@ func machinesHandler(c *gin.Context) {
 	}
 
 	d := data.New()
-	token := d.Settings.GetSetting(settingKey).Value
+	token := d.Settings.GetSetting(DigitalOceanAccessToken).Value
 	client, _ := machine.NewDigitalOceanClient(token)
 	ctx := context.TODO()
 
 	// Get list of machines from DO client.
-	machines, err := client.ListDropletByTag(ctx, tag)
+	machines, err := client.ListDropletByTag(ctx, WorkerTag)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -46,7 +43,7 @@ func machinesHandler(c *gin.Context) {
 }
 
 func createMachineHandler(c *gin.Context) {
-	user, _ := c.Get(identityKey)
+	user, _ := c.Get(JwtIdentityKey)
 
 	// Role check.
 	if !isAdminOrOperator(user) {
@@ -62,7 +59,7 @@ func createMachineHandler(c *gin.Context) {
 	}
 
 	d := data.New()
-	token := d.Settings.GetSetting(settingKey).Value
+	token := d.Settings.GetSetting(DigitalOceanAccessToken).Value
 	client, _ := machine.NewDigitalOceanClient(token)
 	ctx := context.TODO()
 
@@ -81,7 +78,7 @@ func createMachineHandler(c *gin.Context) {
 }
 
 func deleteMachineHandler(c *gin.Context) {
-	user, _ := c.Get(identityKey)
+	user, _ := c.Get(JwtIdentityKey)
 
 	// Role check.
 	if !isAdminOrOperator(user) {
@@ -92,7 +89,7 @@ func deleteMachineHandler(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
 
 	d := data.New()
-	token := d.Settings.GetSetting(settingKey).Value
+	token := d.Settings.GetSetting(DigitalOceanAccessToken).Value
 	client, _ := machine.NewDigitalOceanClient(token)
 	ctx := context.TODO()
 
@@ -109,7 +106,7 @@ func deleteMachineHandler(c *gin.Context) {
 }
 
 func deleteMachineByTagHandler(c *gin.Context) {
-	user, _ := c.Get(identityKey)
+	user, _ := c.Get(JwtIdentityKey)
 
 	// Role check.
 	if !isAdminOrOperator(user) {
@@ -118,12 +115,12 @@ func deleteMachineByTagHandler(c *gin.Context) {
 	}
 
 	d := data.New()
-	token := d.Settings.GetSetting(settingKey).Value
+	token := d.Settings.GetSetting(DigitalOceanAccessToken).Value
 	client, _ := machine.NewDigitalOceanClient(token)
 	ctx := context.TODO()
 
 	// Create machine.
-	err := client.DeleteDropletByTag(ctx, tag)
+	err := client.DeleteDropletByTag(ctx, WorkerTag)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -135,7 +132,7 @@ func deleteMachineByTagHandler(c *gin.Context) {
 }
 
 func listMachineRegionsHandler(c *gin.Context) {
-	user, _ := c.Get(identityKey)
+	user, _ := c.Get(JwtIdentityKey)
 
 	// Role check.
 	if !isAdminOrOperator(user) {
@@ -144,7 +141,7 @@ func listMachineRegionsHandler(c *gin.Context) {
 	}
 
 	d := data.New()
-	token := d.Settings.GetSetting(settingKey).Value
+	token := d.Settings.GetSetting(DigitalOceanAccessToken).Value
 	client, _ := machine.NewDigitalOceanClient(token)
 	ctx := context.TODO()
 
@@ -160,7 +157,7 @@ func listMachineRegionsHandler(c *gin.Context) {
 }
 
 func listMachineSizesHandler(c *gin.Context) {
-	user, _ := c.Get(identityKey)
+	user, _ := c.Get(JwtIdentityKey)
 
 	// Role check.
 	if !isAdminOrOperator(user) {
@@ -169,7 +166,7 @@ func listMachineSizesHandler(c *gin.Context) {
 	}
 
 	d := data.New()
-	token := d.Settings.GetSetting(settingKey).Value
+	token := d.Settings.GetSetting(DigitalOceanAccessToken).Value
 	client, _ := machine.NewDigitalOceanClient(token)
 	ctx := context.TODO()
 
@@ -186,12 +183,12 @@ func listMachineSizesHandler(c *gin.Context) {
 
 func getCurrentMachinePricing(c *gin.Context) {
 	d := data.New()
-	token := d.Settings.GetSetting(settingKey).Value
+	token := d.Settings.GetSetting(DigitalOceanAccessToken).Value
 	client, _ := machine.NewDigitalOceanClient(token)
 	ctx := context.TODO()
 
 	// Get the current machine pricing from DO client.
-	pricing, err := client.GetCurrentPricing(ctx, tag)
+	pricing, err := client.GetCurrentPricing(ctx, WorkerTag)
 	if err != nil {
 		log.Fatal(err)
 	}

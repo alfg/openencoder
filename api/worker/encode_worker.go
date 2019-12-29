@@ -103,6 +103,8 @@ type Config struct {
 	Namespace   string
 	JobName     string
 	Concurrency uint
+	MaxActive   int
+	MaxIdle     int
 }
 
 // NewWorker creates a new worker instance to listen and process jobs in the queue.
@@ -110,8 +112,8 @@ func NewWorker(workerCfg Config) {
 
 	// Make a redis pool
 	redisPool := &redis.Pool{
-		MaxActive: 5,
-		MaxIdle:   5,
+		MaxActive: workerCfg.MaxActive,
+		MaxIdle:   workerCfg.MaxIdle,
 		Wait:      true,
 		Dial: func() (redis.Conn, error) {
 			return redis.Dial("tcp",

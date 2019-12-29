@@ -30,6 +30,8 @@ func startWorkers() {
 		Namespace:   config.Get().WorkerNamespace,
 		JobName:     config.Get().WorkerJobName,
 		Concurrency: config.Get().WorkerConcurrency,
+		MaxActive:   config.Get().RedisMaxActive,
+		MaxIdle:     config.Get().RedisMaxIdle,
 	}
 
 	// Create Workers.

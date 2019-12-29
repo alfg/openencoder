@@ -7,17 +7,6 @@ import (
 	"golang.org/x/oauth2"
 )
 
-const (
-	providerName    = "digitalocean"
-	workerName      = "openencoder-worker"
-	tagName         = "openencoder"
-	dockerImageName = "docker-18-04"
-)
-
-var (
-	sizesLimiter = []string{"s-1vcpu-1gb", "s-1vcpu-2gb"}
-)
-
 // TokenSource defines an access token for oauth2.TokenSource.
 type TokenSource struct {
 	AccessToken string
@@ -70,7 +59,7 @@ func (do *DigitalOcean) ListDropletByTag(ctx context.Context, tag string) ([]Mac
 				Created:  d.Created,
 				Region:   d.Region.Name,
 				Tags:     d.Tags,
-				Provider: providerName,
+				Provider: digitalOceanProviderName,
 			})
 		}
 
@@ -88,18 +77,18 @@ func (do *DigitalOcean) ListDropletByTag(ctx context.Context, tag string) ([]Mac
 }
 
 // CreateDroplets creates a new DigitalOcean droplet.
-func (do *DigitalOcean) CreateDroplets(ctx context.Context, region, size string, count int) ([]MachineCreated, error) {
+func (do *DigitalOcean) CreateDroplets(ctx context.Context, region, size string, count int) ([]CreatedResponse, error) {
 
 	var (
 		ipv6              = true
-		tags              = []string{tagName, workerName}
+		tags              = []string{tagName, workerTagName}
 		monitoring        = true
 		privateNetworking = true
 	)
 
 	var names []string
 	for i := 0; i < count; i++ {
-		names = append(names, workerName)
+		names = append(names, workerTagName)
 	}
 
 	createRequest := &godo.DropletMultiCreateRequest{
@@ -124,26 +113,26 @@ func (do *DigitalOcean) CreateDroplets(ctx context.Context, region, size string,
 		return nil, err
 	}
 
-	list := []MachineCreated{}
+	list := []CreatedResponse{}
 	for _, d := range droplets {
-		list = append(list, MachineCreated{
+		list = append(list, CreatedResponse{
 			ID:       d.ID,
-			Provider: providerName,
+			Provider: digitalOceanProviderName,
 		})
 	}
 	return list, nil
 }
 
 // DeleteDropletByID deletes a DigitalOcean droplet by ID.
-func (do *DigitalOcean) DeleteDropletByID(ctx context.Context, ID int) (*MachineDeleted, error) {
+func (do *DigitalOcean) DeleteDropletByID(ctx context.Context, ID int) (*DeletedResponse, error) {
 	_, err := do.client.Droplets.Delete(ctx, ID)
 	if err != nil {
 		return nil, err
 	}
 
-	deleted := &MachineDeleted{
+	deleted := &DeletedResponse{
 		ID:       ID,
-		Provider: providerName,
+		Provider: digitalOceanProviderName,
 	}
 	return deleted, nil
 }
@@ -248,7 +237,7 @@ func (do *DigitalOcean) GetCurrentPricing(ctx context.Context, tag string) (*Pri
 				Created:  d.Created,
 				Region:   d.Region.Name,
 				Tags:     d.Tags,
-				Provider: providerName,
+				Provider: digitalOceanProviderName,
 			})
 		}
 

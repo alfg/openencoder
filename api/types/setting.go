@@ -4,14 +4,14 @@ package types
 const (
 	S3AccessKey             = "S3_ACCESS_KEY"
 	S3SecretKey             = "S3_SECRET_KEY"
-	DigitalOceanAccessToken = "DIGITAL_OCEAN_ACCESS_TOKEN"
-	SlackWebhook            = "SLACK_WEBHOOK"
 	S3InboundBucket         = "S3_INBOUND_BUCKET"
 	S3InboundBucketRegion   = "S3_INBOUND_BUCKET_REGION"
 	S3OutboundBucket        = "S3_OUTBOUND_BUCKET"
 	S3OutboundBucketRegion  = "S3_OUTBOUND_BUCKET_REGION"
 	S3Provider              = "S3_PROVIDER"
 	S3Streaming             = "S3_STREAMING"
+	DigitalOceanAccessToken = "DIGITAL_OCEAN_ACCESS_TOKEN"
+	SlackWebhook            = "SLACK_WEBHOOK"
 
 	DigitalOcean = "DIGITALOCEAN"
 	AWS          = "AWS"

@@ -76,7 +76,7 @@ func registerHandler(c *gin.Context) {
 
 // getUserProfileHandler handles the request to get the current user profile data.
 func getUserProfileHandler(c *gin.Context) {
-	user, _ := c.Get(identityKey)
+	user, _ := c.Get(JwtIdentityKey)
 	username := user.(*types.User).Username
 
 	db := data.New()
@@ -91,7 +91,7 @@ func getUserProfileHandler(c *gin.Context) {
 
 // updateUserProfileHandler handles the request to update the current user profile data.
 func updateUserProfileHandler(c *gin.Context) {
-	user, _ := c.Get(identityKey)
+	user, _ := c.Get(JwtIdentityKey)
 	username := user.(*types.User).Username
 
 	// Decode json.
@@ -207,7 +207,7 @@ func updatePasswordHandler(c *gin.Context) {
 
 // getUsersHandler handles the request to get all users for user management.
 func getUsersHandler(c *gin.Context) {
-	user, _ := c.Get(identityKey)
+	user, _ := c.Get(JwtIdentityKey)
 
 	// Role check.
 	if !isAdmin(user) {
@@ -252,7 +252,7 @@ func getUsersHandler(c *gin.Context) {
 // updateUserByIDHandler handles the request update a user for user management.
 func updateUserByIDHandler(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
-	user, _ := c.Get(identityKey)
+	user, _ := c.Get(JwtIdentityKey)
 
 	// Role check.
 	if !isAdmin(user) {

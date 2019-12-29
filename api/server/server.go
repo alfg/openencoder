@@ -3,6 +3,8 @@ package server
 import (
 	"fmt"
 	"net/http"
+	"os"
+	"time"
 
 	"github.com/alfg/openencoder/api/logging"
 	"github.com/gin-gonic/gin"
@@ -10,7 +12,37 @@ import (
 	"github.com/gomodule/redigo/redis"
 )
 
+// Project constants.
+const (
+	ProjectName   = "openencoder"
+	ProjectGithub = "https://github.com/alfg/openencoder"
+	ProjectDocs   = "https://github.com/alfg/openencoder/blob/master/API.md"
+	ProjectWiki   = "https://github.com/alfg/openencoder/wiki"
+	OK            = "OK"
+	NOK           = "NOK"
+
+	// Machines.
+	DigitalOceanAccessToken = "DIGITAL_OCEAN_ACCESS_TOKEN"
+	WorkerTag               = "openencoder-worker"
+
+	// JWT settings.
+	JwtRealm       = "openencoder"
+	JwtIdentityKey = "id"
+	JwtRoleKey     = "role"
+	JwtTimeout     = time.Hour // Duration a JWT is valid.
+	JwtMaxRefresh  = time.Hour // Duration a JWT can be refreshed.
+
+	// User role types.
+	RoleAdmin    = "admin"
+	RoleOperator = "operator"
+	RoleGuest    = "guest"
+)
+
 var (
+	// ProjectVersion gets the current version set by the CI build.
+	ProjectVersion = os.Getenv("VERSION")
+
+	// Server settings.
 	redisPool *redis.Pool
 	enqueuer  *work.Enqueuer
 	log       = logging.Log

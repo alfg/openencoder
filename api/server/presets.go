@@ -27,7 +27,7 @@ type presetUpdateRequest struct {
 }
 
 func createPresetHandler(c *gin.Context) {
-	user, _ := c.Get(identityKey)
+	user, _ := c.Get(JwtIdentityKey)
 
 	// Role check.
 	if !isAdminOrOperator(user) {
@@ -120,7 +120,7 @@ func getPresetByIDHandler(c *gin.Context) {
 
 func updatePresetByIDHandler(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
-	user, _ := c.Get(identityKey)
+	user, _ := c.Get(JwtIdentityKey)
 
 	// Role check.
 	if !isAdminOrOperator(user) {
