@@ -17,6 +17,8 @@ type Config struct {
 	Keyseed           string `mapstructure:"keyseed"`
 	RedisHost         string `mapstructure:"redis_host"`
 	RedisPort         int    `mapstructure:"redis_port"`
+	RedisMaxActive    int    `mapstructure:"redis_max_active"`
+	RedisMaxIdle      int    `mapstructure:"redis_max_idle"`
 	DatabaseHost      string `mapstructure:"database_host"`
 	DatabasePort      int    `mapstructure:"database_port"`
 	DatabaseUser      string `mapstructure:"database_user"`

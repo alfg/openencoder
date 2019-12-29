@@ -2,7 +2,7 @@ package server
 
 import (
 	"fmt"
-	"os"
+	"net/http"
 
 	"github.com/alfg/openencoder/api/config"
 	"github.com/alfg/openencoder/api/data"
@@ -12,36 +12,36 @@ import (
 )
 
 func indexHandler(c *gin.Context) {
-	c.JSON(200, gin.H{
-		"name":    "openencoder",
-		"version": os.Getenv("VERSION"),
-		"github":  "https://github.com/alfg/openencoder",
-		"docs":    "https://github.com/alfg/openencoder/blob/master/API.md",
-		"wiki":    "https://github.com/alfg/openencoder/wiki",
+	c.JSON(http.StatusOK, gin.H{
+		"name":    ProjectName,
+		"version": ProjectVersion,
+		"github":  ProjectGithub,
+		"docs":    ProjectDocs,
+		"wiki":    ProjectWiki,
 	})
 }
 
 func healthHandler(c *gin.Context) {
 	var (
-		dbHealth    = "OK"
-		redisHealth = "OK"
+		dbHealth    = OK
+		redisHealth = OK
 	)
 
 	// Check database health.
 	db, err := data.ConnectDB()
 	if err != nil {
-		dbHealth = "NOTOK"
+		dbHealth = NOK
 	}
 	err = db.Ping()
 	if err != nil {
-		dbHealth = "NOTOK"
+		dbHealth = NOK
 	}
 	defer db.Close()
 
 	// Check Redis health.
 	conn, err := redis.Dial("tcp", fmt.Sprintf("%s:%d", config.Get().RedisHost, config.Get().RedisPort))
 	if err != nil {
-		redisHealth = "NOTOK"
+		redisHealth = NOK
 	}
 	defer conn.Close()
 
@@ -51,7 +51,7 @@ func healthHandler(c *gin.Context) {
 	workers := len(workerHeartbeats)
 
 	c.JSON(200, gin.H{
-		"api":     "OK",
+		"api":     OK,
 		"db":      dbHealth,
 		"redis":   redisHealth,
 		"workers": workers,

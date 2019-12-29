@@ -3,6 +3,7 @@ package server
 import (
 	"github.com/alfg/openencoder/api/data"
 	"github.com/alfg/openencoder/api/net"
+	"github.com/alfg/openencoder/api/types"
 	"github.com/gin-gonic/gin"
 )
 
@@ -20,12 +21,12 @@ func s3ListHandler(c *gin.Context) {
 	prefix := c.DefaultQuery("prefix", "")
 
 	db := data.New()
-	ak := db.Settings.GetSetting("S3_ACCESS_KEY").Value
-	sk := db.Settings.GetSetting("S3_SECRET_KEY").Value
-	pv := db.Settings.GetSetting("S3_PROVIDER").Value
-	rg := db.Settings.GetSetting("S3_INBOUND_BUCKET_REGION").Value
-	ib := db.Settings.GetSetting("S3_INBOUND_BUCKET").Value
-	ob := db.Settings.GetSetting("S3_OUTBOUND_BUCKET").Value
+	ak := db.Settings.GetSetting(types.S3AccessKey).Value
+	sk := db.Settings.GetSetting(types.S3SecretKey).Value
+	pv := db.Settings.GetSetting(types.S3Provider).Value
+	rg := db.Settings.GetSetting(types.S3InboundBucketRegion).Value
+	ib := db.Settings.GetSetting(types.S3InboundBucket).Value
+	ob := db.Settings.GetSetting(types.S3OutboundBucket).Value
 
 	s3 := net.NewS3(ak, sk, pv, rg, ib, ob)
 

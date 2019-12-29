@@ -4,6 +4,17 @@ import "github.com/alfg/openencoder/api/logging"
 
 var log = logging.Log
 
+const (
+	digitalOceanProviderName = "digitalocean"
+	workerTagName            = "openencoder-worker"
+	tagName                  = "openencoder"
+	dockerImageName          = "docker-18-04"
+)
+
+// var (
+// 	sizesLimiter = []string{"s-1vcpu-1gb", "s-1vcpu-2gb"}
+// )
+
 // Machine defines a machine struct from a provider.
 type Machine struct {
 	ID       int      `json:"id"`
@@ -17,18 +28,19 @@ type Machine struct {
 	Provider string `json:"provider"`
 }
 
-// MachineCreated defines the response for creating a machine.
-type MachineCreated struct {
+// CreatedResponse defines the response for creating a machine.
+type CreatedResponse struct {
 	ID       int    `json:"id"`
 	Provider string `json:"provider"`
 }
 
-// MachineDeleted defines the response for deleted a machine.
-type MachineDeleted struct {
+// DeletedResponse defines the response for deleted a machine.
+type DeletedResponse struct {
 	ID       int    `json:"id"`
 	Provider string `json:"provider"`
 }
 
+// Region defines the response for listing regions.
 type Region struct {
 	Name      string   `json:"name"`
 	Slug      string   `json:"slug"`
@@ -36,6 +48,7 @@ type Region struct {
 	Available bool     `json:"available"`
 }
 
+// Size defines the response for listing sizes.
 type Size struct {
 	Slug         string  `json:"slug"`
 	Available    bool    `json:"available"`
@@ -43,6 +56,7 @@ type Size struct {
 	PriceHourly  float64 `json:"price_hourly"`
 }
 
+// Pricing defines the response for listing pricing.
 type Pricing struct {
 	Count        int     `json:"count"`
 	PriceHourly  float64 `json:"price_hourly"`

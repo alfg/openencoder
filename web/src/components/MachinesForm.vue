@@ -60,7 +60,7 @@
 </template>
 
 <script>
-import auth from '../auth';
+import api from '../api';
 
 export default {
   data() {
@@ -106,55 +106,27 @@ export default {
     },
 
     getRegions() {
-      const url = '/api/machines/regions';
-
-      this.$http.get(url, {
-        headers: auth.getAuthHeader(),
-      })
-        .then(response => (
-          response.json()
-        ))
-        .then((json) => {
-          this.regionsData = (json && json.regions) || [];
-        });
+      api.getMachineRegions(this, (err, json) => {
+        this.regionsData = (json && json.regions) || [];
+      });
     },
 
     getSizes() {
-      const url = '/api/machines/sizes';
-
-      this.$http.get(url, {
-        headers: auth.getAuthHeader(),
-      })
-        .then(response => (
-          response.json()
-        ))
-        .then((json) => {
-          this.sizesData = (json && json.sizes) || [];
-        });
+      api.getMachineSizes(this, (err, json) => {
+        this.sizesData = (json && json.sizes) || [];
+      });
     },
 
     createMachine(data) {
-      const url = '/api/machines';
-
-      this.$http.post(url, data, {
-        headers: auth.getAuthHeader(),
-      }).then(response => (
-        response.json()
-      )).then((json) => {
+      api.createMachine(this, data, (err, json) => {
         console.log('Created machine: ', json);
         this.dismissCountDown = this.dismissSecs;
       });
     },
 
     deleteAllMachines() {
-      const url = '/api/machines/';
-
-      this.$http.delete(url, {
-        headers: auth.getAuthHeader(),
-      }).then(response => (
-        response.json()
-      )).then((json) => {
-        console.log('Deleting all machine: ', json);
+      api.deleteAllMachines(this, (err, json) => {
+        console.log('Deleting all machines: ', json);
       });
     },
 

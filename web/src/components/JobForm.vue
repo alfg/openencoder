@@ -49,7 +49,7 @@
 </template>
 
 <script>
-import auth from '../auth';
+import api from '../api';
 import S3Browser from '@/components/S3Browser.vue';
 
 export default {
@@ -88,27 +88,13 @@ export default {
     },
 
     getPresets() {
-      const url = '/api/presets';
-
-      this.$http.get(url, {
-        headers: auth.getAuthHeader(),
-      })
-        .then(response => (
-          response.json()
-        ))
-        .then((json) => {
-          this.presetsData = json.presets;
-        });
+      api.getPresets(this, 0, (err, json) => {
+        this.presetsData = json.presets;
+      });
     },
 
     submitJob(data) {
-      const url = '/api/jobs';
-
-      this.$http.post(url, data, {
-        headers: auth.getAuthHeader(),
-      }).then(response => (
-        response.json()
-      )).then((json) => {
+      api.createJob(this, data, (err, json) => {
         console.log('Submitted job: ', json);
         this.dismissCountDown = this.dismissSecs;
       });

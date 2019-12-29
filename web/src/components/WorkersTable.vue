@@ -6,7 +6,7 @@
 </template>
 
 <script>
-import auth from '../auth';
+import api from '../api';
 
 export default {
   data() {
@@ -21,17 +21,9 @@ export default {
 
   methods: {
     getWorkers() {
-      const url = '/api/worker/pools';
-
-      this.$http.get(url, {
-        headers: auth.getAuthHeader(),
-      })
-        .then(response => (
-          response.json()
-        ))
-        .then((json) => {
-          this.items = json;
-        });
+      api.getWorkerPools(this, (err, json) => {
+        this.items = json;
+      });
     },
   },
 };

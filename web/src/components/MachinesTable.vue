@@ -19,7 +19,7 @@
 </template>
 
 <script>
-import auth from '../auth';
+import api from '../api';
 
 const UPDATE_INTERVAL = 5000;
 let intervalId;
@@ -43,28 +43,13 @@ export default {
 
   methods: {
     getMachines() {
-      const url = '/api/machines';
-
-      this.$http.get(url, {
-        headers: auth.getAuthHeader(),
-      })
-        .then(response => (
-          response.json()
-        ))
-        .then((json) => {
-          this.items = (json && json.machines) || [];
-        });
+      api.getMachines(this, (err, json) => {
+        this.items = (json && json.machines) || [];
+      });
     },
 
     deleteMachine(id) {
-      const url = `/api/machines/${id}`;
-
-      this.$http.delete(url, {
-        method: 'DELETE',
-        headers: auth.getAuthHeader(),
-      }).then(response => (
-        response.json()
-      )).then((json) => {
+      api.deleteMachine(this, id, (err, json) => {
         console.log('Deleting machine: ', json);
       });
     },

@@ -14,10 +14,10 @@ type Settings interface {
 	GetSetting(key string) types.Setting
 	GetSettings() []types.Setting
 	GetSettingsOptions() []types.SettingsOption
-	UpdateSettings(setting map[string]string) error
-	CreateOrUpdateSetting(key, value string)
-	UpdateSetting(setting types.Setting) *types.Setting
 	CreateSetting(setting types.Setting) *types.Setting
+	CreateOrUpdateSetting(key, value string)
+	UpdateSettings(setting map[string]string) error
+	UpdateSetting(setting types.Setting) *types.Setting
 	SettingExists(optionID int64) bool
 }
 
@@ -106,14 +106,33 @@ func (s SettingsOp) GetSettingsOptions() []types.SettingsOption {
 	return options
 }
 
-// UpdateSettings Updates settings.
-func (s SettingsOp) UpdateSettings(setting map[string]string) error {
+// CreateSetting Creates a setting.
+func (s SettingsOp) CreateSetting(setting types.Setting) *types.Setting {
+	const query = `
+      INSERT INTO
+        settings (settings_option_id,value,encrypted)
+      VALUES (:settings_option_id,:value,:encrypted)
+      RETURNING id`
 
-	// Run insert or update for each setting.
-	for k, v := range setting {
-		s.CreateOrUpdateSetting(k, v)
+	db, _ := ConnectDB()
+	tx := db.MustBegin()
+	stmt, err := tx.PrepareNamed(query)
+	if err != nil {
+		log.Fatal(err.Error())
 	}
-	return nil
+
+	var id int64 // Returned ID.
+	err = stmt.QueryRowx(&setting).Scan(&id)
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+	tx.Commit()
+
+	// Set to Job type response.
+	setting.SettingsOptionID = id
+
+	db.Close()
+	return &setting
 }
 
 // CreateOrUpdateSetting Runs an "upsert"-like transaction for a setting.
@@ -142,6 +161,16 @@ func (s SettingsOp) CreateOrUpdateSetting(key, value string) {
 	}
 }
 
+// UpdateSettings Updates settings.
+func (s SettingsOp) UpdateSettings(setting map[string]string) error {
+
+	// Run insert or update for each setting.
+	for k, v := range setting {
+		s.CreateOrUpdateSetting(k, v)
+	}
+	return nil
+}
+
 // UpdateSetting updates an existing setting.
 func (s SettingsOp) UpdateSetting(setting types.Setting) *types.Setting {
 	const query = `
@@ -156,35 +185,6 @@ func (s SettingsOp) UpdateSetting(setting types.Setting) *types.Setting {
 		log.Fatal(err)
 	}
 	tx.Commit()
-
-	db.Close()
-	return &setting
-}
-
-// CreateSetting Creates a setting.
-func (s SettingsOp) CreateSetting(setting types.Setting) *types.Setting {
-	const query = `
-      INSERT INTO
-        settings (settings_option_id,value,encrypted)
-      VALUES (:settings_option_id,:value,:encrypted)
-      RETURNING id`
-
-	db, _ := ConnectDB()
-	tx := db.MustBegin()
-	stmt, err := tx.PrepareNamed(query)
-	if err != nil {
-		log.Fatal(err.Error())
-	}
-
-	var id int64 // Returned ID.
-	err = stmt.QueryRowx(&setting).Scan(&id)
-	if err != nil {
-		log.Fatal(err.Error())
-	}
-	tx.Commit()
-
-	// Set to Job type response.
-	setting.SettingsOptionID = id
 
 	db.Close()
 	return &setting

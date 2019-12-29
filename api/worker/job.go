@@ -20,9 +20,6 @@ import (
 
 var progressCh chan struct{}
 
-const progressInterval = time.Second * 5
-const slackWebhookKey = "SLACK_WEBHOOK"
-
 func generatePresignedURL(job types.Job) (string, error) {
 	log.Info("generating a presigned URL")
 
@@ -175,14 +172,8 @@ func sendAlert(job types.Job) error {
 	log.Info("sending alert")
 
 	db := data.New()
-	webhook := db.Settings.GetSetting(slackWebhookKey).Value
-	message := fmt.Sprintf(
-		"*Encode Successful!* :tada:\n"+
-			"*Job ID*: %s:\n"+
-			"*Preset*: %s\n"+
-			"*Source*: %s\n"+
-			"*Destination*: %s\n\n",
-		job.GUID, job.Preset, job.Source, job.Destination)
+	webhook := db.Settings.GetSetting(types.SlackWebhook).Value
+	message := fmt.Sprintf(AlertMessageFormat, job.GUID, job.Preset, job.Source, job.Destination)
 	err := notify.SendSlackMessage(webhook, message)
 	if err != nil {
 		return err
@@ -199,9 +190,9 @@ func runEncodeJob(job types.Job) {
 
 	// If STREAMING setting is enabled, get a presigned URL and update
 	// the job.Source.
-	s3Streaming := db.Settings.GetSetting("S3_STREAMING").Value
+	s3Streaming := db.Settings.GetSetting(types.S3Streaming).Value
 	if s3Streaming == "enabled" {
-		// 0. Get presigned URL.
+		// 1a. Get presigned URL.
 		presigned, err := generatePresignedURL(job)
 		if err != nil {
 			log.Error(err)
@@ -213,7 +204,7 @@ func runEncodeJob(job types.Job) {
 		job.Source = presigned
 
 	} else {
-		// 1. Download.
+		// 1b. Download.
 		err := download(job)
 		if err != nil {
 			log.Error(err)
@@ -282,7 +273,7 @@ func runEncodeJob(job types.Job) {
 func trackEncodeProgress(guid string, encodeID int64, p *encoder.FFProbeResponse, f *encoder.FFmpeg) {
 	db := data.New()
 	progressCh = make(chan struct{})
-	ticker := time.NewTicker(progressInterval)
+	ticker := time.NewTicker(ProgressInterval)
 
 	for {
 		select {
@@ -318,7 +309,7 @@ func trackEncodeProgress(guid string, encodeID int64, p *encoder.FFProbeResponse
 func trackTransferProgress(encodeID int64, d *net.S3) {
 	db := data.New()
 	progressCh = make(chan struct{})
-	ticker := time.NewTicker(progressInterval)
+	ticker := time.NewTicker(ProgressInterval)
 
 	for {
 		select {

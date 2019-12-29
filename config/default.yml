@@ -3,6 +3,8 @@ jwt_key: secretkey
 keyseed: deadbeefdeadbeefdeadbeefdeadbeef
 redis_host: localhost
 redis_port: 6379
+redis_max_active: 5
+redis_max_idle: 5
 database_host: localhost
 database_port: 5432
 database_user: postgres

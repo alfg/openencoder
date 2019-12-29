@@ -18,15 +18,6 @@ type login struct {
 	Password string `form:"password" json:"password" binding:"required"`
 }
 
-// JWT settings.
-const (
-	realm       = "openencoder"
-	identityKey = "id"
-	roleKey     = "role"
-	timeout     = time.Hour // Duration a JWT is valid.
-	maxRefresh  = time.Hour // Duration a JWT can be refreshed.
-)
-
 var jwtKey []byte
 
 func jwtMiddleware() *jwt.GinJWTMiddleware {
@@ -40,17 +31,17 @@ func jwtMiddleware() *jwt.GinJWTMiddleware {
 	}
 
 	authMiddleware, err := jwt.New(&jwt.GinJWTMiddleware{
-		Realm:       realm,
+		Realm:       JwtRealm,
 		Key:         jwtKey,
-		Timeout:     timeout,
-		MaxRefresh:  maxRefresh,
-		IdentityKey: identityKey,
+		Timeout:     JwtTimeout,
+		MaxRefresh:  JwtMaxRefresh,
+		IdentityKey: JwtIdentityKey,
 
 		PayloadFunc: func(data interface{}) jwt.MapClaims {
 			if v, ok := data.(*types.User); ok {
 				return jwt.MapClaims{
-					identityKey: v.Username,
-					roleKey:     v.Role,
+					JwtIdentityKey: v.Username,
+					JwtRoleKey:     v.Role,
 				}
 			}
 			return jwt.MapClaims{}
@@ -131,16 +122,9 @@ func jwtMiddleware() *jwt.GinJWTMiddleware {
 	return authMiddleware
 }
 
-// User role types.
-const (
-	admin    = "admin"
-	operator = "operator"
-	guest    = "guest"
-)
-
 func isAdminOrOperator(user interface{}) bool {
 	role := user.(*types.User).Role
-	if role != operator && role != admin {
+	if role != RoleOperator && role != RoleAdmin {
 		return false
 	}
 	return true
@@ -148,7 +132,7 @@ func isAdminOrOperator(user interface{}) bool {
 
 func isOperator(user interface{}) bool {
 	role := user.(*types.User).Role
-	if role != operator {
+	if role != RoleOperator {
 		return false
 	}
 	return true
@@ -156,7 +140,7 @@ func isOperator(user interface{}) bool {
 
 func isAdmin(user interface{}) bool {
 	role := user.(*types.User).Role
-	if role != admin {
+	if role != RoleAdmin {
 		return false
 	}
 	return true

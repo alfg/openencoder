@@ -1,4 +1,4 @@
-package notify 
+package notify
 
 import (
 	"bytes"
@@ -8,6 +8,7 @@ import (
 )
 
 // SendSlackMessage sends a slack webhook post with a message.
+// url is the webhook.
 func SendSlackMessage(url string, message string) error {
 	payload, _ := json.Marshal(map[string]interface{}{
 		"attachments": []map[string]string{

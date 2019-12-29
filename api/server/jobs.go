@@ -31,7 +31,7 @@ type response struct {
 }
 
 func createJobHandler(c *gin.Context) {
-	user, _ := c.Get(identityKey)
+	user, _ := c.Get(JwtIdentityKey)
 
 	// Role check.
 	if !isAdminOrOperator(user) {
@@ -159,7 +159,7 @@ func getJobsByIDHandler(c *gin.Context) {
 
 func updateJobByIDHandler(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
-	user, _ := c.Get(identityKey)
+	user, _ := c.Get(JwtIdentityKey)
 
 	// Role check.
 	if !isAdminOrOperator(user) {
@@ -207,7 +207,7 @@ func getJobStatusByIDHandler(c *gin.Context) {
 
 func cancelJobByIDHandler(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
-	user, _ := c.Get(identityKey)
+	user, _ := c.Get(JwtIdentityKey)
 
 	// Role check.
 	if !isAdminOrOperator(user) {
@@ -226,7 +226,7 @@ func cancelJobByIDHandler(c *gin.Context) {
 
 func restartJobByIDHandler(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
-	user, _ := c.Get(identityKey)
+	user, _ := c.Get(JwtIdentityKey)
 
 	// Role check.
 	if !isAdminOrOperator(user) {

@@ -22,7 +22,7 @@ type settingsUpdateRequest struct {
 }
 
 func settingsHandler(c *gin.Context) {
-	user, _ := c.Get(identityKey)
+	user, _ := c.Get(JwtIdentityKey)
 
 	// Role check.
 	if !isAdmin(user) {
@@ -57,7 +57,7 @@ func settingsHandler(c *gin.Context) {
 }
 
 func updateSettingsHandler(c *gin.Context) {
-	user, _ := c.Get(identityKey)
+	user, _ := c.Get(JwtIdentityKey)
 
 	// Role check.
 	if !isAdmin(user) {
