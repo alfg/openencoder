@@ -48,6 +48,7 @@
 
 <script>
 import auth from './auth';
+import api from './api';
 
 export default {
   data() {
@@ -77,23 +78,12 @@ export default {
 
   methods: {
     getVersion() {
-      const url = '/api/';
-
-      this.$http.get(url, {
-        headers: auth.getAuthHeader(),
-      })
-        .then(response => (
-          response.json()
-        ))
-        .then((json) => {
-          if (json.version) {
-            const { name, version } = json;
-            this.version = `${name}-${version}`;
-          }
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+      api.getVersion(this, (err, json) => {
+        if (json.version) {
+          const { name, version } = json;
+          this.version = `${name}-${version}`;
+        }
+      });
     },
     logout() {
       auth.logout(this);

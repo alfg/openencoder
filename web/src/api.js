@@ -2,6 +2,24 @@ import auth from './auth';
 
 
 export default {
+  getVersion(context, callback) {
+    const url = '/api/';
+
+    context.$http.get(url, {
+      headers: auth.getAuthHeader(),
+    })
+      .then(response => (
+        response.json()
+      ))
+      .then((json) => {
+        callback(null, json);
+      })
+      .catch((err) => {
+        console.log(err);
+        callback(err);
+      });
+  },
+
   getStats(context, callback) {
     const url = '/api/stats';
 

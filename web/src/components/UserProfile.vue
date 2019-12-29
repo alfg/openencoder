@@ -110,18 +110,6 @@ export default {
         this.form.username = json.username;
         this.role = json.role;
       });
-      // const url = '/api/me';
-
-      // this.$http.get(url, {
-      //   headers: auth.getAuthHeader(),
-      // })
-      //   .then(response => (
-      //     response.json()
-      //   ))
-      //   .then((json) => {
-      //     this.form.username = json.username;
-      //     this.role = json.role;
-      //   });
     },
 
     submitForm(data) {
@@ -146,32 +134,6 @@ export default {
           }
         });
       });
-
-      // const url = '/api/me';
-
-      // this.$http.put(url, data, {
-      //   headers: auth.getAuthHeader(),
-      // }).then(response => (
-      //   response.json()
-      // )).then((json) => {
-      //   console.log('Submitted form: ', json);
-      //   this.messageType = 'success';
-      //   this.message = json && json.message;
-      //   this.dismissCountDown = this.dismissSecs;
-
-      //   // Re-auth with new token.
-      //   auth.login(this, {
-      //     username: this.form.username,
-      //     password: this.form.new_password || this.form.current_password,
-      //   }, 'profile', (err) => {
-      //     if (err) {
-      //       console.log('err', err);
-      //     }
-      //   });
-      // }, (err) => {
-      //   this.message = err.body && err.body.message;
-      //   this.dismissCountDown = this.dismissSecs;
-      // });
     },
 
     onSubmit(evt) {
