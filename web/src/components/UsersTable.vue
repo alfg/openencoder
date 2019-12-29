@@ -66,7 +66,7 @@
 </template>
 
 <script>
-import auth from '../auth';
+import api from '../api';
 
 export default {
   data() {
@@ -112,32 +112,17 @@ export default {
     },
 
     getUsers() {
-      const url = '/api/users';
-
-      this.$http.get(url, {
-        headers: auth.getAuthHeader(),
-      })
-        .then(response => (
-          response.json()
-        ))
-        .then((json) => {
-          this.items = (json && json.users) || [];
-        });
+      api.getUsers(this, (err, json) => {
+        this.items = (json && json.users) || [];
+      });
     },
 
     updateUser(data) {
-      const url = `/api/users/${data.id}`;
-
-      this.$http.put(url, data, {
-        headers: auth.getAuthHeader(),
-      }).then(response => (
-        response.json()
-      )).then((json) => {
+      api.updateUser(this, data, (err, json) => {
         console.log('Submitted form: ', json);
         this.dismissCountDown = this.dismissSecs;
       });
     },
-
 
     onRowSelected(items) {
       if (items.length > 0) {

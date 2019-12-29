@@ -9,7 +9,6 @@
         <b-form-input
           id="input-username"
           v-model="form.username"
-          type="input"
           required
         ></b-form-input>
       </b-form-group>

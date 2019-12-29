@@ -121,6 +121,7 @@
 
 <script>
 import auth from '../auth';
+import api from '../api';
 
 const UPDATE_INTERVAL = 5000;
 let intervalId;
@@ -187,44 +188,22 @@ export default {
     },
 
     cancelJob(id) {
-      const url = `/api/jobs/${id}/cancel`;
-
-      this.$http.post(url, {
-        method: 'POST',
-        headers: auth.getAuthHeader(),
-      }).then(response => (
-        response.json()
-      )).then((json) => {
+      api.cancelJob(this, id, (err, json) => {
         console.log('Cancel job: ', json);
       });
     },
 
     restartJob(id) {
-      const url = `/api/jobs/${id}/restart`;
-
-      this.$http.post(url, {
-        method: 'POST',
-        headers: auth.getAuthHeader(),
-      }).then(response => (
-        response.json()
-      )).then((json) => {
+      api.restartJob(this, id, (err, json) => {
         console.log('Restart job: ', json);
       });
     },
 
     getJobs(page) {
-      const url = `/api/jobs?page=${page}`;
-
-      this.$http.get(url, {
-        headers: auth.getAuthHeader(),
-      })
-        .then(response => (
-          response.json()
-        ))
-        .then((json) => {
-          this.items = json && json.items;
-          this.count = json && json.count;
-        });
+      api.getJobs(this, page, (err, json) => {
+        this.items = json && json.items;
+        this.count = json && json.count;
+      });
     },
   },
 };

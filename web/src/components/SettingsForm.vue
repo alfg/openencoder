@@ -53,7 +53,7 @@
 </template>
 
 <script>
-import auth from '../auth';
+import api from '../api';
 
 export default {
   data() {
@@ -104,38 +104,22 @@ export default {
     },
 
     getSettings() {
-      const url = '/api/settings';
+      api.getSettings(this, (err, json) => {
+        if (json.settings) {
+          this.settings = json.settings;
 
-      this.$http.get(url, {
-        headers: auth.getAuthHeader(),
-      })
-        .then(response => (
-          response.json()
-        ))
-        .then((json) => {
-          if (json.settings) {
-            this.settings = json.settings;
-
-            // Populate form items if availble.
-            this.settings.forEach((item) => {
-              this.form[item.name] = item.value;
-            });
-          }
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+          // Populate form items if availble.
+          this.settings.forEach((item) => {
+            this.form[item.name] = item.value;
+          });
+        }
+      });
     },
 
     updateSettings(data) {
-      const url = '/api/settings';
-
-      this.$http.put(url, data, {
-        headers: auth.getAuthHeader(),
-      }).then(response => (
-        response.json()
-      )).then(() => {
+      api.updateSettings(this, data, (err, json) => {
         this.dismissCountDown = this.dismissSecs;
+        console.log('Settings updated', json);
       });
     },
 

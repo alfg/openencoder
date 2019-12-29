@@ -81,7 +81,7 @@
 <script>
 import JSONEditor from 'jsoneditor';
 import 'jsoneditor/dist/jsoneditor.min.css';
-import auth from '../auth';
+import api from '../api';
 
 export default {
   data() {
@@ -141,18 +141,17 @@ export default {
     },
 
     getPresets(page) {
-      const url = `/api/presets?page=${page}`;
+      api.getPresets(this, page, (err, json) => {
+        this.items = json && json.presets;
+        this.count = json && json.count;
+      });
+    },
 
-      this.$http.get(url, {
-        headers: auth.getAuthHeader(),
-      })
-        .then(response => (
-          response.json()
-        ))
-        .then((json) => {
-          this.items = json && json.presets;
-          this.count = json && json.count;
-        });
+    updatePreset(data) {
+      api.updatePreset(this, data, (err, json) => {
+        console.log('Submitted form: ', json);
+        this.dismissCountDown = this.dismissSecs;
+      });
     },
 
     onSubmit(evt) {
@@ -160,19 +159,6 @@ export default {
       console.log(JSON.stringify(this.form));
       this.form.data = JSON.stringify(this.editor.get());
       this.updatePreset(this.form);
-    },
-
-    updatePreset(data) {
-      const url = `/api/presets/${data.id}`;
-
-      this.$http.put(url, data, {
-        headers: auth.getAuthHeader(),
-      }).then(response => (
-        response.json()
-      )).then((json) => {
-        console.log('Submitted form: ', json);
-        this.dismissCountDown = this.dismissSecs;
-      });
     },
 
     onRowSelected(items) {

@@ -67,7 +67,7 @@
 </template>
 
 <script>
-import auth from '../auth';
+import api from '../api';
 
 const UPDATE_INTERVAL = 5000;
 const HEALTH_UPDATE_INTERVAL = 10000;
@@ -118,61 +118,27 @@ export default {
     },
 
     getStats() {
-      const url = '/api/stats';
-
-      this.$http.get(url, {
-        headers: auth.getAuthHeader(),
-      })
-        .then(response => (
-          response.json()
-        ))
-        .then((json) => {
-          if (json.stats) {
-            this.stats = json.stats;
-          }
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+      api.getStats(this, (err, json) => {
+        if (json.stats) {
+          this.stats = json.stats;
+        }
+      });
     },
 
     getHealth() {
-      const url = '/api/health';
-
-      this.$http.get(url, {})
-        .then(response => (
-          response.json()
-        ))
-        .then((json) => {
+      api.getHealth(this, (err, json) => {
+        if (json) {
           this.health = json;
-        })
-        .catch(() => {
-          this.health = {
-            API: 'NOTOK',
-            DB: 'NOTOK',
-            Redis: 'NOTOK',
-            Workers: 0,
-          };
-        });
+        }
+      });
     },
 
     getPricing() {
-      const url = '/api/machines/pricing';
-
-      this.$http.get(url, {
-        headers: auth.getAuthHeader(),
-      })
-        .then(response => (
-          response.json()
-        ))
-        .then((json) => {
-          if (json.pricing) {
-            this.pricing = json.pricing;
-          }
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+      api.getPricing(this, (err, json) => {
+        if (json.pricing) {
+          this.pricing = json.pricing;
+        }
+      });
     },
   },
 };

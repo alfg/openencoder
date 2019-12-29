@@ -61,7 +61,7 @@
 <script>
 import JSONEditor from 'jsoneditor';
 import 'jsoneditor/dist/jsoneditor.min.css';
-import auth from '../auth';
+import api from '../api';
 
 const tmpl = `
 {
@@ -131,13 +131,7 @@ export default {
     },
 
     submitForm(data) {
-      const url = '/api/presets';
-
-      this.$http.post(url, data, {
-        headers: auth.getAuthHeader(),
-      }).then(response => (
-        response.json()
-      )).then((json) => {
+      api.createPreset(this, data, (err, json) => {
         console.log('Submitted form: ', json);
         this.dismissCountDown = this.dismissSecs;
       });

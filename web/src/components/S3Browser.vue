@@ -14,7 +14,7 @@
 </template>
 
 <script>
-import auth from '../auth';
+import api from '../api';
 
 export default {
   data() {
@@ -74,18 +74,10 @@ export default {
     },
 
     getData(prefix = '') {
-      const url = `/api/s3/list?prefix=${prefix}`;
-
-      this.$http.get(url, {
-        headers: auth.getAuthHeader(),
-      })
-        .then(response => (
-          response.json()
-        ))
-        .then((json) => {
-          this.data = json.data;
-          this.prefix = prefix;
-        });
+      api.getS3List(this, prefix, (err, json) => {
+        this.data = json.data;
+        this.prefix = prefix;
+      });
     },
   },
 };
