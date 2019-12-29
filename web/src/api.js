@@ -1,452 +1,202 @@
 import auth from './auth';
 
+const root = '/api';
+
+const Endpoints = {
+  Version: `${root}/`,
+  Stats: `${root}/stats`,
+  Health: `${root}/health`,
+  Pricing: `${root}/machines/pricing`,
+
+  JobsList: page => `${root}/jobs?page=${page}`,
+  Jobs: `${root}/jobs`,
+  JobsCancel: id => `${root}/jobs/${id}/cancel`,
+  JobsRestart: id => `${root}/jobs/${id}/restart`,
+
+  Machines: `${root}/machines`,
+  MachinesRegions: `${root}/machines/regions`,
+  MachinesSizes: `${root}/machines/sizes`,
+  MachinesId: id => `${root}/machines/${id}`,
+
+  PresetsList: page => `${root}/presets?page=${page}`,
+  Presets: `${root}/presets`,
+  PresetsId: id => `${root}/presets/${id}`,
+
+  S3List: prefix => `${root}/s3/list?prefix=${prefix}`,
+
+  WorkerQueue: `${root}/worker/queue`,
+  WorkerPools: `${root}/worker/pools`,
+
+  Users: `${root}/users`,
+  UsersId: id => `${root}/users/${id}`,
+
+  Settings: `${root}/settings`,
+
+  CurrentUser: `${root}/me`,
+};
+
+function get(context, url, callback) {
+  context.$http.get(url, {
+    headers: auth.getAuthHeader(),
+  })
+    .then(response => (
+      response.json()
+    ))
+    .then((json) => {
+      callback(null, json);
+    })
+    .catch((err) => {
+      callback(err);
+    });
+}
+
+function post(context, url, data, callback) {
+  context.$http.post(url, data, {
+    headers: auth.getAuthHeader(),
+  })
+    .then(response => (
+      response.json()
+    ))
+    .then((json) => {
+      callback(null, json);
+    })
+    .catch((err) => {
+      callback(err);
+    });
+}
+
+function update(context, url, data, callback) {
+  context.$http.put(url, data, {
+    headers: auth.getAuthHeader(),
+  })
+    .then(response => (
+      response.json()
+    ))
+    .then((json) => {
+      callback(null, json);
+    })
+    .catch((err) => {
+      callback(err);
+    });
+}
+
+function del(context, url, callback) {
+  context.$http.delete(url, {
+    headers: auth.getAuthHeader(),
+  })
+    .then(response => (
+      response.json()
+    ))
+    .then((json) => {
+      callback(null, json);
+    })
+    .catch((err) => {
+      callback(err);
+    });
+}
 
 export default {
   getVersion(context, callback) {
-    const url = '/api/';
-
-    context.$http.get(url, {
-      headers: auth.getAuthHeader(),
-    })
-      .then(response => (
-        response.json()
-      ))
-      .then((json) => {
-        callback(null, json);
-      })
-      .catch((err) => {
-        console.log(err);
-        callback(err);
-      });
+    return get(context, Endpoints.Version, callback);
   },
 
   getStats(context, callback) {
-    const url = '/api/stats';
-
-    context.$http.get(url, {
-      headers: auth.getAuthHeader(),
-    })
-      .then(response => (
-        response.json()
-      ))
-      .then((json) => {
-        callback(null, json);
-      })
-      .catch((err) => {
-        console.log(err);
-        callback(err);
-      });
+    return get(context, Endpoints.Stats, callback);
   },
 
   getHealth(context, callback) {
-    const url = '/api/health';
-
-    context.$http.get(url, {
-      headers: auth.getAuthHeader(),
-    })
-      .then(response => (
-        response.json()
-      ))
-      .then((json) => {
-        callback(null, json);
-      })
-      .catch((err) => {
-        console.log(err);
-        callback(err);
-      });
+    return get(context, Endpoints.Health, callback);
   },
 
   getPricing(context, callback) {
-    const url = '/api/machines/pricing';
-
-    context.$http.get(url, {
-      headers: auth.getAuthHeader(),
-    })
-      .then(response => (
-        response.json()
-      ))
-      .then((json) => {
-        callback(null, json);
-      })
-      .catch((err) => {
-        console.log(err);
-        callback(err);
-      });
+    return get(context, Endpoints.Pricing, callback);
   },
 
   getJobs(context, page, callback) {
-    const url = `/api/jobs?page=${page}`;
-
-    context.$http.get(url, {
-      headers: auth.getAuthHeader(),
-    })
-      .then(response => (
-        response.json()
-      ))
-      .then((json) => {
-        callback(null, json);
-      })
-      .catch((err) => {
-        console.log(err);
-        callback(err);
-      });
+    return get(context, Endpoints.JobsList(page), callback);
   },
 
   createJob(context, data, callback) {
-    const url = '/api/jobs';
-
-    context.$http.post(url, data, {
-      headers: auth.getAuthHeader(),
-    })
-      .then(response => (
-        response.json()
-      ))
-      .then((json) => {
-        callback(null, json);
-      })
-      .catch((err) => {
-        callback(err);
-      });
+    return post(context, Endpoints.Jobs, data, callback);
   },
 
   cancelJob(context, id, callback) {
-    const url = `/api/jobs/${id}/cancel`;
-
-    context.$http.post(url, {
-      headers: auth.getAuthHeader(),
-    })
-      .then(response => (
-        response.json()
-      ))
-      .then((json) => {
-        callback(null, json);
-      })
-      .catch((err) => {
-        callback(err);
-      });
+    return post(context, Endpoints.JobsCancel(id), {}, callback);
   },
 
   restartJob(context, id, callback) {
-    const url = `/api/jobs/${id}/restart`;
-
-    context.$http.post(url, {
-      headers: auth.getAuthHeader(),
-    })
-      .then(response => (
-        response.json()
-      ))
-      .then((json) => {
-        callback(null, json);
-      })
-      .catch((err) => {
-        callback(err);
-      });
+    return post(context, Endpoints.JobsRestart(id), {}, callback);
   },
 
   getMachines(context, callback) {
-    const url = '/api/machines';
-
-    context.$http.get(url, {
-      headers: auth.getAuthHeader(),
-    })
-      .then(response => (
-        response.json()
-      ))
-      .then((json) => {
-        callback(null, json);
-      })
-      .catch((err) => {
-        callback(err);
-      });
+    return get(context, Endpoints.Machines, callback);
   },
 
   getMachineRegions(context, callback) {
-    const url = '/api/machines/regions';
-
-    context.$http.get(url, {
-      headers: auth.getAuthHeader(),
-    })
-      .then(response => (
-        response.json()
-      ))
-      .then((json) => {
-        callback(null, json);
-      })
-      .catch((err) => {
-        callback(err);
-      });
+    return get(context, Endpoints.MachinesRegions, callback);
   },
 
   getMachineSizes(context, callback) {
-    const url = '/api/machines/sizes';
-
-    context.$http.get(url, {
-      headers: auth.getAuthHeader(),
-    })
-      .then(response => (
-        response.json()
-      ))
-      .then((json) => {
-        callback(null, json);
-      })
-      .catch((err) => {
-        callback(err);
-      });
+    return get(context, Endpoints.MachinesSizes, callback);
   },
 
   createMachine(context, data, callback) {
-    const url = '/api/machines';
-
-    context.$http.post(url, data, {
-      headers: auth.getAuthHeader(),
-    })
-      .then(response => (
-        response.json()
-      ))
-      .then((json) => {
-        callback(null, json);
-      })
-      .catch((err) => {
-        callback(err);
-      });
+    return post(context, Endpoints.Machines, data, callback);
   },
 
   deleteMachine(context, id, callback) {
-    const url = `/api/machines/${id}`;
-
-    context.$http.delete(url, {
-      headers: auth.getAuthHeader(),
-    })
-      .then(response => (
-        response.json()
-      ))
-      .then((json) => {
-        callback(null, json);
-      })
-      .catch((err) => {
-        callback(err);
-      });
+    return del(context, Endpoints.MachinesDelete(id), callback);
   },
 
   deleteAllMachines(context, callback) {
-    const url = '/api/machines';
-
-    context.$http.delete(url, {
-      headers: auth.getAuthHeader(),
-    })
-      .then(response => (
-        response.json()
-      ))
-      .then((json) => {
-        callback(null, json);
-      })
-      .catch((err) => {
-        callback(err);
-      });
+    return del(context, Endpoints.Machines, callback);
   },
 
   getPresets(context, page, callback) {
-    const url = `/api/presets?page=${page}`;
-
-    context.$http.get(url, {
-      headers: auth.getAuthHeader(),
-    })
-      .then(response => (
-        response.json()
-      ))
-      .then((json) => {
-        callback(null, json);
-      })
-      .catch((err) => {
-        callback(err);
-      });
+    return get(context, Endpoints.PresetsList(page), callback);
   },
 
   createPreset(context, data, callback) {
-    const url = '/api/presets';
-
-    context.$http.post(url, data, {
-      headers: auth.getAuthHeader(),
-    })
-      .then(response => (
-        response.json()
-      ))
-      .then((json) => {
-        callback(null, json);
-      })
-      .catch((err) => {
-        callback(err);
-      });
+    return post(context, Endpoints.Presets, data, callback);
   },
 
   updatePreset(context, data, callback) {
-    const url = `/api/presets/${data.id}`;
-
-    context.$http.put(url, data, {
-      headers: auth.getAuthHeader(),
-    })
-      .then(response => (
-        response.json()
-      ))
-      .then((json) => {
-        callback(null, json);
-      })
-      .catch((err) => {
-        callback(err);
-      });
+    return update(context, Endpoints.PresetsId(data.id), data, callback);
   },
 
   getS3List(context, prefix, callback) {
-    const url = `/api/s3/list?prefix=${prefix}`;
-
-    context.$http.get(url, {
-      headers: auth.getAuthHeader(),
-    })
-      .then(response => (
-        response.json()
-      ))
-      .then((json) => {
-        callback(null, json);
-      })
-      .catch((err) => {
-        callback(err);
-      });
+    return get(context, Endpoints.S3List(prefix), callback);
   },
 
   getWorkerQueue(context, callback) {
-    const url = '/api/worker/queue';
-
-    context.$http.get(url, {
-      headers: auth.getAuthHeader(),
-    })
-      .then(response => (
-        response.json()
-      ))
-      .then((json) => {
-        callback(null, json);
-      })
-      .catch((err) => {
-        callback(err);
-      });
+    return get(context, Endpoints.WorkerQueue, callback);
   },
 
   getWorkerPools(context, callback) {
-    const url = '/api/worker/pools';
-
-    context.$http.get(url, {
-      headers: auth.getAuthHeader(),
-    })
-      .then(response => (
-        response.json()
-      ))
-      .then((json) => {
-        callback(null, json);
-      })
-      .catch((err) => {
-        callback(err);
-      });
-  },
-
-  getSettings(context, callback) {
-    const url = '/api/settings';
-
-    context.$http.get(url, {
-      headers: auth.getAuthHeader(),
-    })
-      .then(response => (
-        response.json()
-      ))
-      .then((json) => {
-        callback(null, json);
-      })
-      .catch((err) => {
-        callback(err);
-      });
-  },
-
-  updateSettings(context, data, callback) {
-    const url = '/api/settings';
-
-    context.$http.put(url, data, {
-      headers: auth.getAuthHeader(),
-    })
-      .then(response => (
-        response.json()
-      ))
-      .then((json) => {
-        callback(null, json);
-      })
-      .catch((err) => {
-        callback(err);
-      });
+    return get(context, Endpoints.WorkerPools, callback);
   },
 
   getUsers(context, callback) {
-    const url = '/api/users';
-
-    context.$http.get(url, {
-      headers: auth.getAuthHeader(),
-    })
-      .then(response => (
-        response.json()
-      ))
-      .then((json) => {
-        callback(null, json);
-      })
-      .catch((err) => {
-        callback(err);
-      });
+    return get(context, Endpoints.Users, callback);
   },
 
   updateUser(context, data, callback) {
-    const url = `/api/users/${data.id}`;
+    return update(context, Endpoints.UsersId(data.id), data, callback);
+  },
 
-    context.$http.put(url, data, {
-      headers: auth.getAuthHeader(),
-    })
-      .then(response => (
-        response.json()
-      ))
-      .then((json) => {
-        callback(null, json);
-      })
-      .catch((err) => {
-        callback(err);
-      });
+  getSettings(context, callback) {
+    return get(context, Endpoints.Settings, callback);
+  },
+
+  updateSettings(context, data, callback) {
+    return update(context, Endpoints.Settings, data, callback);
   },
 
   getCurrentUser(context, callback) {
-    const url = '/api/me';
-
-    context.$http.get(url, {
-      headers: auth.getAuthHeader(),
-    })
-      .then(response => (
-        response.json()
-      ))
-      .then((json) => {
-        callback(null, json);
-      })
-      .catch((err) => {
-        callback(err);
-      });
+    return get(context, Endpoints.CurrentUser, callback);
   },
 
   updateCurrentUser(context, data, callback) {
-    const url = '/api/me';
-
-    context.$http.put(url, data, {
-      headers: auth.getAuthHeader(),
-    })
-      .then(response => (
-        response.json()
-      ))
-      .then((json) => {
-        callback(null, json);
-      })
-      .catch((err) => {
-        callback(err);
-      });
+    return update(context, Endpoints.CurrentUser, data, callback);
   },
-
 };
