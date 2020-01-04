@@ -145,7 +145,7 @@ export default {
   },
 
   deleteMachine(context, id, callback) {
-    return del(context, Endpoints.MachinesDelete(id), callback);
+    return del(context, Endpoints.MachinesId(id), callback);
   },
 
   deleteAllMachines(context, callback) {

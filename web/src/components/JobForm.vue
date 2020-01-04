@@ -102,7 +102,10 @@ export default {
 
     onFileSelect(file) {
       this.form.source = file;
-      this.form.dest = file.replace('src', 'dst').replace('.mp4', '/');
+      this.form.dest = file.replace('src', 'dst')
+        .replace('.mp4', '/')
+        .replace('.mov', '/')
+        .replace('.mkv', '/');
       this.showFileBrowser = false;
     },
 
