@@ -1,12 +1,12 @@
 module github.com/alfg/openencoder
 
-go 1.12
+go 1.14
 
 require (
 	github.com/appleboy/gin-jwt/v2 v2.6.2
 	github.com/aws/aws-sdk-go v1.20.15
 	github.com/digitalocean/godo v1.19.0
-	github.com/gin-gonic/gin v1.4.0
+	github.com/gin-gonic/gin v1.6.3
 	github.com/gocraft/work v0.5.1
 	github.com/gomodule/redigo v2.0.0+incompatible
 	github.com/jmoiron/sqlx v1.2.0
