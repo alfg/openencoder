@@ -24,3 +24,11 @@ func GetDownloader() *S3 {
 
 	return s3
 }
+
+// GetFTPDownloader sets the FTP download function.
+func GetFTPDownloader() *FTP {
+	host := "localhost"
+	port := 21
+	f := NewFTP(host, port)
+	return f
+}

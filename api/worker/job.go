@@ -49,15 +49,17 @@ func download(job types.Job) error {
 	j, _ := db.Jobs.GetJobByGUID(job.GUID)
 	encodeID := j.EncodeID
 
-	// Get downloader type.
-	d := net.GetDownloader()
+	// Get downloader type. S3 or FTP.
+	// d := net.GetDownloader()
+	d := net.GetFTPDownloader()
+	err := d.FTPDownload(job)
 
 	// Do download and track progress.
-	go trackTransferProgress(encodeID, d)
-	err := d.S3Download(job)
-	if err != nil {
-		log.Error(err)
-	}
+	// go trackTransferProgress(encodeID, d)
+	// err := d.S3Download(job)
+	// if err != nil {
+	// 	log.Error(err)
+	// }
 
 	// Close channel to stop progress updates.
 	close(progressCh)
