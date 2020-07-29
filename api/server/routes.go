@@ -21,9 +21,8 @@ func registerRoutes(r *gin.Engine) {
 		api.GET("/me", getUserProfileHandler)
 		api.PUT("/me", updateUserProfileHandler)
 
-		// S3.
-		api.GET("/s3/list", s3ListHandler)
-		api.GET("/ftp/list", ftpListHandler)
+		// Storage.
+		api.GET("/storage/list", storageListHandler)
 
 		// Jobs.
 		api.POST("/jobs", createJobHandler)
