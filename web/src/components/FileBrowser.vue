@@ -1,5 +1,5 @@
 <template>
-  <div id="s3-browser">
+  <div id="file-browser">
     <div>
       <ul>
         <li v-if="prefix !== ''">
@@ -74,7 +74,7 @@ export default {
     },
 
     getData(prefix = '') {
-      api.getS3List(this, prefix, (err, json) => {
+      api.getFileList(this, prefix, (err, json) => {
         this.data = json.data;
         this.prefix = prefix;
       });

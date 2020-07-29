@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <b-navbar class="mb-4" toggleable="lg" type="dark" variant="dark">
-      <b-navbar-brand href="#">Open Encoder <sup class="alpha">Alpha</sup></b-navbar-brand>
+      <b-navbar-brand href="#">Open Encoder <sup class="alpha">{{ version }}</sup></b-navbar-brand>
       <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
       <b-navbar-nav class="ml-auto">
       <b-nav-item-dropdown right v-if="user.authenticated">

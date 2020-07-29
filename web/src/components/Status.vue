@@ -61,6 +61,7 @@
           </b-card>
       </div>
     </b-card-group>
+    <h2 class="text-center" v-if="Object.keys(pricing).length === 0">No Machines Running</h2>
 
     <h2 class="text-center" v-if="!stats.jobs">No Stats Found</h2>
   </div>
@@ -135,6 +136,10 @@ export default {
 
     getPricing() {
       api.getPricing(this, (err, json) => {
+        if (err) {
+          console.log(err);
+          return;
+        }
         if (json.pricing) {
           this.pricing = json.pricing;
         }
