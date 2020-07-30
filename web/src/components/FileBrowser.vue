@@ -60,7 +60,7 @@ export default {
       const { text } = event.target;
 
       if (text[text.length - 1] !== '/') {
-        this.$emit('file', `s3:///${event.target.text}`);
+        this.$emit('file', `${event.target.text}`);
       } else {
         this.getData(text);
       }
