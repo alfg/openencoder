@@ -23,3 +23,14 @@ func GetUploader() *S3 {
 
 	return s3
 }
+
+// GetFTPUploader sets the FTP upload function.
+func GetFTPUploader() *FTP {
+	db := data.New()
+	addr := db.Settings.GetSetting(types.FTPAddr).Value
+	user := db.Settings.GetSetting(types.FTPUsername).Value
+	pass := db.Settings.GetSetting(types.FTPPassword).Value
+
+	f := NewFTP(addr, user, pass)
+	return f
+}

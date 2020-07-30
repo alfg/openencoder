@@ -10,3 +10,4 @@ progress-log.txt
 vendor/
 .vscode/
 examples/
+data/

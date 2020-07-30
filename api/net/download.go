@@ -27,9 +27,10 @@ func GetDownloader() *S3 {
 
 // GetFTPDownloader sets the FTP download function.
 func GetFTPDownloader() *FTP {
-	addr := "localhost:21"
-	user := "username"
-	pass := "mypass"
+	db := data.New()
+	addr := db.Settings.GetSetting(types.FTPAddr).Value
+	user := db.Settings.GetSetting(types.FTPUsername).Value
+	pass := db.Settings.GetSetting(types.FTPPassword).Value
 
 	f := NewFTP(addr, user, pass)
 	return f

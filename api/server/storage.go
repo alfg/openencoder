@@ -83,14 +83,13 @@ func getS3FileList(prefix string) (*storageListResponse, error) {
 }
 
 func getFTPFileList(prefix string) (*storageListResponse, error) {
-
 	db := data.New()
 	addr := db.Settings.GetSetting(types.FTPAddr).Value
 	user := db.Settings.GetSetting(types.FTPUsername).Value
 	pass := db.Settings.GetSetting(types.FTPPassword).Value
 
 	f := net.NewFTP(addr, user, pass)
-	files, err := f.FTPListFiles(prefix)
+	files, err := f.ListFiles(prefix)
 	if err != nil {
 		return nil, err
 	}
@@ -104,7 +103,7 @@ func getFTPFileList(prefix string) (*storageListResponse, error) {
 			obj.Size = int64(item.Size)
 			resp.Files = append(resp.Files, obj)
 		} else {
-			resp.Folders = append(resp.Folders, item.Name)
+			resp.Folders = append(resp.Folders, item.Name+"/")
 		}
 	}
 	return resp, nil
