@@ -1,6 +1,7 @@
 package net
 
 import (
+	"fmt"
 	"net/url"
 	"os"
 	"path"
@@ -8,6 +9,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/alfg/openencoder/api/data"
 	"github.com/alfg/openencoder/api/types"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
@@ -49,8 +51,8 @@ func NewS3(accessKey, secretKey, provider, region, inboundBucket, outboundBucket
 	}
 }
 
-// S3Download downloads source files from S3.
-func (s *S3) S3Download(job types.Job) error {
+// Download downloads source files from S3.
+func (s *S3) Download(job types.Job) error {
 	log.Info("downloading from S3: ", job.Source)
 
 	// Open file for writing.
@@ -126,8 +128,8 @@ func (s *S3) finish() {
 	close(s.Progress.quit)
 }
 
-// S3Upload uploads a file to S3.
-func (s *S3) S3Upload(job types.Job) error {
+// Upload uploads a file to S3.
+func (s *S3) Upload(job types.Job) error {
 	log.Info("uploading files to S3: ", job.Destination)
 	defer log.Info("upload complete")
 
@@ -263,4 +265,25 @@ func getEndpoint(provider, region string) string {
 		return EndpointDigitalOceanSpacesRegion(region)
 	}
 	return EndpointAmazonAWSRegion(region)
+}
+
+func trackTransferProgress(encodeID int64, s3 *S3) {
+	db := data.New()
+	progressCh = make(chan struct{})
+	ticker := time.NewTicker(ProgressInterval)
+
+	for {
+		select {
+		case <-progressCh:
+			ticker.Stop()
+			return
+		case <-ticker.C:
+			log.Info("transfer progress: ", s3.Progress.Progress)
+			err := db.Jobs.UpdateTransferProgressByID(encodeID, float64(s3.Progress.Progress))
+			fmt.Println(float64(s3.Progress.Progress))
+			if err != nil {
+				log.Error(err)
+			}
+		}
+	}
 }

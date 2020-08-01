@@ -2,13 +2,22 @@ package net
 
 import (
 	"bufio"
-	"bytes"
+	"fmt"
 	"io"
+	"net/textproto"
+	"net/url"
 	"os"
+	"path"
+	"path/filepath"
 	"time"
 
 	"github.com/alfg/openencoder/api/types"
 	"github.com/jlaffaye/ftp"
+)
+
+const (
+	// ErrorFileExists error return from FTP client.
+	ErrorFileExists = "Can't create directory: File exists"
 )
 
 // FTP connection details.
@@ -32,12 +41,6 @@ func NewFTP(addr string, username string, password string) *FTP {
 // Download download a file from an FTP connection.
 func (f *FTP) Download(job types.Job) error {
 	log.Info("downloading from FTP: ", job.Source)
-
-	// Open file for writing.
-	// file, err := os.Create(job.LocalSource)
-	// if err != nil {
-	// 	return err
-	// }
 
 	// Create FTP connection.
 	c, err := ftp.Dial(f.Addr, ftp.DialWithTimeout(f.Timeout*time.Second))
@@ -75,8 +78,6 @@ func (f *FTP) Download(job types.Job) error {
 		outputFile.Write(p[:n])
 	}
 
-	// buf, err := ioutil.ReadAll(resp)
-
 	// Quit connection.
 	if err := c.Quit(); err != nil {
 		log.Error(err)
@@ -85,7 +86,34 @@ func (f *FTP) Download(job types.Job) error {
 	return err
 }
 
+// Upload uploads a file to FTP.
 func (f *FTP) Upload(job types.Job) error {
+	log.Info("uploading files to FTP: ", job.Destination)
+	defer log.Info("upload complete")
+
+	// Get list of files in output dir.
+	filelist := []string{}
+	filepath.Walk(path.Dir(job.LocalSource)+"/dst", func(path string, f os.FileInfo, err error) error {
+		if isDirectory(path) {
+			return nil
+		}
+		filelist = append(filelist, path)
+		return nil
+	})
+
+	f.uploadDir(filelist, job)
+	return nil
+}
+
+func (f *FTP) uploadDir(filelist []string, job types.Job) {
+	fmt.Println(filelist)
+	for _, file := range filelist {
+		f.uploadFile(file, job)
+	}
+}
+
+// UploadFile uploads a file from an FTP connection.
+func (f *FTP) uploadFile(path string, job types.Job) error {
 	// Create FTP connection.
 	c, err := ftp.Dial(f.Addr, ftp.DialWithTimeout(f.Timeout*time.Second))
 	if err != nil {
@@ -100,8 +128,25 @@ func (f *FTP) Upload(job types.Job) error {
 		return err
 	}
 
-	data := bytes.NewBufferString("testing")
-	err = c.Stor("test-file.txt", data)
+	file, err := os.Open(path)
+	defer file.Close()
+	if err != nil {
+		return err
+	}
+	reader := bufio.NewReader(file)
+
+	// Set destination path.
+	parsedURL, _ := url.Parse(job.Destination)
+	key := parsedURL.Path + filepath.Base(path)
+
+	// Create directory.
+	err = c.MakeDir(parsedURL.Path)
+	if err != nil && err.(*textproto.Error).Msg != ErrorFileExists {
+		log.Error(err)
+		return err
+	}
+
+	err = c.Stor(key, reader)
 	if err != nil {
 		log.Error(err)
 		return err
@@ -124,9 +169,6 @@ func (f *FTP) ListFiles(prefix string) ([]*ftp.Entry, error) {
 	}
 
 	entries, err := c.List(prefix)
-	// for _, e := range entries {
-	// 	fmt.Println(e)
-	// }
 
 	if err := c.Quit(); err != nil {
 		log.Error(err)
