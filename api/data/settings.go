@@ -88,7 +88,6 @@ func (s SettingsOp) GetSettings() []types.Setting {
 			settings[i].Value = string(plaintext)
 		}
 	}
-
 	return settings
 }
 

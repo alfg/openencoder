@@ -53,3 +53,13 @@ type SettingsForm struct {
 	Description string `json:"description"`
 	Secure      bool   `json:"secure"`
 }
+
+// GetSetting gets a setting value by key from a slice of Setting.
+func GetSetting(s string, settings []Setting) string {
+	for _, v := range settings {
+		if s == v.Name {
+			return v.Value
+		}
+	}
+	return ""
+}

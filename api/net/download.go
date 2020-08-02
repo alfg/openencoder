@@ -29,14 +29,17 @@ func Download(job types.Job) error {
 // GetPresignedURL gets a presigned URL from S3.
 func GetPresignedURL(job types.Job) (string, error) {
 	db := data.New()
-	ak := db.Settings.GetSetting(types.S3AccessKey).Value
-	sk := db.Settings.GetSetting(types.S3SecretKey).Value
-	pv := db.Settings.GetSetting(types.S3Provider).Value
-	rg := db.Settings.GetSetting(types.S3OutboundBucketRegion).Value
-	ib := db.Settings.GetSetting(types.S3InboundBucket).Value
-	ob := db.Settings.GetSetting(types.S3OutboundBucket).Value
+	settings := db.Settings.GetSettings()
 
-	s3 := NewS3(ak, sk, pv, rg, ib, ob)
+	config := S3Config{
+		AccessKey:      types.GetSetting(types.S3AccessKey, settings),
+		SecretKey:      types.GetSetting(types.S3SecretKey, settings),
+		Provider:       types.GetSetting(types.S3Provider, settings),
+		Region:         types.GetSetting(types.S3OutboundBucketRegion, settings),
+		InboundBucket:  types.GetSetting(types.S3InboundBucket, settings),
+		OutboundBucket: types.GetSetting(types.S3OutboundBucket, settings),
+	}
+	s3 := NewS3(config)
 	str, err := s3.GetPresignedURL(job)
 	if err != nil {
 		return str, err
@@ -47,12 +50,7 @@ func GetPresignedURL(job types.Job) (string, error) {
 // S3Download sets the download function.
 func s3Download(job types.Job) error {
 	db := data.New()
-	ak := db.Settings.GetSetting(types.S3AccessKey).Value
-	sk := db.Settings.GetSetting(types.S3SecretKey).Value
-	pv := db.Settings.GetSetting(types.S3Provider).Value
-	rg := db.Settings.GetSetting(types.S3OutboundBucketRegion).Value
-	ib := db.Settings.GetSetting(types.S3InboundBucket).Value
-	ob := db.Settings.GetSetting(types.S3OutboundBucket).Value
+	settings := db.Settings.GetSettings()
 
 	// Get job data.
 	j, err := db.Jobs.GetJobByGUID(job.GUID)
@@ -62,7 +60,15 @@ func s3Download(job types.Job) error {
 	}
 	encodeID := j.EncodeID
 
-	s3 := NewS3(ak, sk, pv, rg, ib, ob)
+	config := S3Config{
+		AccessKey:      types.GetSetting(types.S3AccessKey, settings),
+		SecretKey:      types.GetSetting(types.S3SecretKey, settings),
+		Provider:       types.GetSetting(types.S3Provider, settings),
+		Region:         types.GetSetting(types.S3OutboundBucketRegion, settings),
+		InboundBucket:  types.GetSetting(types.S3InboundBucket, settings),
+		OutboundBucket: types.GetSetting(types.S3OutboundBucket, settings),
+	}
+	s3 := NewS3(config)
 
 	// Download with progress updates.
 	go trackTransferProgress(encodeID, s3)

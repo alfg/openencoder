@@ -54,14 +54,18 @@ func getFileList(driver string, prefix string) *storageListResponse {
 
 func getS3FileList(prefix string) (*storageListResponse, error) {
 	db := data.New()
-	ak := db.Settings.GetSetting(types.S3AccessKey).Value
-	sk := db.Settings.GetSetting(types.S3SecretKey).Value
-	pv := db.Settings.GetSetting(types.S3Provider).Value
-	rg := db.Settings.GetSetting(types.S3InboundBucketRegion).Value
-	ib := db.Settings.GetSetting(types.S3InboundBucket).Value
-	ob := db.Settings.GetSetting(types.S3OutboundBucket).Value
+	settings := db.Settings.GetSettings()
 
-	s3 := net.NewS3(ak, sk, pv, rg, ib, ob)
+	config := net.S3Config{
+		AccessKey:      types.GetSetting(types.S3AccessKey, settings),
+		SecretKey:      types.GetSetting(types.S3SecretKey, settings),
+		Provider:       types.GetSetting(types.S3Provider, settings),
+		Region:         types.GetSetting(types.S3OutboundBucketRegion, settings),
+		InboundBucket:  types.GetSetting(types.S3InboundBucket, settings),
+		OutboundBucket: types.GetSetting(types.S3OutboundBucket, settings),
+	}
+
+	s3 := net.NewS3(config)
 
 	resp := &storageListResponse{}
 	files, err := s3.S3ListFiles(prefix)
