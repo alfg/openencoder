@@ -22,7 +22,7 @@ const Endpoints = {
   Presets: `${root}/presets`,
   PresetsId: id => `${root}/presets/${id}`,
 
-  S3List: prefix => `${root}/s3/list?prefix=${prefix}`,
+  FileList: prefix => `${root}/storage/list?prefix=${prefix}`,
 
   WorkerQueue: `${root}/worker/queue`,
   WorkerPools: `${root}/worker/pools`,
@@ -164,8 +164,8 @@ export default {
     return update(context, Endpoints.PresetsId(data.id), data, callback);
   },
 
-  getS3List(context, prefix, callback) {
-    return get(context, Endpoints.S3List(prefix), callback);
+  getFileList(context, prefix, callback) {
+    return get(context, Endpoints.FileList(prefix), callback);
   },
 
   getWorkerQueue(context, callback) {

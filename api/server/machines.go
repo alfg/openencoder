@@ -34,7 +34,11 @@ func machinesHandler(c *gin.Context) {
 	// Get list of machines from DO client.
 	machines, err := client.ListDropletByTag(ctx, WorkerTag)
 	if err != nil {
-		log.Fatal(err)
+		log.Error(err)
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"status":  http.StatusUnauthorized,
+			"message": "machines not configured",
+		})
 	}
 
 	c.JSON(200, gin.H{
@@ -66,7 +70,11 @@ func createMachineHandler(c *gin.Context) {
 	// Create machine.
 	machine, err := client.CreateDroplets(ctx, json.Region, json.Size, json.Count)
 	if err != nil {
-		log.Fatal(err)
+		log.Error(err)
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"status":  http.StatusUnauthorized,
+			"message": "machines not configured",
+		})
 	}
 
 	// TODO: Add resource to project?
@@ -96,7 +104,11 @@ func deleteMachineHandler(c *gin.Context) {
 	// Create machine.
 	machine, err := client.DeleteDropletByID(ctx, id)
 	if err != nil {
-		log.Fatal(err)
+		log.Error(err)
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"status":  http.StatusUnauthorized,
+			"message": "machines not configured",
+		})
 	}
 
 	c.JSON(200, gin.H{
@@ -122,7 +134,11 @@ func deleteMachineByTagHandler(c *gin.Context) {
 	// Create machine.
 	err := client.DeleteDropletByTag(ctx, WorkerTag)
 	if err != nil {
-		log.Fatal(err)
+		log.Error(err)
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"status":  http.StatusUnauthorized,
+			"message": "machines not configured",
+		})
 	}
 
 	c.JSON(200, gin.H{
@@ -148,7 +164,11 @@ func listMachineRegionsHandler(c *gin.Context) {
 	// Get list of machine regions from DO client.
 	regions, err := client.ListRegions(ctx)
 	if err != nil {
-		log.Fatal(err)
+		log.Error(err)
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"status":  http.StatusUnauthorized,
+			"message": "machines not configured",
+		})
 	}
 
 	c.JSON(200, gin.H{
@@ -173,7 +193,11 @@ func listMachineSizesHandler(c *gin.Context) {
 	// Get list of machine sizes from DO client.
 	sizes, err := client.ListSizes(ctx)
 	if err != nil {
-		log.Fatal(err)
+		log.Error(err)
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"status":  http.StatusUnauthorized,
+			"message": "machines not configured",
+		})
 	}
 
 	c.JSON(200, gin.H{
@@ -190,7 +214,11 @@ func getCurrentMachinePricing(c *gin.Context) {
 	// Get the current machine pricing from DO client.
 	pricing, err := client.GetCurrentPricing(ctx, WorkerTag)
 	if err != nil {
-		log.Fatal(err)
+		log.Error(err)
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"status":  http.StatusUnauthorized,
+			"message": "machines not configured",
+		})
 	}
 
 	c.JSON(200, gin.H{

@@ -1,5 +1,5 @@
 <template>
-  <div id="s3-browser">
+  <div id="file-browser">
     <div>
       <ul>
         <li v-if="prefix !== ''">
@@ -60,7 +60,7 @@ export default {
       const { text } = event.target;
 
       if (text[text.length - 1] !== '/') {
-        this.$emit('file', `s3:///${event.target.text}`);
+        this.$emit('file', `${event.target.text}`);
       } else {
         this.getData(text);
       }
@@ -74,7 +74,7 @@ export default {
     },
 
     getData(prefix = '') {
-      api.getS3List(this, prefix, (err, json) => {
+      api.getFileList(this, prefix, (err, json) => {
         this.data = json.data;
         this.prefix = prefix;
       });

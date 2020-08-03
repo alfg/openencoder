@@ -1,6 +1,7 @@
 package net
 
 import (
+	"fmt"
 	"net/url"
 	"os"
 	"path"
@@ -8,6 +9,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/alfg/openencoder/api/data"
 	"github.com/alfg/openencoder/api/types"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
@@ -16,12 +18,9 @@ import (
 	"github.com/aws/aws-sdk-go/service/s3/s3manager"
 )
 
-// S3 creates a new S3 instance.
-type S3 struct {
-	Progress progress
-	Writer   *ProgressWriter
-	Reader   *ProgressReader
-
+// S3Config describes a configuration for setting up S3.
+type S3Config struct {
+	Provider       string
 	Endpoint       string
 	AccessKey      string
 	SecretKey      string
@@ -30,27 +29,31 @@ type S3 struct {
 	OutboundBucket string
 }
 
+// S3 creates a new S3 instance.
+type S3 struct {
+	Progress progress
+	Writer   *ProgressWriter
+	Reader   *ProgressReader
+
+	Config S3Config
+}
+
 type progress struct {
 	quit     chan struct{}
 	Progress float32
 }
 
 // NewS3 creates a new S3 instance.
-func NewS3(accessKey, secretKey, provider, region, inboundBucket, outboundBucket string) *S3 {
-	endpoint := getEndpoint(provider, region)
+func NewS3(config S3Config) *S3 {
+	config.Endpoint = getEndpoint(config.Provider, config.Region)
 
 	return &S3{
-		AccessKey:      accessKey,
-		SecretKey:      secretKey,
-		Endpoint:       endpoint,
-		Region:         region,
-		InboundBucket:  inboundBucket,
-		OutboundBucket: outboundBucket,
+		Config: config,
 	}
 }
 
-// S3Download downloads source files from S3.
-func (s *S3) S3Download(job types.Job) error {
+// Download downloads source files from S3.
+func (s *S3) Download(job types.Job) error {
 	log.Info("downloading from S3: ", job.Source)
 
 	// Open file for writing.
@@ -61,9 +64,9 @@ func (s *S3) S3Download(job types.Job) error {
 
 	// Create session and client.
 	sess, err := session.NewSession(&aws.Config{
-		Endpoint:    aws.String(s.Endpoint),
-		Region:      aws.String(s.Region),
-		Credentials: credentials.NewStaticCredentials(s.AccessKey, s.SecretKey, ""),
+		Endpoint:    aws.String(s.Config.Endpoint),
+		Region:      aws.String(s.Config.Region),
+		Credentials: credentials.NewStaticCredentials(s.Config.AccessKey, s.Config.SecretKey, ""),
 	})
 	if err != nil {
 		panic(err)
@@ -74,7 +77,7 @@ func (s *S3) S3Download(job types.Job) error {
 	parsedURL, _ := url.Parse(job.Source)
 	key := parsedURL.Path
 
-	size, err := getFileSize(s3Client, s.InboundBucket, key)
+	size, err := getFileSize(s3Client, s.Config.InboundBucket, key)
 	if err != nil {
 		panic(err)
 	}
@@ -83,7 +86,7 @@ func (s *S3) S3Download(job types.Job) error {
 	// Get object input details.
 	s.Writer = &ProgressWriter{writer: file, size: size, written: 0}
 	objInput := s3.GetObjectInput{
-		Bucket: aws.String(s.InboundBucket),
+		Bucket: aws.String(s.Config.InboundBucket),
 		Key:    aws.String(key),
 	}
 
@@ -126,8 +129,8 @@ func (s *S3) finish() {
 	close(s.Progress.quit)
 }
 
-// S3Upload uploads a file to S3.
-func (s *S3) S3Upload(job types.Job) error {
+// Upload uploads a file to S3.
+func (s *S3) Upload(job types.Job) error {
 	log.Info("uploading files to S3: ", job.Destination)
 	defer log.Info("upload complete")
 
@@ -180,9 +183,9 @@ func (s *S3) uploadFile(path string, job types.Job) error {
 	go s.trackProgress("upload")
 
 	sess, err := session.NewSession(&aws.Config{
-		Endpoint:    aws.String(s.Endpoint),
-		Region:      aws.String(s.Region),
-		Credentials: credentials.NewStaticCredentials(s.AccessKey, s.SecretKey, ""),
+		Endpoint:    aws.String(s.Config.Endpoint),
+		Region:      aws.String(s.Config.Region),
+		Credentials: credentials.NewStaticCredentials(s.Config.AccessKey, s.Config.SecretKey, ""),
 	})
 	uploader := s3manager.NewUploader(sess, func(u *s3manager.Uploader) {
 		u.PartSize = 5 * 1024 * 1024
@@ -191,7 +194,7 @@ func (s *S3) uploadFile(path string, job types.Job) error {
 
 	_, err = uploader.Upload(&s3manager.UploadInput{
 		Body:   s.Reader,
-		Bucket: aws.String(s.OutboundBucket),
+		Bucket: aws.String(s.Config.OutboundBucket),
 		Key:    aws.String(key),
 	})
 	if err != nil {
@@ -204,15 +207,15 @@ func (s *S3) uploadFile(path string, job types.Job) error {
 // S3ListFiles lists s3 objects for a given prefix.
 func (s *S3) S3ListFiles(prefix string) (*s3.ListObjectsV2Output, error) {
 	sess, err := session.NewSession(&aws.Config{
-		Endpoint:    aws.String(s.Endpoint),
-		Region:      aws.String(s.Region),
-		Credentials: credentials.NewStaticCredentials(s.AccessKey, s.SecretKey, ""),
+		Endpoint:    aws.String(s.Config.Endpoint),
+		Region:      aws.String(s.Config.Region),
+		Credentials: credentials.NewStaticCredentials(s.Config.AccessKey, s.Config.SecretKey, ""),
 	})
 	svc := s3.New(sess)
 
 	resp, err := svc.ListObjectsV2(
 		&s3.ListObjectsV2Input{
-			Bucket:    aws.String(s.InboundBucket),
+			Bucket:    aws.String(s.Config.InboundBucket),
 			Delimiter: aws.String("/"),
 			Prefix:    aws.String(prefix),
 		},
@@ -223,9 +226,9 @@ func (s *S3) S3ListFiles(prefix string) (*s3.ListObjectsV2Output, error) {
 // GetPresignedURL generates a presigned URL from S3.
 func (s *S3) GetPresignedURL(job types.Job) (string, error) {
 	sess, err := session.NewSession(&aws.Config{
-		Endpoint:    aws.String(s.Endpoint),
-		Region:      aws.String(s.Region),
-		Credentials: credentials.NewStaticCredentials(s.AccessKey, s.SecretKey, ""),
+		Endpoint:    aws.String(s.Config.Endpoint),
+		Region:      aws.String(s.Config.Region),
+		Credentials: credentials.NewStaticCredentials(s.Config.AccessKey, s.Config.SecretKey, ""),
 	})
 	svc := s3.New(sess)
 
@@ -233,7 +236,7 @@ func (s *S3) GetPresignedURL(job types.Job) (string, error) {
 	key := parsedURL.Path
 
 	objInput := s3.GetObjectInput{
-		Bucket: aws.String(s.InboundBucket),
+		Bucket: aws.String(s.Config.InboundBucket),
 		Key:    aws.String(key),
 	}
 
@@ -263,4 +266,25 @@ func getEndpoint(provider, region string) string {
 		return EndpointDigitalOceanSpacesRegion(region)
 	}
 	return EndpointAmazonAWSRegion(region)
+}
+
+func trackTransferProgress(encodeID int64, s3 *S3) {
+	db := data.New()
+	progressCh = make(chan struct{})
+	ticker := time.NewTicker(ProgressInterval)
+
+	for {
+		select {
+		case <-progressCh:
+			ticker.Stop()
+			return
+		case <-ticker.C:
+			log.Info("transfer progress: ", s3.Progress.Progress)
+			err := db.Jobs.UpdateTransferProgressByID(encodeID, float64(s3.Progress.Progress))
+			fmt.Println(float64(s3.Progress.Progress))
+			if err != nil {
+				log.Error(err)
+			}
+		}
+	}
 }

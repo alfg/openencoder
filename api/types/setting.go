@@ -2,14 +2,21 @@ package types
 
 // Settings types.
 const (
-	S3AccessKey             = "S3_ACCESS_KEY"
-	S3SecretKey             = "S3_SECRET_KEY"
-	S3InboundBucket         = "S3_INBOUND_BUCKET"
-	S3InboundBucketRegion   = "S3_INBOUND_BUCKET_REGION"
-	S3OutboundBucket        = "S3_OUTBOUND_BUCKET"
-	S3OutboundBucketRegion  = "S3_OUTBOUND_BUCKET_REGION"
-	S3Provider              = "S3_PROVIDER"
-	S3Streaming             = "S3_STREAMING"
+	StorageDriver = "STORAGE_DRIVER"
+
+	S3AccessKey            = "S3_ACCESS_KEY"
+	S3SecretKey            = "S3_SECRET_KEY"
+	S3InboundBucket        = "S3_INBOUND_BUCKET"
+	S3InboundBucketRegion  = "S3_INBOUND_BUCKET_REGION"
+	S3OutboundBucket       = "S3_OUTBOUND_BUCKET"
+	S3OutboundBucketRegion = "S3_OUTBOUND_BUCKET_REGION"
+	S3Provider             = "S3_PROVIDER"
+	S3Streaming            = "S3_STREAMING"
+
+	FTPAddr     = "FTP_ADDR"
+	FTPUsername = "FTP_USERNAME"
+	FTPPassword = "FTP_PASSWORD"
+
 	DigitalOceanAccessToken = "DIGITAL_OCEAN_ACCESS_TOKEN"
 	SlackWebhook            = "SLACK_WEBHOOK"
 
@@ -45,4 +52,14 @@ type SettingsForm struct {
 	Value       string `json:"value"`
 	Description string `json:"description"`
 	Secure      bool   `json:"secure"`
+}
+
+// GetSetting gets a setting value by key from a slice of Setting.
+func GetSetting(s string, settings []Setting) string {
+	for _, v := range settings {
+		if s == v.Name {
+			return v.Value
+		}
+	}
+	return ""
 }

@@ -27,40 +27,33 @@ func generatePresignedURL(job types.Job) (string, error) {
 	db := data.New()
 	db.Jobs.UpdateJobStatusByGUID(job.GUID, types.JobDownloading)
 
-	// Get downloader type.
-	d := net.GetDownloader()
-
 	// Get presigned URL.
-	str, err := d.GetPresignedURL(job)
+	str, err := net.GetPresignedURL(job)
 	if err != nil {
 		log.Error(err)
 	}
 	return str, nil
 }
 
-func download(job types.Job) error {
-	log.Info("running download task")
+func download(job types.Job, storageDriver string) error {
+	log.Info("running download task for: ", storageDriver)
 
 	// Update status.
 	db := data.New()
 	db.Jobs.UpdateJobStatusByGUID(job.GUID, types.JobDownloading)
 
 	// Get job data.
-	j, _ := db.Jobs.GetJobByGUID(job.GUID)
-	encodeID := j.EncodeID
-
-	// Get downloader type.
-	d := net.GetDownloader()
-
-	// Do download and track progress.
-	go trackTransferProgress(encodeID, d)
-	err := d.S3Download(job)
+	j, err := db.Jobs.GetJobByGUID(job.GUID)
 	if err != nil {
 		log.Error(err)
+		return err
 	}
+	encodeID := j.EncodeID
 
-	// Close channel to stop progress updates.
-	close(progressCh)
+	if err := net.Download(job); err != nil {
+		log.Error(err)
+		return err
+	}
 
 	// Set progress to 100.
 	db.Jobs.UpdateTransferProgressByID(encodeID, 100)
@@ -128,20 +121,17 @@ func upload(job types.Job) error {
 	db.Jobs.UpdateJobStatusByGUID(job.GUID, types.JobUploading)
 
 	// Get job data.
-	j, _ := db.Jobs.GetJobByGUID(job.GUID)
-	encodeID := j.EncodeID
-
-	d := net.GetUploader()
-
-	// Do download and track progress.
-	go trackTransferProgress(encodeID, d)
-	err := d.S3Upload(job)
+	j, err := db.Jobs.GetJobByGUID(job.GUID)
 	if err != nil {
 		log.Error(err)
+		return err
 	}
+	encodeID := j.EncodeID
 
-	// Close channel to stop progress updates.
-	close(progressCh)
+	if err := net.Upload(job); err != nil {
+		log.Error(err)
+		return err
+	}
 
 	// Set progress to 100.
 	db.Jobs.UpdateTransferProgressByID(encodeID, 100)
@@ -187,11 +177,12 @@ func runEncodeJob(job types.Job) {
 		config.Get().WorkDirectory, job.Source, job.GUID)
 
 	db := data.New()
+	storageDriver := db.Settings.GetSetting(types.StorageDriver).Value
 
 	// If STREAMING setting is enabled, get a presigned URL and update
 	// the job.Source.
 	s3Streaming := db.Settings.GetSetting(types.S3Streaming).Value
-	if s3Streaming == "enabled" {
+	if s3Streaming == "enabled" && storageDriver == "s3" {
 		// 1a. Get presigned URL.
 		presigned, err := generatePresignedURL(job)
 		if err != nil {
@@ -205,7 +196,7 @@ func runEncodeJob(job types.Job) {
 
 	} else {
 		// 1b. Download.
-		err := download(job)
+		err := download(job, storageDriver)
 		if err != nil {
 			log.Error(err)
 			db.Jobs.UpdateJobStatusByGUID(job.GUID, types.JobError)
@@ -298,27 +289,9 @@ func trackEncodeProgress(guid string, encodeID int64, p *encoder.FFProbeResponse
 
 				// Update DB with progress.
 				pct = math.Round(pct*100) / 100
-				// fmt.Printf("progress: %d / %d - %0.2f%%\r", currentFrame, totalFrames, pct)
 				log.Infof("progress: %d / %d - %0.2f%%", currentFrame, totalFrames, pct)
 				db.Jobs.UpdateEncodeProgressByID(encodeID, pct, speed, fps)
 			}
-		}
-	}
-}
-
-func trackTransferProgress(encodeID int64, d *net.S3) {
-	db := data.New()
-	progressCh = make(chan struct{})
-	ticker := time.NewTicker(ProgressInterval)
-
-	for {
-		select {
-		case <-progressCh:
-			ticker.Stop()
-			return
-		case <-ticker.C:
-			log.Info("transfer progress: ", d.Progress.Progress)
-			db.Jobs.UpdateTransferProgressByID(encodeID, float64(d.Progress.Progress))
 		}
 	}
 }

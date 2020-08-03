@@ -8,5 +8,9 @@ INSERT INTO public.settings_option (id, name, description, title, secure) VALUES
 INSERT INTO public.settings_option (id, name, description, title, secure) VALUES (8, 'S3_INBOUND_BUCKET_REGION', 'S3 Inbound Bucket Region', 'S3 Inbound Bucket Region', false);
 INSERT INTO public.settings_option (id, name, description, title, secure) VALUES (9, 'S3_PROVIDER', 'S3 Provider', 'S3 Provider', false);
 INSERT INTO public.settings_option (id, name, description, title, secure) VALUES (10, 'S3_STREAMING', 'Enable this setting to enable streaming directly to FFmpeg from a pre-signed S3 URL, instead of downloading the file first if disk space is a concern. Please note this setting can impact performance.', 'Stream Encode from S3', false);
+INSERT INTO public.settings_option (id, name, description, title, secure) VALUES (11, 'FTP_ADDR', 'FTP Connection', 'FTP Address', false);
+INSERT INTO public.settings_option (id, name, description, title, secure) VALUES (12, 'FTP_USERNAME', 'FTP Username', 'FTP Username', true);
+INSERT INTO public.settings_option (id, name, description, title, secure) VALUES (13, 'FTP_PASSWORD', 'FTP Password', 'FTP Password', true);
+INSERT INTO public.settings_option (id, name, description, title, secure) VALUES (14, 'STORAGE_DRIVER', 'Storage Driver for input and output', 'Storage Driver', false);
 
 SELECT setval('settings_option_id_seq', max(id)) FROM settings_option;

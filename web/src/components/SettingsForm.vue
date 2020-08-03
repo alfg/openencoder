@@ -70,6 +70,11 @@ export default {
         { value: 'enabled', text: 'Enabled' },
         { value: 'disabled', text: 'Disabled' },
       ],
+      storageOptions: [
+        { value: '', text: 'Select a Storage Option', disabled: true },
+        { value: 's3', text: 'S3' },
+        { value: 'ftp', text: 'FTP' },
+      ],
       hide: true,
       dismissSecs: 5,
       dismissCountDown: 0,
@@ -83,7 +88,7 @@ export default {
 
   methods: {
     isSelectInput(inputName) {
-      return ['S3_PROVIDER', 'S3_STREAMING'].includes(inputName);
+      return ['S3_PROVIDER', 'S3_STREAMING', 'STORAGE_DRIVER'].includes(inputName);
     },
 
     getSelectOptions(inputName) {
@@ -93,6 +98,9 @@ export default {
 
         case 'S3_STREAMING':
           return this.streamingOptions;
+
+        case 'STORAGE_DRIVER':
+          return this.storageOptions;
 
         default:
           return [];

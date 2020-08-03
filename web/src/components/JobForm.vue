@@ -20,7 +20,7 @@
       </b-form-group>
 
       <div v-if="showFileBrowser">
-        <S3Browser v-on:file="onFileSelect" />
+        <FileBrowser v-on:file="onFileSelect" />
       </div>
 
       <b-form-group id="input-group-3" label="Destination:" label-for="input-3">
@@ -50,11 +50,11 @@
 
 <script>
 import api from '../api';
-import S3Browser from '@/components/S3Browser.vue';
+import FileBrowser from '@/components/FileBrowser.vue';
 
 export default {
   components: {
-    S3Browser,
+    FileBrowser,
   },
   data() {
     return {
@@ -103,9 +103,7 @@ export default {
     onFileSelect(file) {
       this.form.source = file;
       this.form.dest = file.replace('src', 'dst')
-        .replace('.mp4', '/')
-        .replace('.mov', '/')
-        .replace('.mkv', '/');
+        .replace(/\.[^.]+$/, '/');
       this.showFileBrowser = false;
     },
 
