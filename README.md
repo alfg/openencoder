@@ -2,8 +2,10 @@
     <h1><code>openencoder</code></h1>
     <p><strong>Open Source Cloud Encoder for FFmpeg</strong></p>
     <p>A distributed and scalable video encoding pipeline to be used
-    as an API or web interface using your own hosted infrastructure and FFmpeg encoding presets.</p>
-    <p>⚠️ Currently a work-in-progress! Check back for updates!</p>
+    as an API or web interface using your own hosted or cloud infrastructure
+    and FFmpeg encoding presets.
+    </p>
+    <p>⚠️ Currently functional, but a work-in-progress! Check back for updates!</p>
     <p>
         <a href="https://travis-ci.org/alfg/openencoder">
           <img src="https://travis-ci.org/alfg/openencoder.svg?branch=master" alt="Build Status" />
@@ -25,10 +27,10 @@
 
 
 ## Features
-* HTTP API for submitting jobs to an redis-backed FFmpeg worker
-* S3 storage (AWS and Digital Ocean)
-* Web Dashboard UI for managing encode jobs
-* Machines UI/API for scaling worker instances
+* HTTP API for submitting jobs to a redis-backed FFmpeg worker
+* S3 storage (AWS and Digital Ocean supported)
+* Web Dashboard UI for managing encode jobs, workers and users
+* Machines UI/API for scaling cloud worker instances
 * Database stored FFmpeg encoding presets
 * User accounts and roles
 
@@ -98,6 +100,7 @@ See: [wiki](https://github.com/alfg/openencoder/wiki) for more documentation.
 
 ## Roadmap
 See: [Development Project](https://github.com/alfg/openencoder/projects/1) for current development tasks and status.
+
 
 ## License
 MIT
