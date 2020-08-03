@@ -28,7 +28,7 @@ type FTP struct {
 	Timeout  time.Duration
 }
 
-// NewFTP creates a new S3 instance.
+// NewFTP creates a new FTP instance.
 func NewFTP(addr string, username string, password string) *FTP {
 	return &FTP{
 		Addr:     addr,
@@ -56,7 +56,6 @@ func (f *FTP) Download(job types.Job) error {
 		return err
 	}
 
-	// resp, err := c.Retr("tears-of-steel-2s.mp4")
 	resp, err := c.Retr(job.Source)
 	if err != nil {
 		log.Error(err)
@@ -154,7 +153,7 @@ func (f *FTP) uploadFile(path string, job types.Job) error {
 	return nil
 }
 
-// ListFiles lists s3 objects for a given prefix.
+// ListFiles lists FTP files for a given prefix.
 func (f *FTP) ListFiles(prefix string) ([]*ftp.Entry, error) {
 	c, err := ftp.Dial(f.Addr, ftp.DialWithTimeout(f.Timeout*time.Second))
 	if err != nil {
