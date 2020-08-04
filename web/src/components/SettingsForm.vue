@@ -4,32 +4,36 @@
 
     <b-form class="mb-3" @submit="onSubmit">
       <div
-        v-for="(o, i) in settings"
+        v-for="(o, i) in sortedSettings"
         v-bind:key="i"
       >
-        <b-form-group
-          id="fieldset-horizontal"
-          label-cols-sm="4"
-          label-cols-lg="4"
-          label-for="input-horizontal"
-          :label="o.title"
-          :description="o.description"
-        >
-          <div v-if="isSelectInput(o.name)">
-            <b-form-select
-              v-model="form[o.name]"
-              :options="getSelectOptions(o.name)">
-            </b-form-select>
-          </div>
-          <div v-else>
-            <b-form-input
-              id="input-horizontal"
-              v-model="form[o.name]"
-              autocomplete="off"
-              :type="o.secure && hide ? 'password' : 'text'"
-            ></b-form-input>
-          </div>
-        </b-form-group>
+        <div v-show="!isHidden(o.name)">
+          <b-form-group
+            :id="`fieldset-horizontal-${i}`"
+            label-cols-sm="4"
+            label-cols-lg="4"
+            :label-for="`input-horizontal-${i}`"
+            :label="o.title"
+            :description="o.description"
+          >
+            <div v-if="isSelectInput(o.name)">
+              <b-form-select
+                v-model="form[o.name]"
+                :options="getSelectOptions(o.name)"
+                @change="onSelectChange"
+              >
+              </b-form-select>
+            </div>
+            <div v-else>
+              <b-form-input
+                :id="`input-horizontal-${i}`"
+                v-model="form[o.name]"
+                autocomplete="off"
+                :type="o.secure && hide ? 'password' : 'text'"
+              ></b-form-input>
+            </div>
+          </b-form-group>
+        </div>
       </div>
 
       <b-button type="submit" variant="primary">Save</b-button>
@@ -49,17 +53,39 @@
     >
       Updated settings!
     </b-alert>
+
+    <div v-show="false">
+      {{forceUpdate}}
+    </div>
   </div>
 </template>
 
 <script>
 import api from '../api';
 
+const SORTED_OPTIONS = [
+  'DIGITAL_OCEAN_ACCESS_TOKEN',
+  'STORAGE_DRIVER',
+  'S3_PROVIDER',
+  'S3_ACCESS_KEY',
+  'S3_SECRET_KEY',
+  'S3_INBOUND_BUCKET',
+  'S3_INBOUND_BUCKET_REGION',
+  'S3_OUTBOUND_BUCKET',
+  'S3_OUTBOUND_BUCKET_REGION',
+  'S3_PROVIDER',
+  'S3_STREAMING',
+  'FTP_ADDR',
+  'FTP_USERNAME',
+  'FTP_PASSWORD',
+  'SLACK_WEBHOOK',
+];
+
 export default {
   data() {
     return {
       form: {},
-      settings: {},
+      settings: [],
       providers: [
         { value: '', text: 'Select an S3 Provider', disabled: true },
         { value: 'digitalocean', text: 'Digital Ocean' },
@@ -79,7 +105,21 @@ export default {
       dismissSecs: 5,
       dismissCountDown: 0,
       showDismissibleAlert: false,
+      forceUpdate: 0,
     };
+  },
+
+  computed: {
+    sortedSettings() {
+      const newOrder = [];
+      if (this.settings.length > 0) {
+        SORTED_OPTIONS.forEach((item) => {
+          const a = this.settings.find(o => o.name === item);
+          newOrder.push(a);
+        });
+      }
+      return newOrder;
+    },
   },
 
   mounted() {
@@ -87,8 +127,22 @@ export default {
   },
 
   methods: {
+    onSelectChange() {
+      this.forceUpdate = this.forceUpdate + 1;
+    },
+
     isSelectInput(inputName) {
       return ['S3_PROVIDER', 'S3_STREAMING', 'STORAGE_DRIVER'].includes(inputName);
+    },
+
+    isHidden(inputName) {
+      const options = ['FTP', 'S3'];
+      const prefix = inputName.split('_')[0];
+      const { STORAGE_DRIVER } = this.form;
+      if (options.includes(prefix) && STORAGE_DRIVER.toUpperCase() !== prefix) {
+        return true;
+      }
+      return false;
     },
 
     getSelectOptions(inputName) {
