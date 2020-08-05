@@ -158,8 +158,6 @@ func (s *S3) uploadFile(path string, job types.Job) error {
 	log.Info("uploading file to S3.", job.Destination)
 
 	// Open source path file.
-	// tmpDir := "/tmp" + "/asdf/"
-	// file, err := os.Open(tmpDir + path.Base(job.Source))
 	file, err := os.Open(path)
 	if err != nil {
 		return err
@@ -262,7 +260,11 @@ func isDirectory(path string) bool {
 }
 
 func getEndpoint(provider, region string) string {
-	if strings.ToUpper(provider) == types.DigitalOcean {
+	if strings.ToUpper(provider) == types.Custom {
+		db := data.New()
+		endpoint := db.Settings.GetSetting(types.S3Endpoint)
+		return endpoint.Value
+	} else if strings.ToUpper(provider) == types.DigitalOceanSpaces {
 		return EndpointDigitalOceanSpacesRegion(region)
 	}
 	return EndpointAmazonAWSRegion(region)
