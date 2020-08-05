@@ -19,6 +19,6 @@ const (
 // S3 Provider Endpoints with region.
 var (
 	EndpointDigitalOceanSpacesRegion = func(region string) string { return region + EndpointDigitalOceanSpaces }
-	EndpointAmazonAWSRegion          = func(region string) string { return "s3." + region + EndpointDigitalOceanSpaces }
+	EndpointAmazonAWSRegion          = func(region string) string { return "s3." + region + EndpointAmazonAWS }
 	progressCh                       chan struct{}
 )

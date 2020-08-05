@@ -17,8 +17,9 @@ type settingsUpdateRequest struct {
 	S3InboundBucketRegion  string `json:"S3_INBOUND_BUCKET_REGION"`
 	S3OutboundBucket       string `json:"S3_OUTBOUND_BUCKET"`
 	S3OutboundBucketRegion string `json:"S3_OUTBOUND_BUCKET_REGION"`
-	S3Provider             string `json:"S3_PROVIDER" binding:"eq=digitalocean|eq=aws|eq="`
+	S3Provider             string `json:"S3_PROVIDER" binding:"eq=digitaloceanspaces|eq=amazonaws|eq=custom|eq="`
 	S3Streaming            string `json:"S3_STREAMING" binding:"eq=enabled|eq=disabled"`
+	S3Endpoint             string `json:"S3_ENDPOINT"`
 
 	FTPAddr     string `json:"FTP_ADDR"`
 	FTPUsername string `json:"FTP_USERNAME"`
@@ -90,6 +91,7 @@ func updateSettingsHandler(c *gin.Context) {
 		types.S3OutboundBucketRegion: json.S3OutboundBucketRegion,
 		types.S3Provider:             json.S3Provider,
 		types.S3Streaming:            json.S3Streaming,
+		types.S3Endpoint:             json.S3Endpoint,
 
 		types.FTPAddr:     json.FTPAddr,
 		types.FTPUsername: json.FTPUsername,

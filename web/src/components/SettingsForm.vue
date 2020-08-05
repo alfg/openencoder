@@ -67,13 +67,13 @@ const SORTED_OPTIONS = [
   'DIGITAL_OCEAN_ACCESS_TOKEN',
   'STORAGE_DRIVER',
   'S3_PROVIDER',
+  'S3_ENDPOINT',
   'S3_ACCESS_KEY',
   'S3_SECRET_KEY',
   'S3_INBOUND_BUCKET',
   'S3_INBOUND_BUCKET_REGION',
   'S3_OUTBOUND_BUCKET',
   'S3_OUTBOUND_BUCKET_REGION',
-  'S3_PROVIDER',
   'S3_STREAMING',
   'FTP_ADDR',
   'FTP_USERNAME',
@@ -88,8 +88,9 @@ export default {
       settings: [],
       providers: [
         { value: '', text: 'Select an S3 Provider', disabled: true },
-        { value: 'digitalocean', text: 'Digital Ocean' },
-        { value: 'aws', text: 'Amazon AWS' },
+        { value: 'digitaloceanspaces', text: 'Digital Ocean Spaces' },
+        { value: 'amazonaws', text: 'Amazon AWS' },
+        { value: 'custom', text: 'Custom Provider' },
       ],
       streamingOptions: [
         { value: '', text: 'Select an S3 Streaming Option', disabled: true },
@@ -115,7 +116,7 @@ export default {
       if (this.settings.length > 0) {
         SORTED_OPTIONS.forEach((item) => {
           const a = this.settings.find(o => o.name === item);
-          newOrder.push(a);
+          if (a) newOrder.push(a);
         });
       }
       return newOrder;
@@ -138,8 +139,12 @@ export default {
     isHidden(inputName) {
       const options = ['FTP', 'S3'];
       const prefix = inputName.split('_')[0];
-      const { STORAGE_DRIVER } = this.form;
+      const { STORAGE_DRIVER, S3_PROVIDER } = this.form;
       if (options.includes(prefix) && STORAGE_DRIVER.toUpperCase() !== prefix) {
+        return true;
+      }
+      if (STORAGE_DRIVER.toUpperCase() === prefix
+        && S3_PROVIDER !== 'custom' && inputName === 'S3_ENDPOINT') {
         return true;
       }
       return false;

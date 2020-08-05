@@ -28,7 +28,7 @@ export default {
     filteredFiles() {
       const items = [];
 
-      if (this.data.folders) {
+      if (this.data && this.data.folders) {
         this.data.folders.forEach((item) => {
           const o = {
             label: item,
@@ -38,7 +38,7 @@ export default {
         });
       }
 
-      if (this.data.files) {
+      if (this.data && this.data.files) {
         this.data.files.forEach((item) => {
           const o = {
             label: item.name,

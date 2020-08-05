@@ -12,5 +12,6 @@ INSERT INTO public.settings_option (id, name, description, title, secure) VALUES
 INSERT INTO public.settings_option (id, name, description, title, secure) VALUES (12, 'FTP_USERNAME', 'FTP Username', 'FTP Username', true);
 INSERT INTO public.settings_option (id, name, description, title, secure) VALUES (13, 'FTP_PASSWORD', 'FTP Password', 'FTP Password', true);
 INSERT INTO public.settings_option (id, name, description, title, secure) VALUES (14, 'STORAGE_DRIVER', 'Storage Driver for input and output', 'Storage Driver', false);
+INSERT INTO public.settings_option (id, name, description, title, secure) VALUES (15, 'S3_ENDPOINT', 'Provide a custom endpoint if using a service provider that uses the S3 protocol.', 'S3 Custom Endpoint', false);
 
 SELECT setval('settings_option_id_seq', max(id)) FROM settings_option;

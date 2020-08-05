@@ -11,6 +11,7 @@ const (
 	S3OutboundBucket       = "S3_OUTBOUND_BUCKET"
 	S3OutboundBucketRegion = "S3_OUTBOUND_BUCKET_REGION"
 	S3Provider             = "S3_PROVIDER"
+	S3Endpoint             = "S3_ENDPOINT"
 	S3Streaming            = "S3_STREAMING"
 
 	FTPAddr     = "FTP_ADDR"
@@ -20,8 +21,9 @@ const (
 	DigitalOceanAccessToken = "DIGITAL_OCEAN_ACCESS_TOKEN"
 	SlackWebhook            = "SLACK_WEBHOOK"
 
-	DigitalOcean = "DIGITALOCEAN"
-	AWS          = "AWS"
+	DigitalOceanSpaces = "DIGITALOCEANSPACES"
+	AmazonAWS          = "AMAZONAWS"
+	Custom             = "CUSTOM"
 )
 
 // Setting defines a setting for a user.
