@@ -77,6 +77,7 @@ const SORTED_OPTIONS = [
   'DIGITAL_OCEAN_ENABLED',
   'DIGITAL_OCEAN_ACCESS_TOKEN',
   'DIGITAL_OCEAN_REGION',
+  'DIGITAL_OCEAN_VPC',
   'STORAGE_DRIVER',
   'S3_PROVIDER',
   'S3_ENDPOINT',
@@ -112,7 +113,9 @@ export default {
         { value: 'tor1', text: 'Toronto 1' },
         { value: 'blr1', text: 'Bangalore 1' },
       ],
-      digitalOceanVpcs: [],
+      digitalOceanVPCs: [
+        { value: '', text: 'Select a Digital Ocean VPC', disabled: true },
+      ],
       providers: [
         { value: '', text: 'Select an S3 Provider', disabled: true },
         { value: 'digitaloceanspaces', text: 'Digital Ocean Spaces' },
@@ -152,6 +155,8 @@ export default {
 
   mounted() {
     this.getSettings();
+
+    this.getDigitalOceanVPCs();
   },
 
   methods: {
@@ -162,6 +167,7 @@ export default {
     isSelectInput(inputName) {
       return [
         'DIGITAL_OCEAN_REGION',
+        'DIGITAL_OCEAN_VPC',
         'S3_PROVIDER',
         'S3_STREAMING',
         'STORAGE_DRIVER',
@@ -178,7 +184,7 @@ export default {
       const { STORAGE_DRIVER, S3_PROVIDER, DIGITAL_OCEAN_ENABLED } = this.form;
 
       if (['', 'disabled'].includes(DIGITAL_OCEAN_ENABLED)
-        && ['DIGITAL_OCEAN_ACCESS_TOKEN', 'DIGITAL_OCEAN_REGION'].includes(inputName)) {
+        && ['DIGITAL_OCEAN_ACCESS_TOKEN', 'DIGITAL_OCEAN_REGION', 'DIGITAL_OCEAN_VPC'].includes(inputName)) {
         return true;
       }
 
@@ -197,6 +203,9 @@ export default {
       switch (inputName) {
         case 'DIGITAL_OCEAN_REGION':
           return this.digitalOceanRegions;
+
+        case 'DIGITAL_OCEAN_VPC':
+          return this.digitalOceanVPCs;
 
         case 'S3_PROVIDER':
           return this.providers;
@@ -233,6 +242,20 @@ export default {
       api.updateSettings(this, data, (err, json) => {
         this.dismissCountDown = this.dismissSecs;
         console.log('Settings updated', json);
+      });
+    },
+
+    getDigitalOceanVPCs() {
+      api.getMachineVPCs(this, (err, json) => {
+        const vpcs = (json && json.vpcs) || [];
+
+        this.digitalOceanVPCs = this.digitalOceanVPCs.concat(...vpcs.map((o) => {
+          const obj = {
+            text: o.name,
+            value: o.id,
+          };
+          return obj;
+        }).sort());
       });
     },
 
