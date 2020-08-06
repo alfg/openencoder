@@ -13,5 +13,8 @@ INSERT INTO public.settings_option (id, name, description, title, secure) VALUES
 INSERT INTO public.settings_option (id, name, description, title, secure) VALUES (13, 'FTP_PASSWORD', 'FTP Password', 'FTP Password', true);
 INSERT INTO public.settings_option (id, name, description, title, secure) VALUES (14, 'STORAGE_DRIVER', 'Storage Driver for input and output', 'Storage Driver', false);
 INSERT INTO public.settings_option (id, name, description, title, secure) VALUES (15, 'S3_ENDPOINT', 'Provide a custom endpoint if using a service provider that uses the S3 protocol.', 'S3 Custom Endpoint', false);
+INSERT INTO public.settings_option (id, name, description, title, secure) VALUES (16, 'DIGITAL_OCEAN_REGION', 'Digital Ocean Machines Region (Required for Machines)', 'Digital Ocean Region', false);
+INSERT INTO public.settings_option (id, name, description, title, secure) VALUES (17, 'DIGITAL_OCEAN_ENABLED', 'Enable Digital Ocean Machines', 'Digital Ocean Machines', false);
+INSERT INTO public.settings_option (id, name, description, title, secure) VALUES (18, 'DIGITAL_OCEAN_VPC', 'Enable Digital Ocean Machines VPC', 'Digital Ocean Machines VPC', false);
 
 SELECT setval('settings_option_id_seq', max(id)) FROM settings_option;
