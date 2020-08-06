@@ -49,6 +49,7 @@ func registerRoutes(r *gin.Engine) {
 		api.GET("/machines/regions", listMachineRegionsHandler)
 		api.GET("/machines/sizes", listMachineSizesHandler)
 		api.GET("/machines/pricing", getCurrentMachinePricing)
+		api.GET("/machines/vpc", listVPCsHandler)
 
 		// Presets.
 		api.POST("/presets", createPresetHandler)

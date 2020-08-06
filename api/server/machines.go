@@ -68,7 +68,7 @@ func createMachineHandler(c *gin.Context) {
 	ctx := context.TODO()
 
 	// Create machine.
-	machine, err := client.CreateDroplets(ctx, json.Region, json.Size, json.Count)
+	machine, err := client.CreateDroplets(ctx, json.Region, json.Size, "", json.Count)
 	if err != nil {
 		log.Error(err)
 		c.JSON(http.StatusUnauthorized, gin.H{
@@ -223,5 +223,34 @@ func getCurrentMachinePricing(c *gin.Context) {
 
 	c.JSON(200, gin.H{
 		"pricing": pricing,
+	})
+}
+
+func listVPCsHandler(c *gin.Context) {
+	user, _ := c.Get(JwtIdentityKey)
+
+	// Role check.
+	if !isAdminOrOperator(user) {
+		c.JSON(http.StatusUnauthorized, gin.H{"message": "unauthorized"})
+		return
+	}
+
+	d := data.New()
+	token := d.Settings.GetSetting(DigitalOceanAccessToken).Value
+	client, _ := machine.NewDigitalOceanClient(token)
+	ctx := context.TODO()
+
+	// Get list of machine regions from DO client.
+	vpcs, err := client.ListVPCs(ctx)
+	if err != nil {
+		log.Error(err)
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"status":  http.StatusUnauthorized,
+			"message": "machines not configured",
+		})
+	}
+
+	c.JSON(200, gin.H{
+		"vpcs": vpcs,
 	})
 }

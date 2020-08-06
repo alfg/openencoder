@@ -77,7 +77,7 @@ func (do *DigitalOcean) ListDropletByTag(ctx context.Context, tag string) ([]Mac
 }
 
 // CreateDroplets creates a new DigitalOcean droplet.
-func (do *DigitalOcean) CreateDroplets(ctx context.Context, region, size string, count int) ([]CreatedResponse, error) {
+func (do *DigitalOcean) CreateDroplets(ctx context.Context, region, size, vpc string, count int) ([]CreatedResponse, error) {
 
 	var (
 		ipv6              = true
@@ -106,6 +106,7 @@ func (do *DigitalOcean) CreateDroplets(ctx context.Context, region, size string,
 		Monitoring:        monitoring,
 		IPv6:              ipv6,
 		PrivateNetworking: privateNetworking,
+		VPCUUID:           vpc,
 	}
 
 	droplets, _, err := do.client.Droplets.CreateMultiple(ctx, createRequest)
@@ -190,6 +191,28 @@ func (do *DigitalOcean) ListSizes(ctx context.Context) ([]Size, error) {
 			PriceHourly:  d.PriceHourly,
 		})
 		// }
+	}
+	return list, err
+}
+
+// ListVPCs gets a list of DigitalOcean VPCs.
+func (do *DigitalOcean) ListVPCs(ctx context.Context) ([]VPC, error) {
+	opt := &godo.ListOptions{
+		Page:    1,
+		PerPage: 200,
+	}
+
+	vpcs, _, err := do.client.VPCs.List(ctx, opt)
+	if err != nil {
+		return nil, err
+	}
+
+	list := []VPC{}
+	for _, d := range vpcs {
+		list = append(list, VPC{
+			ID:   d.ID,
+			Name: d.Name,
+		})
 	}
 	return list, err
 }
