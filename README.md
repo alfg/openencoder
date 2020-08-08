@@ -28,9 +28,9 @@
 
 ## Features
 * HTTP API for submitting jobs to a redis-backed FFmpeg worker
-* S3 storage (AWS and Digital Ocean supported)
-* Web Dashboard UI for managing encode jobs, workers and users
-* Machines UI/API for scaling cloud worker instances
+* FTP and S3 storage (AWS, Digital Ocean Spaces and Custom S3 Providers supported)
+* Web Dashboard UI for managing encode jobs, workers, users and settings
+* Machines UI/API for scaling cloud worker instances in a VPC
 * Database stored FFmpeg encoding presets
 * User accounts and roles
 
