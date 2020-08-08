@@ -16,6 +16,7 @@ const Endpoints = {
   Machines: `${root}/machines`,
   MachinesRegions: `${root}/machines/regions`,
   MachinesSizes: `${root}/machines/sizes`,
+  MachinesVPCs: `${root}/machines/vpc`,
   MachinesId: id => `${root}/machines/${id}`,
 
   PresetsList: page => `${root}/presets?page=${page}`,
@@ -138,6 +139,10 @@ export default {
 
   getMachineSizes(context, callback) {
     return get(context, Endpoints.MachinesSizes, callback);
+  },
+
+  getMachineVPCs(context, callback) {
+    return get(context, Endpoints.MachinesVPCs, callback);
   },
 
   createMachine(context, data, callback) {

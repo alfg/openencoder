@@ -26,10 +26,6 @@ runcmd:
 
 // UserData defines the userdata used for cloud-init.
 type UserData struct {
-	AWSAccessKey string
-	AWSSecretKey string
-	SlackWebhook string
-
 	CloudinitRedisHost        string
 	CloudinitRedisPort        int
 	CloudinitDatabaseHost     string

@@ -18,7 +18,10 @@ const (
 	FTPUsername = "FTP_USERNAME"
 	FTPPassword = "FTP_PASSWORD"
 
+	DigitalOceanEnabled     = "DIGITAL_OCEAN_ENABLED"
 	DigitalOceanAccessToken = "DIGITAL_OCEAN_ACCESS_TOKEN"
+	DigitalOceanRegion      = "DIGITAL_OCEAN_REGION"
+	DigitalOceanVPC         = "DIGITAL_OCEAN_VPC"
 	SlackWebhook            = "SLACK_WEBHOOK"
 
 	DigitalOceanSpaces = "DIGITALOCEANSPACES"

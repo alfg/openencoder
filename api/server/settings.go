@@ -25,7 +25,10 @@ type settingsUpdateRequest struct {
 	FTPUsername string `json:"FTP_USERNAME"`
 	FTPPassword string `json:"FTP_PASSWORD"`
 
+	DigitalOceanEnabled     string `json:"DIGITAL_OCEAN_ENABLED" binding:"eq=enabled|eq=disabled"`
 	DigitalOceanAccessToken string `json:"DIGITAL_OCEAN_ACCESS_TOKEN"`
+	DigitalOceanRegion      string `json:"DIGITAL_OCEAN_REGION"`
+	DigitalOceanVPC         string `json:"DIGITAL_OCEAN_VPC"`
 	SlackWebhook            string `json:"SLACK_WEBHOOK"`
 }
 
@@ -97,7 +100,10 @@ func updateSettingsHandler(c *gin.Context) {
 		types.FTPUsername: json.FTPUsername,
 		types.FTPPassword: json.FTPPassword,
 
+		types.DigitalOceanEnabled:     json.DigitalOceanEnabled,
 		types.DigitalOceanAccessToken: json.DigitalOceanAccessToken,
+		types.DigitalOceanRegion:      json.DigitalOceanRegion,
+		types.DigitalOceanVPC:         json.DigitalOceanVPC,
 		types.SlackWebhook:            json.SlackWebhook,
 	}
 

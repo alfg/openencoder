@@ -24,6 +24,16 @@
               >
               </b-form-select>
             </div>
+            <div v-else-if="isCheckboxInput(o.name)">
+              <b-form-checkbox
+                :id="`checkbox-${i}`"
+                v-model="form[o.name]"
+                value="enabled"
+                unchecked-value="disabled"
+                @input="onSelectChange"
+              >
+              </b-form-checkbox>
+            </div>
             <div v-else>
               <b-form-input
                 :id="`input-horizontal-${i}`"
@@ -64,7 +74,10 @@
 import api from '../api';
 
 const SORTED_OPTIONS = [
+  'DIGITAL_OCEAN_ENABLED',
   'DIGITAL_OCEAN_ACCESS_TOKEN',
+  'DIGITAL_OCEAN_REGION',
+  'DIGITAL_OCEAN_VPC',
   'STORAGE_DRIVER',
   'S3_PROVIDER',
   'S3_ENDPOINT',
@@ -86,6 +99,23 @@ export default {
     return {
       form: {},
       settings: [],
+      digitalOceanRegions: [
+        { value: '', text: 'Select a Digital Ocean Region', disabled: true },
+        { value: 'sfo1', text: 'San Francisco 1' },
+        { value: 'sfo2', text: 'San Francisco 2' },
+        { value: 'sfo3', text: 'San Francisco 3' },
+        { value: 'nyc1', text: 'New York 1' },
+        { value: 'nyc3', text: 'New York 3' },
+        { value: 'sgp1', text: 'Singapore 1' },
+        { value: 'lon1', text: 'London 1' },
+        { value: 'ams3', text: 'Amsterdam 3' },
+        { value: 'fra1', text: 'Frankfurt 1' },
+        { value: 'tor1', text: 'Toronto 1' },
+        { value: 'blr1', text: 'Bangalore 1' },
+      ],
+      digitalOceanVPCs: [
+        { value: '', text: 'Select a Digital Ocean VPC', disabled: true },
+      ],
       providers: [
         { value: '', text: 'Select an S3 Provider', disabled: true },
         { value: 'digitaloceanspaces', text: 'Digital Ocean Spaces' },
@@ -125,6 +155,8 @@ export default {
 
   mounted() {
     this.getSettings();
+
+    this.getDigitalOceanVPCs();
   },
 
   methods: {
@@ -133,16 +165,33 @@ export default {
     },
 
     isSelectInput(inputName) {
-      return ['S3_PROVIDER', 'S3_STREAMING', 'STORAGE_DRIVER'].includes(inputName);
+      return [
+        'DIGITAL_OCEAN_REGION',
+        'DIGITAL_OCEAN_VPC',
+        'S3_PROVIDER',
+        'S3_STREAMING',
+        'STORAGE_DRIVER',
+      ].includes(inputName);
+    },
+
+    isCheckboxInput(inputName) {
+      return ['DIGITAL_OCEAN_ENABLED'].includes(inputName);
     },
 
     isHidden(inputName) {
       const options = ['FTP', 'S3'];
       const prefix = inputName.split('_')[0];
-      const { STORAGE_DRIVER, S3_PROVIDER } = this.form;
+      const { STORAGE_DRIVER, S3_PROVIDER, DIGITAL_OCEAN_ENABLED } = this.form;
+
+      if (['', 'disabled'].includes(DIGITAL_OCEAN_ENABLED)
+        && ['DIGITAL_OCEAN_ACCESS_TOKEN', 'DIGITAL_OCEAN_REGION', 'DIGITAL_OCEAN_VPC'].includes(inputName)) {
+        return true;
+      }
+
       if (options.includes(prefix) && STORAGE_DRIVER.toUpperCase() !== prefix) {
         return true;
       }
+
       if (STORAGE_DRIVER.toUpperCase() === prefix
         && S3_PROVIDER !== 'custom' && inputName === 'S3_ENDPOINT') {
         return true;
@@ -152,6 +201,12 @@ export default {
 
     getSelectOptions(inputName) {
       switch (inputName) {
+        case 'DIGITAL_OCEAN_REGION':
+          return this.digitalOceanRegions;
+
+        case 'DIGITAL_OCEAN_VPC':
+          return this.digitalOceanVPCs;
+
         case 'S3_PROVIDER':
           return this.providers;
 
@@ -187,6 +242,20 @@ export default {
       api.updateSettings(this, data, (err, json) => {
         this.dismissCountDown = this.dismissSecs;
         console.log('Settings updated', json);
+      });
+    },
+
+    getDigitalOceanVPCs() {
+      api.getMachineVPCs(this, (err, json) => {
+        const vpcs = (json && json.vpcs) || [];
+
+        this.digitalOceanVPCs = this.digitalOceanVPCs.concat(...vpcs.map((o) => {
+          const obj = {
+            text: o.name,
+            value: o.id,
+          };
+          return obj;
+        }).sort());
       });
     },
 

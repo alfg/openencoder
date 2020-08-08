@@ -22,8 +22,7 @@ const (
 	NOK           = "NOK"
 
 	// Machines.
-	DigitalOceanAccessToken = "DIGITAL_OCEAN_ACCESS_TOKEN"
-	WorkerTag               = "openencoder-worker"
+	WorkerTag = "openencoder-worker"
 
 	// JWT settings.
 	JwtRealm       = "openencoder"

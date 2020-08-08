@@ -7,12 +7,12 @@ import (
 
 	"github.com/alfg/openencoder/api/data"
 	"github.com/alfg/openencoder/api/machine"
+	"github.com/alfg/openencoder/api/types"
 	"github.com/gin-gonic/gin"
 )
 
 type machineRequest struct {
 	Provider string `json:"provider" binding:"required"`
-	Region   string `json:"region" binding:"required"`
 	Size     string `json:"size" binding:"required"`
 	Count    int    `json:"count" binding:"required,min=1,max=10"` // Max of 10 machines.
 }
@@ -27,7 +27,7 @@ func machinesHandler(c *gin.Context) {
 	}
 
 	d := data.New()
-	token := d.Settings.GetSetting(DigitalOceanAccessToken).Value
+	token := d.Settings.GetSetting(types.DigitalOceanAccessToken).Value
 	client, _ := machine.NewDigitalOceanClient(token)
 	ctx := context.TODO()
 
@@ -63,12 +63,14 @@ func createMachineHandler(c *gin.Context) {
 	}
 
 	d := data.New()
-	token := d.Settings.GetSetting(DigitalOceanAccessToken).Value
+	token := d.Settings.GetSetting(types.DigitalOceanAccessToken).Value
+	region := d.Settings.GetSetting(types.DigitalOceanRegion).Value
+	vpc := d.Settings.GetSetting(types.DigitalOceanVPC).Value
 	client, _ := machine.NewDigitalOceanClient(token)
 	ctx := context.TODO()
 
 	// Create machine.
-	machine, err := client.CreateDroplets(ctx, json.Region, json.Size, json.Count)
+	machine, err := client.CreateDroplets(ctx, region, json.Size, vpc, json.Count)
 	if err != nil {
 		log.Error(err)
 		c.JSON(http.StatusUnauthorized, gin.H{
@@ -97,7 +99,7 @@ func deleteMachineHandler(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
 
 	d := data.New()
-	token := d.Settings.GetSetting(DigitalOceanAccessToken).Value
+	token := d.Settings.GetSetting(types.DigitalOceanAccessToken).Value
 	client, _ := machine.NewDigitalOceanClient(token)
 	ctx := context.TODO()
 
@@ -127,7 +129,7 @@ func deleteMachineByTagHandler(c *gin.Context) {
 	}
 
 	d := data.New()
-	token := d.Settings.GetSetting(DigitalOceanAccessToken).Value
+	token := d.Settings.GetSetting(types.DigitalOceanAccessToken).Value
 	client, _ := machine.NewDigitalOceanClient(token)
 	ctx := context.TODO()
 
@@ -157,7 +159,8 @@ func listMachineRegionsHandler(c *gin.Context) {
 	}
 
 	d := data.New()
-	token := d.Settings.GetSetting(DigitalOceanAccessToken).Value
+	token := d.Settings.GetSetting(types.DigitalOceanAccessToken).Value
+	region := d.Settings.GetSetting(types.DigitalOceanRegion).Value
 	client, _ := machine.NewDigitalOceanClient(token)
 	ctx := context.TODO()
 
@@ -171,8 +174,16 @@ func listMachineRegionsHandler(c *gin.Context) {
 		})
 	}
 
+	// Filter regions by configured region from settings.
+	var filteredRegions []machine.Region
+	for _, r := range regions {
+		if r.Slug == region {
+			filteredRegions = append(filteredRegions, r)
+		}
+	}
+
 	c.JSON(200, gin.H{
-		"regions": regions,
+		"regions": filteredRegions,
 	})
 }
 
@@ -186,7 +197,7 @@ func listMachineSizesHandler(c *gin.Context) {
 	}
 
 	d := data.New()
-	token := d.Settings.GetSetting(DigitalOceanAccessToken).Value
+	token := d.Settings.GetSetting(types.DigitalOceanAccessToken).Value
 	client, _ := machine.NewDigitalOceanClient(token)
 	ctx := context.TODO()
 
@@ -207,7 +218,7 @@ func listMachineSizesHandler(c *gin.Context) {
 
 func getCurrentMachinePricing(c *gin.Context) {
 	d := data.New()
-	token := d.Settings.GetSetting(DigitalOceanAccessToken).Value
+	token := d.Settings.GetSetting(types.DigitalOceanAccessToken).Value
 	client, _ := machine.NewDigitalOceanClient(token)
 	ctx := context.TODO()
 
@@ -223,5 +234,34 @@ func getCurrentMachinePricing(c *gin.Context) {
 
 	c.JSON(200, gin.H{
 		"pricing": pricing,
+	})
+}
+
+func listVPCsHandler(c *gin.Context) {
+	user, _ := c.Get(JwtIdentityKey)
+
+	// Role check.
+	if !isAdminOrOperator(user) {
+		c.JSON(http.StatusUnauthorized, gin.H{"message": "unauthorized"})
+		return
+	}
+
+	d := data.New()
+	token := d.Settings.GetSetting(types.DigitalOceanAccessToken).Value
+	client, _ := machine.NewDigitalOceanClient(token)
+	ctx := context.TODO()
+
+	// Get list of machine regions from DO client.
+	vpcs, err := client.ListVPCs(ctx)
+	if err != nil {
+		log.Error(err)
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"status":  http.StatusUnauthorized,
+			"message": "machines not configured",
+		})
+	}
+
+	c.JSON(200, gin.H{
+		"vpcs": vpcs,
 	})
 }

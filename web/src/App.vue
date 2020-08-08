@@ -112,6 +112,10 @@ export default {
   text-transform: uppercase;
 }
 
+.container {
+  max-width: 1280px;
+}
+
 footer ul {
   display: inline-block;
   padding-left: 0;

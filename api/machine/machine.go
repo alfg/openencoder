@@ -62,3 +62,9 @@ type Pricing struct {
 	PriceHourly  float64 `json:"price_hourly"`
 	PriceMonthly float64 `json:"price_monthly"`
 }
+
+// VPC defines the response for listing VPCs.
+type VPC struct {
+	ID   string `json:"id"`
+	Name string `json:"name"`
+}

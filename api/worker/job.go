@@ -163,10 +163,14 @@ func sendAlert(job types.Job) error {
 
 	db := data.New()
 	webhook := db.Settings.GetSetting(types.SlackWebhook).Value
-	message := fmt.Sprintf(AlertMessageFormat, job.GUID, job.Preset, job.Source, job.Destination)
-	err := notify.SendSlackMessage(webhook, message)
-	if err != nil {
-		return err
+
+	// Only send Slack alert if configured.
+	if webhook != "" {
+		message := fmt.Sprintf(AlertMessageFormat, job.GUID, job.Preset, job.Source, job.Destination)
+		err := notify.SendSlackMessage(webhook, message)
+		if err != nil {
+			return err
+		}
 	}
 	return nil
 }
