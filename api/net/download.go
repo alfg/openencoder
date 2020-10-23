@@ -91,10 +91,6 @@ func ftpDownload(job types.Job) error {
 	user := types.GetSetting(types.FTPUsername, settings)
 	pass := types.GetSetting(types.FTPPassword, settings)
 
-	// addr := db.Settings.GetSetting(types.FTPAddr).Value
-	// user := db.Settings.GetSetting(types.FTPUsername).Value
-	// pass := db.Settings.GetSetting(types.FTPPassword).Value
-
 	f := NewFTP(addr, user, pass)
 	err := f.Download(job)
 	return err

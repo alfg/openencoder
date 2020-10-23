@@ -77,9 +77,6 @@ func createMachineHandler(c *gin.Context) {
 	token := types.GetSetting(types.DigitalOceanAccessToken, settings)
 	region := types.GetSetting(types.DigitalOceanAccessToken, settings)
 	vpc := types.GetSetting(types.DigitalOceanAccessToken, settings)
-	// token := d.Settings.GetSetting(types.DigitalOceanAccessToken).Value
-	// region := d.Settings.GetSetting(types.DigitalOceanRegion).Value
-	// vpc := d.Settings.GetSetting(types.DigitalOceanVPC).Value
 
 	client, _ := machine.NewDigitalOceanClient(token)
 	ctx := context.TODO()

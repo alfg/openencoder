@@ -102,9 +102,6 @@ func getFTPFileList(prefix string) (*storageListResponse, error) {
 	addr := types.GetSetting(types.FTPAddr, settings)
 	user := types.GetSetting(types.FTPUsername, settings)
 	pass := types.GetSetting(types.FTPPassword, settings)
-	// addr := db.Settings.GetSetting(types.FTPAddr).Value
-	// user := db.Settings.GetSetting(types.FTPUsername).Value
-	// pass := db.Settings.GetSetting(types.FTPPassword).Value
 
 	f := net.NewFTP(addr, user, pass)
 	files, err := f.ListFiles(prefix)
