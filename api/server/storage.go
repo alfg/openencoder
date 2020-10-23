@@ -1,6 +1,8 @@
 package server
 
 import (
+	"net/http"
+
 	"github.com/alfg/openencoder/api/data"
 	"github.com/alfg/openencoder/api/net"
 	"github.com/alfg/openencoder/api/types"
@@ -33,9 +35,16 @@ func storageListHandler(c *gin.Context) {
 	prefix := c.DefaultQuery("prefix", "")
 
 	db := data.New()
-	driver := db.Settings.GetSetting(types.StorageDriver).Value
+	driver, err := db.Settings.GetSetting(types.StorageDriver)
+	if err != nil {
+		log.Error(err)
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"status":  http.StatusUnauthorized,
+			"message": "storage not configured",
+		})
+	}
 
-	files := getFileList(driver, prefix)
+	files := getFileList(driver.Value, prefix)
 
 	c.JSON(200, gin.H{
 		"data": files,
@@ -88,9 +97,14 @@ func getS3FileList(prefix string) (*storageListResponse, error) {
 
 func getFTPFileList(prefix string) (*storageListResponse, error) {
 	db := data.New()
-	addr := db.Settings.GetSetting(types.FTPAddr).Value
-	user := db.Settings.GetSetting(types.FTPUsername).Value
-	pass := db.Settings.GetSetting(types.FTPPassword).Value
+	settings := db.Settings.GetSettings()
+
+	addr := types.GetSetting(types.FTPAddr, settings)
+	user := types.GetSetting(types.FTPUsername, settings)
+	pass := types.GetSetting(types.FTPPassword, settings)
+	// addr := db.Settings.GetSetting(types.FTPAddr).Value
+	// user := db.Settings.GetSetting(types.FTPUsername).Value
+	// pass := db.Settings.GetSetting(types.FTPPassword).Value
 
 	f := net.NewFTP(addr, user, pass)
 	files, err := f.ListFiles(prefix)

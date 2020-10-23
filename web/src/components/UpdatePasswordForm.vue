@@ -6,7 +6,6 @@
       <b-form-group id="input-group-username" label="Username:" label-for="input-username">
           <b-form-input
             id="input-username"
-            type="input"
             required
             v-model="form.username"
           ></b-form-input>
@@ -26,7 +25,7 @@
       <b-form-group label="Password:" label-for="input-password">
         <b-form-input
           id="input-password"
-          v-model="form.password"
+          v-model="form.new_password"
           type="password"
           required
         ></b-form-input>
@@ -37,8 +36,8 @@
           id="input-verify-password"
           v-model="form.verify_password"
           type="password"
+          :state="form.verify_password !== '' && form.new_password === form.verify_password"
           required
-          :state="form.password === form.verify_password"
         ></b-form-input>
       </b-form-group>
 

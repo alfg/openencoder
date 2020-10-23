@@ -27,8 +27,16 @@ func machinesHandler(c *gin.Context) {
 	}
 
 	d := data.New()
-	token := d.Settings.GetSetting(types.DigitalOceanAccessToken).Value
-	client, _ := machine.NewDigitalOceanClient(token)
+	setting, err := d.Settings.GetSetting(types.DigitalOceanAccessToken)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"status":  http.StatusUnauthorized,
+			"message": "machines not configured",
+		})
+		return
+	}
+
+	client, _ := machine.NewDigitalOceanClient(setting.Value)
 	ctx := context.TODO()
 
 	// Get list of machines from DO client.
@@ -39,6 +47,7 @@ func machinesHandler(c *gin.Context) {
 			"status":  http.StatusUnauthorized,
 			"message": "machines not configured",
 		})
+		return
 	}
 
 	c.JSON(200, gin.H{
@@ -62,10 +71,16 @@ func createMachineHandler(c *gin.Context) {
 		return
 	}
 
-	d := data.New()
-	token := d.Settings.GetSetting(types.DigitalOceanAccessToken).Value
-	region := d.Settings.GetSetting(types.DigitalOceanRegion).Value
-	vpc := d.Settings.GetSetting(types.DigitalOceanVPC).Value
+	db := data.New()
+	settings := db.Settings.GetSettings()
+
+	token := types.GetSetting(types.DigitalOceanAccessToken, settings)
+	region := types.GetSetting(types.DigitalOceanAccessToken, settings)
+	vpc := types.GetSetting(types.DigitalOceanAccessToken, settings)
+	// token := d.Settings.GetSetting(types.DigitalOceanAccessToken).Value
+	// region := d.Settings.GetSetting(types.DigitalOceanRegion).Value
+	// vpc := d.Settings.GetSetting(types.DigitalOceanVPC).Value
+
 	client, _ := machine.NewDigitalOceanClient(token)
 	ctx := context.TODO()
 
@@ -77,6 +92,7 @@ func createMachineHandler(c *gin.Context) {
 			"status":  http.StatusUnauthorized,
 			"message": "machines not configured",
 		})
+		return
 	}
 
 	// TODO: Add resource to project?
@@ -99,8 +115,17 @@ func deleteMachineHandler(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
 
 	d := data.New()
-	token := d.Settings.GetSetting(types.DigitalOceanAccessToken).Value
-	client, _ := machine.NewDigitalOceanClient(token)
+	token, err := d.Settings.GetSetting(types.DigitalOceanAccessToken)
+	if err != nil {
+		log.Error(err)
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"status":  http.StatusUnauthorized,
+			"message": "machines not configured",
+		})
+		return
+	}
+
+	client, _ := machine.NewDigitalOceanClient(token.Value)
 	ctx := context.TODO()
 
 	// Create machine.
@@ -111,6 +136,7 @@ func deleteMachineHandler(c *gin.Context) {
 			"status":  http.StatusUnauthorized,
 			"message": "machines not configured",
 		})
+		return
 	}
 
 	c.JSON(200, gin.H{
@@ -129,18 +155,28 @@ func deleteMachineByTagHandler(c *gin.Context) {
 	}
 
 	d := data.New()
-	token := d.Settings.GetSetting(types.DigitalOceanAccessToken).Value
-	client, _ := machine.NewDigitalOceanClient(token)
-	ctx := context.TODO()
-
-	// Create machine.
-	err := client.DeleteDropletByTag(ctx, WorkerTag)
+	token, err := d.Settings.GetSetting(types.DigitalOceanAccessToken)
 	if err != nil {
 		log.Error(err)
 		c.JSON(http.StatusUnauthorized, gin.H{
 			"status":  http.StatusUnauthorized,
 			"message": "machines not configured",
 		})
+		return
+	}
+
+	client, _ := machine.NewDigitalOceanClient(token.Value)
+	ctx := context.TODO()
+
+	// Create machine.
+	err = client.DeleteDropletByTag(ctx, WorkerTag)
+	if err != nil {
+		log.Error(err)
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"status":  http.StatusUnauthorized,
+			"message": "machines not configured",
+		})
+		return
 	}
 
 	c.JSON(200, gin.H{
@@ -158,9 +194,11 @@ func listMachineRegionsHandler(c *gin.Context) {
 		return
 	}
 
-	d := data.New()
-	token := d.Settings.GetSetting(types.DigitalOceanAccessToken).Value
-	region := d.Settings.GetSetting(types.DigitalOceanRegion).Value
+	db := data.New()
+	settings := db.Settings.GetSettings()
+
+	token := types.GetSetting(types.DigitalOceanAccessToken, settings)
+	region := types.GetSetting(types.DigitalOceanAccessToken, settings)
 	client, _ := machine.NewDigitalOceanClient(token)
 	ctx := context.TODO()
 
@@ -172,6 +210,7 @@ func listMachineRegionsHandler(c *gin.Context) {
 			"status":  http.StatusUnauthorized,
 			"message": "machines not configured",
 		})
+		return
 	}
 
 	// Filter regions by configured region from settings.
@@ -196,9 +235,18 @@ func listMachineSizesHandler(c *gin.Context) {
 		return
 	}
 
-	d := data.New()
-	token := d.Settings.GetSetting(types.DigitalOceanAccessToken).Value
-	client, _ := machine.NewDigitalOceanClient(token)
+	db := data.New()
+	token, err := db.Settings.GetSetting(types.DigitalOceanAccessToken)
+	if err != nil {
+		log.Error(err)
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"status":  http.StatusUnauthorized,
+			"message": "machines not configured",
+		})
+		return
+	}
+
+	client, _ := machine.NewDigitalOceanClient(token.Value)
 	ctx := context.TODO()
 
 	// Get list of machine sizes from DO client.
@@ -209,6 +257,7 @@ func listMachineSizesHandler(c *gin.Context) {
 			"status":  http.StatusUnauthorized,
 			"message": "machines not configured",
 		})
+		return
 	}
 
 	c.JSON(200, gin.H{
@@ -217,9 +266,18 @@ func listMachineSizesHandler(c *gin.Context) {
 }
 
 func getCurrentMachinePricing(c *gin.Context) {
-	d := data.New()
-	token := d.Settings.GetSetting(types.DigitalOceanAccessToken).Value
-	client, _ := machine.NewDigitalOceanClient(token)
+	db := data.New()
+	token, err := db.Settings.GetSetting(types.DigitalOceanAccessToken)
+	if err != nil {
+		log.Error(err)
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"status":  http.StatusUnauthorized,
+			"message": "machines not configured",
+		})
+		return
+	}
+
+	client, _ := machine.NewDigitalOceanClient(token.Value)
 	ctx := context.TODO()
 
 	// Get the current machine pricing from DO client.
@@ -230,6 +288,7 @@ func getCurrentMachinePricing(c *gin.Context) {
 			"status":  http.StatusUnauthorized,
 			"message": "machines not configured",
 		})
+		return
 	}
 
 	c.JSON(200, gin.H{
@@ -246,9 +305,18 @@ func listVPCsHandler(c *gin.Context) {
 		return
 	}
 
-	d := data.New()
-	token := d.Settings.GetSetting(types.DigitalOceanAccessToken).Value
-	client, _ := machine.NewDigitalOceanClient(token)
+	db := data.New()
+	token, err := db.Settings.GetSetting(types.DigitalOceanAccessToken)
+	if err != nil {
+		log.Error(err)
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"status":  http.StatusUnauthorized,
+			"message": "machines not configured",
+		})
+		return
+	}
+
+	client, _ := machine.NewDigitalOceanClient(token.Value)
 	ctx := context.TODO()
 
 	// Get list of machine regions from DO client.
@@ -259,6 +327,7 @@ func listVPCsHandler(c *gin.Context) {
 			"status":  http.StatusUnauthorized,
 			"message": "machines not configured",
 		})
+		return
 	}
 
 	c.JSON(200, gin.H{

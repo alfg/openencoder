@@ -85,7 +85,7 @@ export default {
       this.user.authenticated = true;
       this.user.username = jwtDecode(jwt).id;
       this.user.role = jwtDecode(jwt).role;
-    } else {
+    } else if (context.$route.name !== 'login') {
       context.$router.push({ name: 'login' });
     }
   },

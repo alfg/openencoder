@@ -262,7 +262,10 @@ func isDirectory(path string) bool {
 func getEndpoint(provider, region string) string {
 	if strings.ToUpper(provider) == types.Custom {
 		db := data.New()
-		endpoint := db.Settings.GetSetting(types.S3Endpoint)
+		endpoint, err := db.Settings.GetSetting(types.S3Endpoint)
+		if err != nil {
+			return ""
+		}
 		return endpoint.Value
 	} else if strings.ToUpper(provider) == types.DigitalOceanSpaces {
 		return EndpointDigitalOceanSpacesRegion(region)

@@ -54,7 +54,7 @@ func createPresetHandler(c *gin.Context) {
 	db := data.New()
 	created, err := db.Presets.CreatePreset(preset)
 	if err != nil {
-		log.Fatal(err)
+		log.Error(err)
 	}
 
 	// Create response.

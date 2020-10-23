@@ -117,7 +117,7 @@ func jwtMiddleware() *jwt.GinJWTMiddleware {
 	})
 
 	if err != nil {
-		log.Fatal("JWT Error:" + err.Error())
+		log.Error("JWT Error:" + err.Error())
 	}
 	return authMiddleware
 }

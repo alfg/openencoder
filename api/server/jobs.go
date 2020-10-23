@@ -63,7 +63,7 @@ func createJobHandler(c *gin.Context) {
 		"destination": job.Destination,
 	})
 	if err != nil {
-		log.Fatal(err)
+		log.Info(err)
 	}
 
 	db := data.New()
@@ -248,7 +248,7 @@ func restartJobByIDHandler(c *gin.Context) {
 		"destination": job.Destination,
 	})
 	if err != nil {
-		log.Fatal(err)
+		log.Info(err)
 	}
 
 	c.JSON(http.StatusOK, gin.H{

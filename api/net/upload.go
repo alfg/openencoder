@@ -10,14 +10,17 @@ import (
 // Upload uploads a job based on the driver setting.
 func Upload(job types.Job) error {
 	db := data.New()
-	driver := db.Settings.GetSetting(types.StorageDriver).Value
+	driver, err := db.Settings.GetSetting(types.StorageDriver)
+	if err != nil {
+		return errors.New("no driver set")
+	}
 
-	if driver == "s3" {
+	if driver.Value == "s3" {
 		if err := s3Upload(job); err != nil {
 			return err
 		}
 		return nil
-	} else if driver == "ftp" {
+	} else if driver.Value == "ftp" {
 		if err := ftpUpload(job); err != nil {
 			return err
 		}
@@ -60,9 +63,15 @@ func s3Upload(job types.Job) error {
 // GetFTPUploader sets the FTP upload function.
 func ftpUpload(job types.Job) error {
 	db := data.New()
-	addr := db.Settings.GetSetting(types.FTPAddr).Value
-	user := db.Settings.GetSetting(types.FTPUsername).Value
-	pass := db.Settings.GetSetting(types.FTPPassword).Value
+	settings := db.Settings.GetSettings()
+
+	addr := types.GetSetting(types.FTPAddr, settings)
+	user := types.GetSetting(types.FTPUsername, settings)
+	pass := types.GetSetting(types.FTPPassword, settings)
+
+	// addr := db.Settings.GetSetting(types.FTPAddr).Value
+	// user := db.Settings.GetSetting(types.FTPUsername).Value
+	// pass := db.Settings.GetSetting(types.FTPPassword).Value
 
 	f := NewFTP(addr, user, pass)
 	err := f.Upload(job)
