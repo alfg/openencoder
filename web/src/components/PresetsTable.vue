@@ -11,6 +11,10 @@
       :fields="fields"
       :items="items"
       @row-selected="onRowSelected">
+
+      <template v-slot:cell(active)="data">
+        {{ data.item.active ? '✔️' : '❌' }}
+      </template>
     </b-table>
 
     <b-form class="mb-3" @submit="onSubmit" v-show="data">

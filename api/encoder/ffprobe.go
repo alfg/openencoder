@@ -24,7 +24,7 @@ func (f FFProbe) Run(input string) *FFProbeResponse {
 	log.Info("Running FFprobe...")
 	stdout, err := cmd.CombinedOutput()
 	if err != nil {
-		log.Fatal(err.Error())
+		log.Error(err.Error())
 	}
 	// log.Info((string(stdout))
 

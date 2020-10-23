@@ -2,7 +2,6 @@ package net
 
 import (
 	"bufio"
-	"fmt"
 	"io"
 	"net/textproto"
 	"net/url"
@@ -105,7 +104,6 @@ func (f *FTP) Upload(job types.Job) error {
 }
 
 func (f *FTP) uploadDir(filelist []string, job types.Job) {
-	fmt.Println(filelist)
 	for _, file := range filelist {
 		f.uploadFile(file, job)
 	}

@@ -11,7 +11,7 @@ func workerQueueHandler(c *gin.Context) {
 
 	queues, err := client.Queues()
 	if err != nil {
-		log.Fatal(err)
+		log.Error(err)
 	}
 	c.JSON(200, queues)
 }
@@ -21,7 +21,7 @@ func workerPoolsHandler(c *gin.Context) {
 
 	resp, err := client.WorkerPoolHeartbeats()
 	if err != nil {
-		log.Fatal(err)
+		log.Error(err)
 	}
 	c.JSON(200, resp)
 }
@@ -31,7 +31,7 @@ func workerBusyHandler(c *gin.Context) {
 
 	observations, err := client.WorkerObservations()
 	if err != nil {
-		log.Fatal(err)
+		log.Error(err)
 	}
 
 	var busyObservations []*work.WorkerObservation

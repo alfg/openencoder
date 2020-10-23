@@ -10,7 +10,11 @@ import (
 // Download downloads a job source based on the driver setting.
 func Download(job types.Job) error {
 	db := data.New()
-	driver := db.Settings.GetSetting(types.StorageDriver).Value
+	setting, err := db.Settings.GetSetting(types.StorageDriver)
+	if err != nil {
+		return err
+	}
+	driver := setting.Value
 
 	if driver == "s3" {
 		if err := s3Download(job); err != nil {
@@ -81,9 +85,11 @@ func s3Download(job types.Job) error {
 // FTPDownload sets the FTP download function.
 func ftpDownload(job types.Job) error {
 	db := data.New()
-	addr := db.Settings.GetSetting(types.FTPAddr).Value
-	user := db.Settings.GetSetting(types.FTPUsername).Value
-	pass := db.Settings.GetSetting(types.FTPPassword).Value
+	settings := db.Settings.GetSettings()
+
+	addr := types.GetSetting(types.FTPAddr, settings)
+	user := types.GetSetting(types.FTPUsername, settings)
+	pass := types.GetSetting(types.FTPPassword, settings)
 
 	f := NewFTP(addr, user, pass)
 	err := f.Download(job)

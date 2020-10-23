@@ -51,7 +51,7 @@ func (j JobsOp) GetJobs(offset, count int) *[]types.Job {
 	jobs := []types.Job{}
 	err := db.Select(&jobs, query, count, offset)
 	if err != nil {
-		log.Fatal(err)
+		log.Warn(err)
 	}
 	db.Close()
 	return &jobs
@@ -76,7 +76,7 @@ func (j JobsOp) GetJobByID(id int64) (*types.Job, error) {
 	job := types.Job{}
 	err := db.Get(&job, query, id)
 	if err != nil {
-		log.Fatal(err)
+		log.Warn(err)
 		return &job, err
 	}
 	db.Close()
@@ -102,7 +102,7 @@ func (j JobsOp) GetJobByGUID(id string) (*types.Job, error) {
 	job := types.Job{}
 	err := db.Get(&job, query, id)
 	if err != nil {
-		log.Fatal(err)
+		log.Warn(err)
 		return &job, err
 	}
 	db.Close()
@@ -121,7 +121,7 @@ func (j JobsOp) GetJobStatusByID(id int64) (string, error) {
 	db, _ := ConnectDB()
 	err := db.Get(&status, query, id)
 	if err != nil {
-		log.Fatal(err)
+		log.Error(err)
 	}
 	db.Close()
 	return status, nil
@@ -139,7 +139,7 @@ func (j JobsOp) GetJobStatusByGUID(guid string) (string, error) {
 	db, _ := ConnectDB()
 	err := db.Get(&status, query, guid)
 	if err != nil {
-		log.Fatal(err)
+		log.Error(err)
 	}
 	db.Close()
 	return status, nil
@@ -153,7 +153,7 @@ func (j JobsOp) GetJobsCount() int {
 	db, _ := ConnectDB()
 	err := db.Get(&count, query)
 	if err != nil {
-		log.Fatal(err)
+		log.Error(err)
 	}
 	db.Close()
 	return count
@@ -173,7 +173,7 @@ func (j JobsOp) GetJobsStats() (*[]Stats, error) {
 	db, _ := ConnectDB()
 	err := db.Select(&s, query)
 	if err != nil {
-		log.Fatal(err)
+		log.Error(err)
 		return &s, err
 	}
 	db.Close()
@@ -207,13 +207,13 @@ func (j JobsOp) CreateJob(job types.Job) *types.Job {
 	tx := db.MustBegin()
 	stmt, err := tx.PrepareNamed(query)
 	if err != nil {
-		log.Fatal(err.Error())
+		log.Error(err.Error())
 	}
 
 	var id int64 // Returned ID.
 	err = stmt.QueryRowx(&job).Scan(&id)
 	if err != nil {
-		log.Fatal(err.Error())
+		log.Error(err.Error())
 	}
 	tx.Commit()
 
@@ -236,13 +236,13 @@ func (j JobsOp) CreateEncode(ed types.Encode) *types.Encode {
 	tx := db.MustBegin()
 	stmt, err := tx.PrepareNamed(query)
 	if err != nil {
-		log.Fatal(err.Error())
+		log.Error(err.Error())
 	}
 
 	var id int64 // Returned ID.
 	err = stmt.QueryRowx(&ed).Scan(&id)
 	if err != nil {
-		log.Fatal(err.Error())
+		log.Error(err.Error())
 	}
 	tx.Commit()
 
@@ -261,7 +261,7 @@ func (j JobsOp) UpdateEncodeProbeByID(id int64, jsonString string) error {
 	tx := db.MustBegin()
 	_, err := tx.Exec(query, jsonString, id)
 	if err != nil {
-		log.Fatal(err)
+		log.Error(err)
 		return err
 	}
 	tx.Commit()
@@ -278,7 +278,7 @@ func (j JobsOp) UpdateEncodeOptionsByID(id int64, options string) error {
 	tx := db.MustBegin()
 	_, err := tx.Exec(query, options, id)
 	if err != nil {
-		log.Fatal(err)
+		log.Error(err)
 		return err
 	}
 	tx.Commit()
@@ -295,7 +295,7 @@ func (j JobsOp) UpdateTransferProgressByID(id int64, progress float64) error {
 	tx := db.MustBegin()
 	_, err := tx.Exec(query, progress, id)
 	if err != nil {
-		log.Fatal(err)
+		log.Error(err)
 		return err
 	}
 	tx.Commit()
@@ -315,7 +315,7 @@ func (j JobsOp) UpdateEncodeProgressByID(id int64, progress float64, speed strin
 	tx := db.MustBegin()
 	_, err := tx.Exec(query, progress, speed, fps, id)
 	if err != nil {
-		log.Fatal(err)
+		log.Error(err)
 		return err
 	}
 	tx.Commit()
@@ -332,7 +332,7 @@ func (j JobsOp) UpdateJobByID(id int, job types.Job) *types.Job {
 	tx := db.MustBegin()
 	_, err := tx.NamedExec(query, &job)
 	if err != nil {
-		log.Fatal(err)
+		log.Error(err)
 	}
 	tx.Commit()
 
@@ -348,7 +348,7 @@ func (j JobsOp) UpdateJobStatusByID(id int, status string) error {
 	tx := db.MustBegin()
 	_, err := tx.Exec(query, status, id)
 	if err != nil {
-		log.Fatal(err)
+		log.Error(err)
 		return err
 	}
 	tx.Commit()
@@ -365,7 +365,7 @@ func (j JobsOp) UpdateJobStatusByGUID(guid string, status string) error {
 	tx := db.MustBegin()
 	_, err := tx.Exec(query, status, guid)
 	if err != nil {
-		log.Fatal(err)
+		log.Error(err)
 		return err
 	}
 	tx.Commit()

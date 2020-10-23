@@ -15,7 +15,7 @@ type createPresetRequest struct {
 	Description string `json:"description" binding:"required"`
 	Output      string `json:"output" binding:"required"`
 	Data        string `json:"data" binding:"required"`
-	Active      *bool  `json:"active" binding:"exists"`
+	Active      *bool  `json:"active" binding:"required"`
 }
 
 type presetUpdateRequest struct {
@@ -23,7 +23,7 @@ type presetUpdateRequest struct {
 	Description string `json:"description" binding:"required"`
 	Output      string `json:"output" binding:"required"`
 	Data        string `json:"data" binding:"required"`
-	Active      *bool  `json:"active" binding:"exists"`
+	Active      *bool  `json:"active" binding:"required"`
 }
 
 func createPresetHandler(c *gin.Context) {
@@ -54,7 +54,7 @@ func createPresetHandler(c *gin.Context) {
 	db := data.New()
 	created, err := db.Presets.CreatePreset(preset)
 	if err != nil {
-		log.Fatal(err)
+		log.Error(err)
 	}
 
 	// Create response.

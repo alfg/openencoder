@@ -11,7 +11,7 @@ import (
 
 // Settings represents the Settings database operations.
 type Settings interface {
-	GetSetting(key string) types.Setting
+	GetSetting(key string) (*types.Setting, error)
 	GetSettings() []types.Setting
 	GetSettingsOptions() []types.SettingsOption
 	CreateSetting(setting types.Setting) *types.Setting
@@ -29,7 +29,7 @@ type SettingsOp struct {
 var _ Settings = &SettingsOp{}
 
 // GetSetting Gets a setting.
-func (s SettingsOp) GetSetting(key string) types.Setting {
+func (s SettingsOp) GetSetting(key string) (*types.Setting, error) {
 	const query = `
 	  SELECT
         settings.*,
@@ -47,7 +47,8 @@ func (s SettingsOp) GetSetting(key string) types.Setting {
 	setting := types.Setting{}
 	err := db.Get(&setting, query, key)
 	if err != nil {
-		log.Fatal(err)
+		log.Error(err)
+		return nil, err
 	}
 	db.Close()
 
@@ -56,7 +57,7 @@ func (s SettingsOp) GetSetting(key string) types.Setting {
 		plaintext, _ := helpers.Decrypt(enc, config.Keyseed())
 		setting.Value = string(plaintext)
 	}
-	return setting
+	return &setting, nil
 }
 
 // GetSettings Gets settings.
@@ -77,7 +78,7 @@ func (s SettingsOp) GetSettings() []types.Setting {
 	settings := []types.Setting{}
 	err := db.Select(&settings, query)
 	if err != nil {
-		log.Fatal(err)
+		log.Error(err)
 	}
 	db.Close()
 
@@ -99,7 +100,7 @@ func (s SettingsOp) GetSettingsOptions() []types.SettingsOption {
 	options := []types.SettingsOption{}
 	err := db.Select(&options, query)
 	if err != nil {
-		log.Fatal(err)
+		log.Error(err)
 	}
 	db.Close()
 	return options
@@ -117,13 +118,13 @@ func (s SettingsOp) CreateSetting(setting types.Setting) *types.Setting {
 	tx := db.MustBegin()
 	stmt, err := tx.PrepareNamed(query)
 	if err != nil {
-		log.Fatal(err.Error())
+		log.Error(err.Error())
 	}
 
 	var id int64 // Returned ID.
 	err = stmt.QueryRowx(&setting).Scan(&id)
 	if err != nil {
-		log.Fatal(err.Error())
+		log.Error(err.Error())
 	}
 	tx.Commit()
 
@@ -181,7 +182,7 @@ func (s SettingsOp) UpdateSetting(setting types.Setting) *types.Setting {
 	tx := db.MustBegin()
 	_, err := tx.NamedExec(query, &setting)
 	if err != nil {
-		log.Fatal(err)
+		log.Error(err)
 	}
 	tx.Commit()
 
@@ -201,7 +202,7 @@ func (s SettingsOp) SettingExists(optionID int64) bool {
 	db, _ := ConnectDB()
 	err := db.QueryRow(query, optionID).Scan(&exists)
 	if err != nil {
-		log.Fatal(err)
+		log.Error(err)
 	}
 	db.Close()
 	return exists

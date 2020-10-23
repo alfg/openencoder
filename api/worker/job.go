@@ -162,12 +162,15 @@ func sendAlert(job types.Job) error {
 	log.Info("sending alert")
 
 	db := data.New()
-	webhook := db.Settings.GetSetting(types.SlackWebhook).Value
+	webhook, err := db.Settings.GetSetting(types.SlackWebhook)
+	if err != nil {
+		return err
+	}
 
 	// Only send Slack alert if configured.
-	if webhook != "" {
+	if webhook.Value != "" {
 		message := fmt.Sprintf(AlertMessageFormat, job.GUID, job.Preset, job.Source, job.Destination)
-		err := notify.SendSlackMessage(webhook, message)
+		err := notify.SendSlackMessage(webhook.Value, message)
 		if err != nil {
 			return err
 		}
@@ -181,12 +184,21 @@ func runEncodeJob(job types.Job) {
 		config.Get().WorkDirectory, job.Source, job.GUID)
 
 	db := data.New()
-	storageDriver := db.Settings.GetSetting(types.StorageDriver).Value
+	storageDriver, err := db.Settings.GetSetting(types.StorageDriver)
+	if err != nil {
+		log.Error(err)
+		return
+	}
 
 	// If STREAMING setting is enabled, get a presigned URL and update
 	// the job.Source.
-	s3Streaming := db.Settings.GetSetting(types.S3Streaming).Value
-	if s3Streaming == "enabled" && storageDriver == "s3" {
+	s3Streaming, err := db.Settings.GetSetting(types.S3Streaming)
+	if err != nil {
+		log.Error(err)
+		return
+	}
+
+	if s3Streaming.Value == "enabled" && storageDriver.Value == "s3" {
 		// 1a. Get presigned URL.
 		presigned, err := generatePresignedURL(job)
 		if err != nil {
@@ -200,7 +212,7 @@ func runEncodeJob(job types.Job) {
 
 	} else {
 		// 1b. Download.
-		err := download(job, storageDriver)
+		err := download(job, storageDriver.Value)
 		if err != nil {
 			log.Error(err)
 			db.Jobs.UpdateJobStatusByGUID(job.GUID, types.JobError)
@@ -213,7 +225,6 @@ func runEncodeJob(job types.Job) {
 	// 2. Probe data.
 	probeData, err := probe(job)
 	if err != nil {
-		fmt.Println(err)
 		log.Error(err)
 		db.Jobs.UpdateJobStatusByGUID(job.GUID, types.JobError)
 		return
