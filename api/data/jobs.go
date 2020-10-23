@@ -1,8 +1,6 @@
 package data
 
 import (
-	"fmt"
-
 	"github.com/alfg/openencoder/api/types"
 )
 
@@ -175,8 +173,6 @@ func (j JobsOp) GetJobsStats() (*[]Stats, error) {
 	db, _ := ConnectDB()
 	err := db.Select(&s, query)
 	if err != nil {
-		fmt.Println("STATS")
-
 		log.Error(err)
 		return &s, err
 	}

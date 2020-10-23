@@ -225,7 +225,6 @@ func runEncodeJob(job types.Job) {
 	// 2. Probe data.
 	probeData, err := probe(job)
 	if err != nil {
-		fmt.Println(err)
 		log.Error(err)
 		db.Jobs.UpdateJobStatusByGUID(job.GUID, types.JobError)
 		return
