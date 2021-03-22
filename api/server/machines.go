@@ -75,7 +75,7 @@ func createMachineHandler(c *gin.Context) {
 	settings := db.Settings.GetSettings()
 
 	token := types.GetSetting(types.DigitalOceanAccessToken, settings)
-	region := types.GetSetting(types.DigitalOceanAccessToken, settings)
+	region := types.GetSetting(types.DigitalOceanRegion, settings)
 	vpc := types.GetSetting(types.DigitalOceanAccessToken, settings)
 
 	client, _ := machine.NewDigitalOceanClient(token)
@@ -195,7 +195,7 @@ func listMachineRegionsHandler(c *gin.Context) {
 	settings := db.Settings.GetSettings()
 
 	token := types.GetSetting(types.DigitalOceanAccessToken, settings)
-	region := types.GetSetting(types.DigitalOceanAccessToken, settings)
+	region := types.GetSetting(types.DigitalOceanRegion, settings)
 	client, _ := machine.NewDigitalOceanClient(token)
 	ctx := context.TODO()
 
