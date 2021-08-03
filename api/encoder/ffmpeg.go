@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"os/exec"
 	"strconv"
@@ -44,33 +45,66 @@ type ffmpegOptions struct {
 	Input  string
 	Output string
 
-	Container string       `json:"container"`
-	Video     videoOptions `json:"video"`
-	Audio     audioOptions `json:"audio"`
+	Format formatOptions `json:"format"`
+	Video  videoOptions  `json:"video"`
+	Audio  audioOptions  `json:"audio"`
+	Filter filterOptions `json:"filter"`
 
 	Raw []string `json:"raw"` // Raw flag options.
 }
 
+type formatOptions struct {
+	Container string `json:"container"`
+	Clip      bool   `json:"clip"`
+	StartTime string `json:"startTime"`
+	StopTime  string `json:"stopTime"`
+}
+
 type videoOptions struct {
-	Codec                string `json:"codec"`
-	Preset               string `json:"preset"`
-	HardwareAcceleration string `json:"hardware_acceleration_option"`
-	Pass                 string `json:"pass"`
-	Crf                  int    `json:"crf"`
-	Bitrate              string `json:"bitrate"`
-	MinRate              string `json:"minrate"`
-	MaxRate              string `json:"maxrate"`
-	BufSize              string `json:"bufsize"`
-	PixelFormat          string `json:"pixel_format"`
-	FrameRate            string `json:"frame_rate"`
-	Speed                string `json:"speed"`
-	Tune                 string `json:"tune"`
-	Profile              string `json:"profile"`
-	Level                string `json:"level"`
+	Codec        string `json:"codec"`
+	Preset       string `json:"preset"`
+	Pass         string `json:"pass"`
+	Crf          int    `json:"crf"`
+	Bitrate      string `json:"bitrate"`
+	MinRate      string `json:"minrate"`
+	MaxRate      string `json:"maxrate"`
+	BufSize      string `json:"bufsize"`
+	PixelFormat  string `json:"pixel_format"`
+	FrameRate    string `json:"frame_rate"`
+	Speed        string `json:"speed"`
+	Tune         string `json:"tune"`
+	Profile      string `json:"profile"`
+	Level        string `json:"level"`
+	FastStart    bool   `json:"faststart"`
+	Size         string `json:"size"`
+	Width        string `json:"width"`
+	Height       string `json:"height"`
+	Format       string `json:"format"`
+	Aspect       string `json:"aspect"`
+	Scaling      string `json:"scaling"`
+	CodecOptions string `json:"codec_options"`
 }
 
 type audioOptions struct {
-	Codec string
+	Codec      string `json:"codec"`
+	Channel    string `json:"channel"`
+	Quality    string `json:"quality"`
+	SampleRate string `json:"sample_rate"`
+	Volume     string `json:"volume"`
+}
+
+type filterOptions struct {
+	Deband      bool   `json:"deband"`
+	Deshake     bool   `json:"deshake"`
+	Deflicker   bool   `json:"deflicker"`
+	Dejudder    bool   `json:"dejudder"`
+	Denoise     string `json:"denoise"`
+	Deinterlace string `json:"deinterlace"`
+	Brightness  string `json:"brightness"`
+	Contrast    string `json:"contrast"`
+	Saturation  string `json:"saturation"`
+	Gamma       string `json:"gamma"`
+	Acontrast   string `json:"acontrast"`
 }
 
 // Run runs the ffmpeg encoder with options.
@@ -87,7 +121,10 @@ func (f *FFmpeg) Run(input, output, data string) error {
 	// Capture stderr (if any).
 	var stderr bytes.Buffer
 	f.cmd.Stderr = &stderr
-	f.cmd.Start()
+	err := f.cmd.Start()
+	if err != nil {
+		return err
+	}
 
 	// Send progress updates.
 	go f.trackProgress()
@@ -95,7 +132,7 @@ func (f *FFmpeg) Run(input, output, data string) error {
 	// Update progress struct.
 	f.updateProgress(stdout)
 
-	err := f.cmd.Wait()
+	err = f.cmd.Wait()
 	if err != nil {
 		if f.isCancelled {
 			return errors.New("cancelled")
@@ -221,130 +258,305 @@ func parseOptions(input, output, data string) []string {
 	// Set options from struct.
 	args = append(args, transformOptions(options)...)
 
+	// Set 2 pass output if option is set.
+	if options.Video.Pass == "2" {
+		args = append(args, set2Pass(&args)...)
+	}
+
 	// Add output arg last.
 	args = append(args, output)
 	return args
 }
+func setFormatFlags(opt formatOptions) []string {
+	args := []string{}
 
-// transformOptions converts the ffmpegOptions{} struct and converts into
-// a slice of ffmpeg options to be passed to exec.Command arguments.
-//
-// NOTE: There is probably a better way of iterating the struct fields and values
-// using reflect, but there are some tricky ffmpeg options here, such as video filters.
-// TODO: Look into refactor using reflect. Example:
-//   fields := reflect.TypeOf(opt)
-//   values := reflect.ValueOf(opt)
-func transformOptions(opt *ffmpegOptions) []string {
+	if opt.StartTime != "" {
+		arg := []string{"-ss", opt.StartTime}
+		args = append(args, arg...)
+	}
+
+	if opt.StopTime != "" {
+		arg := []string{"-to", opt.StopTime}
+		args = append(args, arg...)
+	}
+
+	return args
+}
+
+func setVideoFlags(opt videoOptions) []string {
 	args := []string{}
 
 	// Video codec.
-	if opt.Video.Codec != "" {
-		arg := []string{"-c:v", opt.Video.Codec}
-		args = append(args, arg...)
-	}
-
-	// Audio codec.
-	if opt.Audio.Codec != "" {
-		arg := []string{"-c:a", opt.Audio.Codec}
-		args = append(args, arg...)
+	if opt.Codec != "" {
+		args = append(args, []string{"-c:v", opt.Codec}...)
 	}
 
 	// Video preset.
-	if opt.Video.Preset != "" && opt.Video.Preset != "none" {
-		arg := []string{"-preset", opt.Video.Preset}
-		args = append(args, arg...)
-	}
-
-	// Hardware Acceleration.
-	if opt.Video.HardwareAcceleration == "nvenc" {
-		// Replace encoder with NVidia hardware accelerated encoder.
-		for i := 0; i < len(args); i++ {
-			if args[i] == "libx264" {
-				args[i] = "h264_nvenc"
-			} else if args[i] == "libx265" {
-				args[i] = "hevc_nvenc"
-			}
-		}
-	} else if opt.Video.HardwareAcceleration != "off" {
-		arg := []string{"-hwaccel", opt.Video.HardwareAcceleration}
-		args = append(args, arg...)
+	if opt.Preset != "" && opt.Preset != "none" {
+		args = append(args, []string{"-preset", opt.Preset}...)
 	}
 
 	// CRF.
-	if opt.Video.Crf != 0 && opt.Video.Pass == "crf" {
-		crf := strconv.Itoa(opt.Video.Crf)
-		arg := []string{"-crf", crf}
-		args = append(args, arg...)
+	if opt.Crf != 0 && opt.Pass == "crf" {
+		crf := strconv.Itoa(opt.Crf)
+		args = append(args, []string{"-crf", crf}...)
+	}
+
+	// Faststart.
+	if opt.FastStart {
+		args = append(args, []string{"-movflags", "faststart"}...)
 	}
 
 	// Bitrate.
-	if opt.Video.Bitrate != "" && opt.Video.Bitrate != "0" {
-		arg := []string{"-b:v", opt.Video.Bitrate}
-		args = append(args, arg...)
+	if opt.Bitrate != "" && opt.Bitrate != "0" {
+		args = append(args, []string{"-b:v", opt.Bitrate}...)
 	}
 
 	// Minrate.
-	if opt.Video.MinRate != "" && opt.Video.MinRate != "0" {
-		arg := []string{"-minrate", opt.Video.MinRate}
-		args = append(args, arg...)
+	if opt.MinRate != "" && opt.MinRate != "0" {
+		args = append(args, []string{"-minrate", opt.MinRate}...)
 	}
 
 	// Maxrate.
-	if opt.Video.MaxRate != "" && opt.Video.MaxRate != "0" {
-		arg := []string{"-maxrate", opt.Video.MaxRate}
-		args = append(args, arg...)
+	if opt.MaxRate != "" && opt.MaxRate != "0" {
+		args = append(args, []string{"-maxrate", opt.MaxRate}...)
 	}
 
 	// Buffer Size.
-	if opt.Video.BufSize != "" && opt.Video.BufSize != "0" {
-		arg := []string{"-bufsize", opt.Video.BufSize}
-		args = append(args, arg...)
+	if opt.BufSize != "" && opt.BufSize != "0" {
+		args = append(args, []string{"-bufsize", opt.BufSize}...)
 	}
 
 	// Pixel Format.
-	if opt.Video.PixelFormat != "" && opt.Video.PixelFormat != "auto" {
-		arg := []string{"-pix_fmt", opt.Video.PixelFormat}
-		args = append(args, arg...)
+	if opt.PixelFormat != "" && opt.PixelFormat != "auto" {
+		args = append(args, []string{"-pix_fmt", opt.PixelFormat}...)
 	}
 
 	// Frame Rate.
-	if opt.Video.FrameRate != "" && opt.Video.PixelFormat != "auto" {
-		arg := []string{"-r", opt.Video.FrameRate}
-		args = append(args, arg...)
+	if opt.FrameRate != "" && opt.PixelFormat != "auto" {
+		args = append(args, []string{"-r", opt.FrameRate}...)
 	}
 
 	// Tune.
-	if opt.Video.Tune != "" && opt.Video.Tune != "none" {
-		arg := []string{"-tune", opt.Video.Tune}
-		args = append(args, arg...)
+	if opt.Tune != "" && opt.Tune != "none" {
+		args = append(args, []string{"-tune", opt.Tune}...)
 	}
 
 	// Profile.
-	if opt.Video.Profile != "" && opt.Video.Profile != "none" {
-		arg := []string{"-profile:v", opt.Video.Profile}
-		args = append(args, arg...)
+	if opt.Profile != "" && opt.Profile != "none" {
+		args = append(args, []string{"-profile:v", opt.Profile}...)
 	}
 
 	// Level.
-	if opt.Video.Level != "" && opt.Video.Level != "none" {
-		arg := []string{"-level", opt.Video.Level}
+	if opt.Level != "" && opt.Level != "none" {
+		args = append(args, []string{"-level", opt.Level}...)
+	}
+
+	// Codec params.
+	if opt.CodecOptions != "" && (opt.Codec == "libx264" || opt.Codec == "libx265") {
+		p := strings.Replace(opt.Codec, "lib", "", 1)
+		args = append(args, []string{"-" + p + "-params", opt.CodecOptions}...)
+	}
+
+	return args
+}
+
+func setVideoFilters(vopt videoOptions, opt filterOptions) string {
+	args := []string{}
+
+	// Speed.
+	if vopt.Speed != "" && vopt.Speed != "auto" {
+		args = append(args, []string{"setpts=" + vopt.Speed}...)
+	}
+
+	// Scale.
+	scaleFilters := []string{}
+	if vopt.Size != "" && vopt.Size != "source" {
+		var arg string
+		if vopt.Size == "custom" {
+			arg = "scale=" + vopt.Width + ":" + vopt.Height
+		} else if vopt.Format == "widescreen" {
+			arg = "scale=" + vopt.Size + ":-1"
+		} else {
+			arg = "scale=-1:" + vopt.Size
+		}
+		scaleFilters = append(scaleFilters, arg)
+	}
+
+	if vopt.Scaling != "" && vopt.Scaling != "auto" {
+		arg := "flags=" + vopt.Scaling
+		scaleFilters = append(scaleFilters, arg)
+	}
+
+	// Add scale filters to vf flags if provided.
+	if len(scaleFilters) > 0 {
+		scaleFiltersStr := strings.Join(scaleFilters, ":")
+		args = append(args, scaleFiltersStr)
+	}
+
+	// More filters.
+	if opt.Deband {
+		args = append(args, "deband")
+	}
+
+	if opt.Deshake {
+		args = append(args, "deshake")
+	}
+
+	if opt.Deflicker {
+		args = append(args, "deflicker")
+	}
+
+	if opt.Dejudder {
+		args = append(args, "dejudder")
+	}
+
+	if opt.Denoise != "none" {
+		var arg string
+
+		switch opt.Denoise {
+		case "light":
+			arg = "removegrain=22"
+		case "medium":
+			arg = "vaguedenoiser=threshold=3:method=soft:nsteps=5"
+		case "heavy":
+			arg = "vaguedenoiser=threshold=6:method=soft:nsteps=5"
+		default:
+			arg = "removegrain=0"
+		}
+		args = append(args, arg)
+	}
+
+	if opt.Deinterlace != "none" {
+		var arg string
+
+		switch opt.Deinterlace {
+		case "frame":
+			arg = "yadif=0:-1:0"
+		case "field":
+			arg = "yadif=1:-1:0"
+		case "frame_nospatial":
+			arg = "yadif=2:-1:0"
+		case "field_nospatial":
+			arg = "yadif=3:-1:0"
+		}
+		args = append(args, arg)
+	}
+
+	// EQ filters.
+	eq := []string{}
+
+	if opt.Contrast != "" && opt.Contrast != "1" {
+		eq = append(eq, []string{"contrast=" + opt.Contrast}...)
+	}
+
+	if opt.Brightness != "" && opt.Brightness != "0" {
+		eq = append(eq, []string{"brightness=" + opt.Brightness}...)
+	}
+
+	if opt.Saturation != "" && opt.Saturation != "0" {
+		eq = append(eq, []string{"saturation=" + opt.Saturation}...)
+	}
+
+	if opt.Gamma != "" && opt.Gamma != "0" {
+		eq = append(eq, []string{"gamma=" + opt.Gamma}...)
+	}
+
+	if len(eq) > 0 {
+		eqStr := strings.Join(eq, ":")
+		args = append(args, []string{"eq=" + eqStr}...)
+	}
+
+	argsStr := strings.Join(args, ",")
+	return argsStr
+}
+
+func setAudioFlags(opt audioOptions) []string {
+	args := []string{}
+
+	// Audio codec.
+	if opt.Codec != "" {
+		args = append(args, []string{"-c:a", opt.Codec}...)
+	}
+
+	// Channel.
+	if opt.Channel != "" && opt.Channel != "source" {
+		args = append(args, []string{"-rematrix_maxval", "1.0", "-ac", opt.Channel}...)
+	}
+
+	// Bitrate.
+	if opt.Quality != "" && opt.Quality != "auto" {
+		args = append(args, []string{"-b:a", opt.Quality}...)
+	}
+
+	// Sample rate.
+	if opt.SampleRate != "" && opt.SampleRate != "auto" {
+		args = append(args, []string{"-ar", opt.SampleRate}...)
+	}
+
+	return args
+}
+
+func setAudioFilters(opt audioOptions, filter filterOptions) string {
+	args := []string{}
+
+	if opt.Volume != "" && opt.Volume != "100" {
+		v, _ := strconv.ParseFloat(opt.Volume, 64)
+		args = append(args, []string{"volume=" + fmt.Sprintf("%.2f", v/100)}...)
+	}
+
+	if filter.Acontrast != "" && filter.Acontrast != "33" {
+		a, _ := strconv.ParseFloat(filter.Acontrast, 64)
+		args = append(args, []string{"acontrast=" + fmt.Sprintf("%.2f", a/100)}...)
+	}
+
+	argsStr := strings.Join(args, ",")
+	return argsStr
+}
+
+func set2Pass(args *[]string) []string {
+	op := "NUL &&" // Windows.
+	cpy := make([]string, len(*args))
+	copy(cpy, *args)
+
+	*args = append(*args, []string{"-pass 1", "-f null", op}...)
+	cpy = append([]string{"ffmpeg"}, cpy...)
+	cpy = append(cpy, []string{"-pass 2"}...)
+
+	return cpy
+}
+
+// transformOptions converts the ffmpegOptions{} struct and converts into
+// a slice of ffmpeg options to be passed to exec.Command arguments.
+func transformOptions(opt *ffmpegOptions) []string {
+	args := []string{}
+
+	// Set format flags if clip options are set.
+	if opt.Format.Clip {
+		arg := setFormatFlags(opt.Format)
 		args = append(args, arg...)
 	}
 
+	// Video flags.
+	args = append(args, setVideoFlags(opt.Video)...)
+
 	// Video Filters.
-	vf := []string{"-vf", "\""}
-
-	// Speed.
-	if opt.Video.Speed != "" && opt.Video.Speed != "auto" {
-		arg := "setpts=" + opt.Video.Speed
-		vf = append(vf, arg)
-	}
-
-	vf = append(vf, "\"") // End of video filters.
+	vf := []string{"-vf", setVideoFilters(opt.Video, opt.Filter)}
 
 	// Only push -vf flag if there are video filter arguments.
-	if len(vf) > 3 {
+	if vf[1] != "" {
 		args = append(args, vf...)
+	}
+
+	// Audio flags.
+	args = append(args, setAudioFlags(opt.Audio)...)
+
+	// Audio filters.
+	af := []string{"-af", setAudioFilters(opt.Audio, opt.Filter)}
+
+	// Only push -af flag if there are audio filter arguments.
+	if af[1] != "" {
+		args = append(args, af...)
 	}
 
 	extra := []string{

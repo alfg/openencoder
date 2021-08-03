@@ -65,13 +65,13 @@ import api from '../api';
 
 const tmpl = `
 {
-  "input": "tears-of-steel.mp4",
-  "output": "tears-of-steel.out.mp4",
-  "container": "mp4",
+  "format": {
+    "container": "mp4",
+    "clip": false
+  },
   "video": {
-    "codec": "x264",
+    "codec": "libx264",
     "preset": "none",
-    "hardware_acceleration_option": "off",
     "pass": "1",
     "crf": 23,
     "bitrate": "3000k",
@@ -83,10 +83,35 @@ const tmpl = `
     "speed": "auto",
     "tune": "none",
     "profile": "none",
-    "level": "none"
+    "level": "none",
+    "faststart": false,
+    "size": "source",
+    "width": "1080",
+    "height": "1920",
+    "format": "widescreen",
+    "aspect": "auto",
+    "scaling": "auto",
+    "codec_options": ""
   },
   "audio": {
-    "codec": "copy"
+    "codec": "copy",
+    "channel": "source",
+    "quality": "auto",
+    "sampleRate": "auto",
+    "volume": "100"
+  },
+  "filter": {
+    "deband": false,
+    "deshake": false,
+    "deflicker": false,
+    "dejudder": false,
+    "denoise": "none",
+    "deinterlace": "none",
+    "brightness": "0",
+    "contrast": "1",
+    "saturation": "0",
+    "gamma": "0",
+    "acontrast": "33"
   }
 }
 `;
