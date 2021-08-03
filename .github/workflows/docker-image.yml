@@ -1,18 +1,52 @@
-name: Docker Image Push
+# name: Docker Image Push
+
+# on:
+#   release:
+#     types: [created]
+
+# jobs:
+#   build:
+#     runs-on: ubuntu-latest
+#     steps:
+#     - uses: actions/checkout@master
+#     - name: Build the Docker image
+#       run: |
+#         docker build --build-arg BUILD_VERSION=${GITHUB_REF/refs\/tags\//} . --file Dockerfile --tag openencoder:latest
+#         docker tag openencoder alfg/openencoder:latest
+#         docker login docker.pkg.github.com --username alfg --password ${{ secrets.TOKEN }}
+#         docker tag openencoder docker.pkg.github.com/alfg/openencoder/openencoder:${GITHUB_REF/refs\/tags\//}
+#         docker push docker.pkg.github.com/alfg/openencoder/openencoder:${GITHUB_REF/refs\/tags\//}
+
+name: Publish Docker image
 
 on:
   release:
-    types: [created]
+    types: [published]
 
 jobs:
-  build:
+  push_to_registry:
+    name: Push Docker image to Docker Hub
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@master
-    - name: Build the Docker image
-      run: |
-        docker build --build-arg BUILD_VERSION=${GITHUB_REF/refs\/tags\//} . --file Dockerfile --tag openencoder:latest
-        docker tag openencoder alfg/openencoder:latest
-        docker login docker.pkg.github.com --username alfg --password ${{ secrets.TOKEN }}
-        docker tag openencoder docker.pkg.github.com/alfg/openencoder/openencoder:${GITHUB_REF/refs\/tags\//}
-        docker push docker.pkg.github.com/alfg/openencoder/openencoder:${GITHUB_REF/refs\/tags\//}
+      - name: Check out the repo
+        uses: actions/checkout@v2
+      
+      - name: Log in to Docker Hub
+        uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+      
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
+        with:
+          images: alfg/openencoder
+      
+      - name: Build and push Docker image
+        uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
